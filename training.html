@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>التدريب — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1124123349">
+<link rel="stylesheet" href="forms.css?v=1124123349">
+<style>
+/* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
+   multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
+   page-linked modules and the weighted evaluation of the old design are gone. */
+.pl{display:grid;gap:8px;margin-top:12px}
+.pr{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:16px;align-items:center;padding:12px 16px;background:var(--card);border-radius:16px}
+.pr.draft .pi,.pr.draft .tx{opacity:.6}
+.pi{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#DFF1F5;color:#08707F}
+.pi.op{background:#FDE9DD;color:#B4480F}
+.pi.ex{background:#EEEEEC;color:#383837}
+[data-theme="dark"] .pi{background:rgba(10,139,160,.22);color:#7FD6E4}
+[data-theme="dark"] .pi.op{background:rgba(242,107,33,.2);color:#FFB68A}
+[data-theme="dark"] .pi.ex{background:rgba(255,255,255,.08);color:#E5E5E2}
+.pr .tx{min-width:0;display:grid;gap:2px}
+.pr b{font-weight:500}
+.pr .mt{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:var(--t-sm);color:var(--m)}
+.pr .pgx{min-width:170px}
+.pr .ac{display:flex;gap:6px;align-items:center}
+.pr .btn:not(.k){background:var(--sub)}
+.ib{width:30px;height:30px;border-radius:50%;border:0;background:var(--sub);color:var(--ink);display:grid;place-items:center;flex:none}
+.ib:hover{background:var(--hover)}.ib:disabled{opacity:.35}
+.pr .del{background:none!important;color:var(--m)}
+.pr .del:hover{color:#B3261E}
+/* window */
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.pgh{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.pgh h3{margin:0}
+.pgh em{font-style:normal;color:var(--m);font-size:var(--t-sm);margin-inline-start:8px}
+.pgr{display:grid;grid-template-columns:22px 170px minmax(0,1fr) minmax(0,1fr) 30px;gap:8px;align-items:center;margin-bottom:6px}
+.pgr.hd{font-size:var(--t-cap);color:var(--m);margin-bottom:2px}
+.pgr > b{font-family:"Alexandria",sans-serif;font-weight:500;color:var(--m);text-align:center}
+.vup{position:relative;display:flex;align-items:center;cursor:pointer;overflow:hidden;white-space:nowrap;color:var(--m)}
+.vup input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.vup span{overflow:hidden;text-overflow:ellipsis}
+.vup bdi{color:var(--ink)}
+.yt{display:flex;gap:6px;align-items:center;min-width:0}
+.yt .in{flex:1;min-width:0}
+.ytw .dr-b{grid-template-columns:minmax(0,1fr);gap:10px}
+.ytf{aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000}
+.ytf iframe{width:100%;height:100%;border:0;display:block}
+/* a person's test result in the people window: three fixed columns (score, attempts, the leader's decision) so the
+   rows line up like the «نتائج الموظفين» table (look 3 of 3, chosen by Mohamed 2026-11-24) */
+.rsx{display:grid;grid-template-columns:76px 86px 160px;gap:10px;align-items:center;justify-items:start}
+.rs-n b{font-family:"Alexandria",sans-serif;font-weight:500}
+.rs-try{color:var(--m);font-size:var(--t-cap);white-space:nowrap}
+.pge{color:var(--m);font-size:var(--t-sm);padding:2px 0 6px}
+/* questions (second pass, Mohamed 2026-11-24: «تحسينات هنا»). One full-width card per question, so no holes between
+   cards of different height; answers sit two per row as white fields; the right one is outlined in green and says so;
+   the remove marks are small and quiet; a dashed slot adds an answer, a dashed bar at the end adds a question. */
+.qg{display:grid;gap:10px}
+.qc{background:var(--sub);border-radius:16px;padding:10px 12px 12px;display:grid;gap:8px}
+.qc header{display:grid;grid-template-columns:28px minmax(0,1fr) 24px;gap:8px;align-items:center}
+.qn{width:28px;height:28px;border-radius:50%;background:var(--card);color:var(--teal);display:grid;place-items:center;font-family:"Alexandria",sans-serif;font-size:var(--t-sm);font-weight:500}
+.qc header .in{background:var(--card);font-weight:500}
+.qos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 10px;padding-inline:36px 32px}
+.qo{display:grid;grid-template-columns:20px minmax(0,1fr) auto 24px;gap:6px;align-items:center;background:var(--card);border-radius:12px;padding:0 6px 0 10px;border:1.5px solid transparent;min-height:38px}
+.qo:focus-within{border-color:var(--sea)}
+.qo .in{background:transparent!important;border:0!important;border-radius:0;padding:6px 0;box-shadow:none!important;outline:0;min-width:0}
+.qo input[type=radio]{width:17px;height:17px;accent-color:var(--sea);margin:0;justify-self:center;cursor:pointer}
+.qo em{font-style:normal;font-size:var(--t-cap);color:#08707F;white-space:nowrap}
+.qo.ok{border-color:var(--sea);background:#EEF8FA}
+[data-theme="dark"] .qo.ok{background:rgba(10,139,160,.18);border-color:#3FB3C6}
+[data-theme="dark"] .qo em{color:#7FD6E4}
+.xs{width:24px;height:24px;border:0;border-radius:50%;background:none;color:var(--m);display:grid;place-items:center;font-size:15px;line-height:1;cursor:pointer}
+.xs:hover{background:var(--hover);color:#B3261E}
+.qadd{border:1.5px dashed var(--line);border-radius:12px;background:none;color:var(--m);font:inherit;font-size:var(--t-sm);min-height:38px;padding:0 12px;text-align:start;cursor:pointer}
+.qadd:hover{border-color:var(--sea);color:var(--ink)}
+.qadd.big{min-height:44px;text-align:center;border-radius:16px}
+@media (max-width:760px){.qos{grid-template-columns:minmax(0,1fr);padding-inline:0}}
+@media (max-width:900px){.rs .sm4{grid-template-columns:1fr 1fr}.row3{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){.pr{grid-template-columns:auto minmax(0,1fr)}.pr .pgx,.pr .ac{grid-column:1/-1}.pr .ac{flex-wrap:wrap}.pgr{grid-template-columns:1fr 30px}.pgr > b,.pgr.hd{display:none}.pgr > :not(.ib):not(b){grid-column:1}.pgr > .ib{grid-row:1;grid-column:2}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">التدريب</h1><p>ما يظهر في «مركز التدريب» بالبوابة: اسم التدريب ووصفه، ملفاته وفيديوهاته، آخر موعد لإتمامه، أسئلته، ولمن يُوجَّه.</p></div><button class="btn k" data-form="prog">تدريب جديد</button></div>
+  <div class="seg" id="views" role="group" aria-label="العرض" style="margin-bottom:12px"></div>
+  <section class="card"><div class="bar" style="margin:0"><div class="seg" id="tabs" role="group" aria-label="نوع التدريب"></div><span class="sp"></span><select class="field" id="rt" aria-label="التدريب"></select><select class="field" id="rd" aria-label="قرار قائد الفريق"></select><input class="field" id="q" type="search" placeholder="ابحث باسم التدريب" aria-label="بحث"></div></section>
+  <div class="pl" id="list"></div>
+  <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار قائد الفريق</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
+  <p class="note" id="count"></p>
+</div>
+<script src="ui.js?v=1124123349"></script>
+<script src="forms.js?v=1124123349"></script>
+<script>
+var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
+    MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
+    UP='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
+    DOWN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
+SETS.prog=function(){return TRAIN};DEL.prog=["التدريب","سيُزال من «مركز التدريب» بالبوابة."];
+function at(n){return 'aria-label="'+n+'" placeholder="'+n+'"'}
+/* files come from the library only (Mohamed 2026-11-24: «لازم يكون ملف من المكتبه»); only a video may be uploaded here */
+function kindOf(m){return MK.indexOf(m.k)>-1?m.k:MK[0]}
+/* a YouTube link is never opened as a link: the portal plays it inside the training page in an iframe
+   (Mohamed 2026-11-24). ytId() reads the video id out of any of the usual link shapes. */
+function ytId(u){var m=/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/.exec(u||"");return m?m[1]:""}
+function ytPreview(m){var id=ytId(m.src),d=dlg("drawer md ytw");
+  d.innerHTML='<div class="dr-h"><h2>معاينة: '+esc(m.t||"فيديو يوتيوب")+'</h2><button type="button" class="xbtn" data-close aria-label="إغلاق" title="إغلاق">×</button></div><div class="dr-b">'+
+    '<div class="ytf"><iframe src="https://www.youtube-nocookie.com/embed/'+id+'" title="'+esc(m.t||"فيديو التدريب")+'" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>'+
+    '<p class="m" style="font-size:var(--t-sm)">هكذا يظهر الفيديو للموظف: مشغّل داخل صفحة التدريب، دون الخروج من البوابة.</p></div>'+
+    '<div class="dr-f"><button type="button" class="btn" data-close>إغلاق</button></div>';
+  d.addEventListener("close",function(){var f=d.querySelector("iframe");if(f)f.remove()},{once:true});
+  d.showModal()}
+function nfile(p){return p.mats.filter(function(m){return kindOf(m)===MK[0]}).length}
+function nvid(p){return p.mats.length-nfile(p)}
+function left(due){return Math.round((new Date(due)-new Date(TODAY))/864e5)}
+function srcFld(m){var k=kindOf(m),up=k===MK[2];
+  return up?'<label class="in vup"><input type="file" accept="video/mp4,video/webm" data-vf aria-label="'+k+'"><span>'+(m.vf?'<bdi dir="ltr">'+esc(m.vf)+'</bdi>':'اختيار ملف فيديو')+'</span></label>':
+    k===MK[0]?'<select class="in" data-k="f" aria-label="الملف"><option value="">— اختر من المكتبة —</option>'+DOCS.map(function(d){return '<option'+(d.n===m.f?' selected':'')+'>'+esc(d.n)+'</option>'}).join("")+'</select>':
+    '<span class="yt"><input class="in" data-k="src" value="'+esc(m.src)+'" dir="ltr" inputmode="url" '+at("رابط يوتيوب")+'><button type="button" class="ib" data-yt aria-label="معاينة المشغّل" title="معاينة المشغّل"'+(ytId(m.src)?'':' disabled')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg></button></span>'}
+FORMS.prog=function(src){
+  var isNew=!src,P=JSON.parse(JSON.stringify(src||{tab:KINDS[0],st:"مسودة",mats:[],qs:[]})),read=function(){},A=mkAudience(P.aud);
+  return {title:isNew?"تدريب جديد":"تعديل تدريب",saveLabel:"حفظ التدريب",isNew:isNew,steps:["التدريب","الملفات والفيديوهات","الأسئلة","لمن يُوجَّه"],html:
+    '<div class="fs wide"><h3>التدريب</h3>'+two(fld("اسم التدريب بالعربي",inp("n",P.n,req("اكتب اسم التدريب"))),fld("اسم التدريب بالإنجليزي",inp("en",P.en,'dir="ltr"')))+
+      two(fld("الوصف بالعربي",txt("x",P.x,'rows="3"')),fld("الوصف بالإنجليزي",txt("xen",P.xen,'dir="ltr" rows="3"')))+
+      '<div class="row3">'+fld("آخر موعد لإتمام التدريب",'<input class="in" type="date" name="due" value="'+esc(P.due||"")+'" min="'+TODAY+'">',"من لم يُتمّه بعد هذا التاريخ يُعدّ متأخرًا.")+fld("يظهر في",sel("tab",KINDS,P.tab))+fld("الحالة",sel("st",["مسودة","منشور"],P.st),"المسودة لا تظهر للموظفين.")+'</div></div>'+
+    '<div class="fs wide" data-step="2" id="pgm"></div>'+
+    '<div class="fs wide" data-step="3" id="pgq"></div>'+
+    '<div class="fs wide" data-step="4">'+A.html+'</div>',
+    init:function(f){A.draw(f)},
+    bind:function(f){A.bind(f);var bm=f.querySelector("#pgm"),bq=f.querySelector("#pgq");
+      read=function(){
+        bm.querySelectorAll("[data-r]").forEach(function(r){var m=P.mats[+r.dataset.r];r.querySelectorAll("[data-k]").forEach(function(el){m[el.dataset.k]=el.value.trim()})});
+        bq.querySelectorAll("[data-q]").forEach(function(c){var q=P.qs[+c.dataset.q],ck=c.querySelector("input[type=radio]:checked");
+          q.q=c.querySelector("[data-qt]").value.trim();q.opts=[].map.call(c.querySelectorAll("[data-o]"),function(i){return i.value.trim()});q.ok=ck?+ck.value:-1})};
+      function head(t,n,c,add){return '<div class="pgh"><h3>'+t+(n?'<em>'+n+'</em>':'')+'</h3><button type="button" class="btn sm" data-add="'+c+'">'+add+'</button></div>'}
+      function x(attr,label){return '<button type="button" class="ib" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
+      function drawM(){var L=P.mats;
+        bm.innerHTML=head("الملفات والفيديوهات",L.length?nfile(P)+" ملف · "+nvid(P)+" فيديو":"","mat","إضافة ملف أو فيديو")+
+          (L.length?'<div class="pgr hd"><span></span><span>النوع</span><span>العنوان الظاهر للموظف</span><span>الملف أو الرابط</span><span></span></div>':'')+
+          (L.map(function(m,i){return '<div class="pgr" data-r="'+i+'"><b>'+(i+1)+'</b><select class="in" data-k="k" aria-label="النوع">'+MK.map(function(k){return '<option'+(k===kindOf(m)?' selected':'')+'>'+k+'</option>'}).join("")+'</select>'+
+            '<input class="in" data-k="t" value="'+esc(m.t)+'" '+at("عنوان الملف أو الفيديو")+'>'+srcFld(m)+x('data-rm="'+i+'"',"حذف الصف")+'</div>'}).join("")+(L.length?'<p class="pge">الملف يُختار من المكتبة، فارفعه فيها أولًا. رابط يوتيوب يتحوّل إلى مشغّل داخل صفحة التدريب، والفيديو المرفوع MP4 أو WEBM.</p>':'')||'<p class="pge">لا توجد مواد بعد. أضف ملفات التدريب من المكتبة، وفيديوهاته من يوتيوب أو مرفوعة.</p>')};
+      function xs(attr,label){return '<button type="button" class="xs" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
+      function drawQ(){var L=P.qs;
+        bq.innerHTML=head("الأسئلة",L.length?(L.length===1?"سؤال واحد":L.length===2?"سؤالان":L.length+" أسئلة")+" · علّم الدائرة بجوار الإجابة الصحيحة":"","q","إضافة سؤال")+
+          (L.length?'<div class="qg">'+L.map(function(q,i){return '<div class="qc" data-q="'+i+'"><header><span class="qn">'+(i+1)+'</span><input class="in" data-qt value="'+esc(q.q)+'" '+at("نص السؤال "+(i+1))+'>'+xs('data-rq="'+i+'"',"حذف السؤال")+'</header>'+
+            '<div class="qos">'+q.opts.map(function(o,j){var ok=q.ok===j;return '<div class="qo'+(ok?' ok':'')+'"><input type="radio" name="ok'+i+'" value="'+j+'"'+(ok?' checked':'')+' aria-label="الاختيار '+(j+1)+' هو الإجابة الصحيحة" title="اجعلها الإجابة الصحيحة"><input class="in" data-o value="'+esc(o)+'" '+at("الاختيار "+(j+1))+'>'+
+              (ok?'<em>الإجابة الصحيحة</em>':'<span></span>')+(q.opts.length>2?xs('data-ro="'+i+':'+j+'"',"حذف الاختيار"):'<span></span>')+'</div>'}).join("")+
+            (q.opts.length<MAXO?'<button type="button" class="qadd" data-ao="'+i+'">+ إضافة اختيار</button>':'')+'</div></div>'}).join("")+
+            '<button type="button" class="qadd big" data-add="q">+ إضافة سؤال</button></div>':
+          '<p class="pge">لا توجد أسئلة بعد. الأسئلة اختيار من متعدد، ولا حد لعددها: يجيب عنها الموظف بعد إتمام مواد التدريب.</p>')+
+          '<p class="pge" style="padding-top:10px">تُحسب درجة الموظف بعدد إجاباته الصحيحة، ثم يراجعها قائد فريقه ويقرر اعتمادها أو إعادة الاختبار.</p>'}
+      bm.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+        if(b.dataset.add){read();var l=P.mats[P.mats.length-1];P.mats.push({k:l?kindOf(l):MK[0],t:""});drawM();var rs=bm.querySelectorAll("[data-r]");rs[rs.length-1].querySelector("[data-k=t]").focus()}
+        if(b.dataset.rm){read();P.mats.splice(+b.dataset.rm,1);drawM()}
+        if(b.dataset.yt!=null){read();ytPreview(P.mats[+b.closest("[data-r]").dataset.r])}});
+      bm.addEventListener("input",function(e){if(e.target.dataset.k==="src"){var y=e.target.parentNode.querySelector("[data-yt]");if(y)y.disabled=!ytId(e.target.value)}});
+      bm.addEventListener("change",function(e){var r=e.target.closest("[data-r]");if(!r)return;
+        if(e.target.dataset.k==="k"){read();drawM()}
+        if(e.target.dataset.k==="f"){read();var mf=P.mats[+r.dataset.r];if(mf.f&&!mf.t){mf.t=mf.f;drawM()}}
+        if(e.target.dataset.vf!=null){read();var fl=e.target.files[0],m=P.mats[+r.dataset.r];m.vf=fl?fl.name:"";if(fl&&!m.t)m.t=fl.name.replace(/\.[^.]+$/,"");drawM()}});
+      bq.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var k=b.dataset,a=(k.ro||"").split(":");
+        if(k.add){read();P.qs.push({q:"",opts:["",""],ok:-1});drawQ();var cs=bq.querySelectorAll("[data-q]"),c=cs[cs.length-1];c.querySelector("[data-qt]").focus();c.scrollIntoView({block:"nearest"})}
+        if(k.rq){read();P.qs.splice(+k.rq,1);drawQ()}
+        if(k.ao){read();P.qs[+k.ao].opts.push("");drawQ();var os=bq.querySelectorAll('[data-q="'+k.ao+'"] [data-o]');os[os.length-1].focus()}
+        if(k.ro){read();var q=P.qs[+a[0]],j=+a[1];q.opts.splice(j,1);q.ok=q.ok===j?-1:q.ok>j?q.ok-1:q.ok;drawQ()}});
+      /* marking the right answer repaints the card so the green outline moves with it */
+      bq.addEventListener("change",function(e){if(e.target.type==="radio"){read();drawQ()}});
+      drawM();drawQ()},
+    check:function(f){read();P.mats=P.mats.filter(function(m){return m.t||m.vf||m.f||m.src});
+      this.checkStep=2;
+      for(var i=0;i<P.mats.length;i++){var m=P.mats[i],k=kindOf(m),has=k===MK[0]?m.f:k===MK[1]?m.src:m.vf;
+        if(!m.t)return "اكتب عنوان المادة رقم "+(i+1)+".";
+        if(k===MK[1]&&m.src&&!ytId(m.src))return "رابط المادة رقم "+(i+1)+" ليس رابط يوتيوب صحيحًا.";
+        if(!has)return (k===MK[1]?"اكتب رابط يوتيوب":k===MK[0]?"اختر الملف من المكتبة":"اختر ملف الفيديو")+" للمادة رقم "+(i+1)+"."}
+      this.checkStep=3;
+      P.qs=P.qs.filter(function(q){return q.q||q.opts.some(Boolean)});
+      for(var n=0;n<P.qs.length;n++){var q=P.qs[n],right=q.ok>-1?q.opts[q.ok]:"";
+        if(!q.q)return "اكتب نص السؤال "+(n+1)+".";
+        if(q.opts.filter(Boolean).length<2)return "السؤال "+(n+1)+" يحتاج اختيارين على الأقل.";
+        if(!right)return "حدّد الإجابة الصحيحة للسؤال "+(n+1)+".";
+        q.opts=q.opts.filter(Boolean);q.ok=q.opts.indexOf(right)}
+      var am=A.check(f);if(am){this.checkStep=4;return am}},
+    save:function(f){var o=src||{done:0},r=A.calc();if(isNew)TRAIN.push(o);
+      o.tab=f.tab.value;o.st=f.st.value;o.n=f.n.value;o.en=f.en.value;o.x=f.x.value;o.xen=f.xen.value;o.due=f.due.value;o.mats=P.mats;o.qs=P.qs;o.aud=A.value();o.done=Math.min(o.done,r.see.length);
+      return o.st==="منشور"?"تم الحفظ — «"+o.n+"» منشور في مركز التدريب لـ "+r.see.length+" موظفين"+(r.exc.length?" (مستثنى "+r.exc.length+")":"")+".":"تم الحفظ كمسودة — «"+o.n+"» غير ظاهر للموظفين."}}};
+/* shortcut: sample results built from the employee's place in the audience; replace with the real attempts in APEX */
+var LEAD=["اعتمد النتيجة","بانتظار قائد الفريق","طلب إعادة الاختبار"];
+function results(p){var see=audCalc(audState(p.aud)).see,q=p.qs.length;
+  return see.map(function(e,i){var fin=i<p.done,sc=fin?Math.max(0,q-[0,1,0,2,1,0][i%6]):null,ld=fin?(sc<q/2?LEAD[2]:LEAD[i%2]):"";
+    return {e:e.e||e,sc:sc,ld:ld,tries:fin&&i%4===3?2:fin?1:0}})}
+function openResults(p){var R=results(p),by={};R.forEach(function(r){by[r.e.name]=r});
+  peoplePanel({title:"من أجاب عن أسئلة التدريب",name:p.n,item:p,size:"lg",
+    done:R.filter(function(r){return r.sc!=null}).map(function(r){return r.e}),rest:R.filter(function(r){return r.sc==null}).map(function(r){return r.e}),
+    restLabel:"لم يُجيبوا بعد",doneLabel:"أجابوا عن الأسئلة",noRest:"الجميع أجاب عن أسئلة هذا التدريب.",noDone:"لم يُجب أحد بعد.",
+    extra:function(e){var r=by[e.name];return r.sc==null?'':'<span class="rsx"><span class="rs-n"><b class="n">'+r.sc+'</b> من <b class="n">'+p.qs.length+'</b></span><span class="rs-try">'+tries(r.tries)+'</span>'+ldChip(r.ld)+'</span>'},
+    chips:[LEAD[1],LEAD[0],LEAD[2]].map(function(l){return {label:l,test:function(e){return by[e.name].ld===l}}}),
+    note:'الدرجة يحسبها النظام بعدد الإجابات الصحيحة، وقرار الاعتماد أو إعادة الاختبار لقائد الفريق من البوابة.'})}
+/* second view of the page: every employee's result in every published training and what their team leader decided.
+   Follow-up only, like the results window. Rows waiting for the leader come first. */
+var view="list",NOANS="لم يُجب بعد";
+function tries(n){return n===1?'محاولة واحدة':n===2?'محاولتان':n+' محاولات'}
+function ldChip(ld){return ld===LEAD[0]?'<span class="st done">'+ld+'</span>':ld===LEAD[2]?'<span class="chip bad">'+ld+'</span>':ld?'<span class="st">'+ld+'</span>':'<span class="m">—</span>'}
+function renderRes(){
+  var live=TRAIN.filter(function(p){return p.st==="منشور"&&p.qs.length}),rows=[];
+  live.forEach(function(p){results(p).forEach(function(r){rows.push({p:p,r:r})})});
+  if(!$("rd").options.length)$("rd").innerHTML='<option value="">كل القرارات</option>'+[LEAD[1],LEAD[0],LEAD[2],NOANS].map(function(x){return '<option>'+x+'</option>'}).join("");
+  var keep=$("rt").value;$("rt").innerHTML='<option value="">كل التدريبات</option>'+live.map(function(p){return '<option'+(p.n===keep?' selected':'')+'>'+esc(p.n)+'</option>'}).join("");
+  var q=$("q").value.trim().toLowerCase(),t=$("rt").value,d=$("rd").value,rank=function(x){return x.r.ld===LEAD[1]?0:x.r.ld===LEAD[2]?1:x.r.ld===LEAD[0]?2:3};
+  var list=rows.filter(function(x){return (!t||x.p.n===t)&&(!d||(d===NOANS?x.r.sc==null:x.r.ld===d))&&(!q||x.r.e.name.toLowerCase().indexOf(q)>-1)}).sort(function(a,b){return rank(a)-rank(b)});
+  $("rrows").innerHTML=list.length?list.map(function(x){var e=x.r.e,r=x.r;
+    return '<tr><td class="full"><div class="who">'+av(e.name)+'<div><b>'+esc(e.name)+'</b><small>'+esc(e.dept)+'</small></div></div></td><td>'+esc(x.p.n)+'</td>'+
+      '<td>'+(r.sc==null?'<span class="m">'+NOANS+'</span>':'<span class="sc"><span class="n">'+r.sc+'</span> من <span class="n">'+x.p.qs.length+'</span></span>')+'</td><td class="m hide">'+(r.tries?tries(r.tries):'—')+'</td><td class="full">'+ldChip(r.ld)+'</td></tr>'}).join(""):
+    '<tr><td colspan="5" class="empty">'+(rows.length?'لا توجد نتائج بهذه الشروط. جرّب تغيير التدريب أو القرار.':'لا توجد نتائج بعد: لم يُنشر تدريب له أسئلة.')+'</td></tr>';
+  $("count").textContent=list.length+" من "+rows.length+" نتيجة · الدرجة يحسبها النظام، والقرار لقائد الفريق من البوابة · بيانات تجريبية";
+}
+function cnt(s){return TRAIN.filter(function(p){return s==="الكل"||p.tab===s}).length}
+document.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.tab){tab=b.dataset.tab;render()}
+  if(b.dataset.view){view=b.dataset.view;render()}
+  if(b.dataset.res)openResults(TRAIN[b.dataset.res]);
+  if(b.dataset.copy){var c=JSON.parse(JSON.stringify(TRAIN[b.dataset.copy]));c.n+=" (نسخة)";c.st="مسودة";c.done=0;TRAIN.splice(+b.dataset.copy+1,0,c);render();toast("تم نسخ التدريب كمسودة: «"+c.n+"».")}});
+document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id==="rt"||e.target.id==="rd")render()});
+function render(){var res=view==="res";
+  $("views").innerHTML=[["list","التدريبات"],["res","نتائج الموظفين"]].map(function(v){return '<button data-view="'+v[0]+'" aria-pressed="'+(v[0]===view)+'">'+v[1]+'</button>'}).join("");
+  $("tabs").style.display=$("list").style.display=res?"none":"";$("rt").style.display=$("rd").style.display=$("resBox").style.display=res?"":"none";
+  $("q").placeholder=res?"ابحث باسم الموظف":"ابحث باسم التدريب";
+  if(res){renderRes();return}
+  $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'"><bdi>'+s+'</bdi><b>'+cnt(s)+'</b></button>'}).join("");
+  var q=$("q").value.trim().toLowerCase(),n=TRAIN.length;
+  var list=TRAIN.filter(function(p){return (tab==="الكل"||p.tab===tab)&&(!q||p.n.toLowerCase().indexOf(q)>-1)});
+  $("list").innerHTML=list.length?list.map(function(p){var i=TRAIN.indexOf(p),a=' data-i="'+i+'"',dr=p.st!=="منشور",all=audCount(p.aud),done=Math.min(p.done,all),d=p.due?left(p.due):null;
+    return '<article class="pr'+(dr?' draft':'')+'"><span class="pi'+(KCLS[p.tab]||'')+'">'+ic("cap",20)+'</span>'+
+      '<div class="tx"><b>'+esc(p.n)+'</b><div class="mt"><span class="chip s">'+esc(p.tab)+'</span><span class="st '+(dr?'off':'done')+'">'+esc(p.st)+'</span><span>'+nfile(p)+' ملف · '+nvid(p)+' فيديو · '+p.qs.length+' سؤال</span>'+
+        (p.due?'<span>آخر موعد '+ltr(p.due)+'</span>'+(dr?'':d<0?'<span class="chip bad">انتهى الموعد</span>':'<span class="chip s">'+(d===0?'اليوم':d===1?'باقٍ يوم واحد':d===2?'باقٍ يومان':'باقٍ '+d+(d<=10?' أيام':' يومًا'))+'</span>'):'<span>بدون موعد</span>')+'</div></div>'+
+      (dr?'<div class="pgx off"><div class="t">لم يُنشر بعد<small>موجَّه لـ '+all+' موظفين</small></div></div>':
+        prog(done,all,"أجابوا عن الأسئلة"))+
+      '<div class="ac">'+(dr||!p.qs.length?'':'<button class="btn sm" data-res="'+i+'">من أجاب</button>')+'<button class="btn sm" data-form="prog"'+a+'>تعديل</button><button class="btn sm" data-copy="'+i+'" title="نسخ كتدريب جديد">نسخ</button>'+
+      '<button class="ib" data-move="prog" data-by="-1"'+a+(i===0?' disabled title="هذا أول تدريب"':' title="تقديم في الترتيب"')+' aria-label="تقديم في الترتيب">'+UP+'</button>'+
+      '<button class="ib" data-move="prog" data-by="1"'+a+(i===n-1?' disabled title="هذا آخر تدريب"':' title="تأخير في الترتيب"')+' aria-label="تأخير في الترتيب">'+DOWN+'</button>'+
+      '<button class="btn sm del" data-del="prog"'+a+'>حذف</button></div></article>'}).join(""):
+    '<p class="empty" style="padding:18px">'+(n?'لا توجد تدريبات بهذه الشروط. جرّب تغيير البحث أو النوع.':'لا توجد تدريبات بعد. أضف أول تدريب من «تدريب جديد».')+'</p>';
+  $("count").textContent=list.length+" من "+n+" تدريبات · بيانات تجريبية";
+}
+</script>
+</body>
+</html>

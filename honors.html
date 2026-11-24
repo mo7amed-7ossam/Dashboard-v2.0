@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>التكريم — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1124123349">
+<link rel="stylesheet" href="forms.css?v=1124123349">
+<style>
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.hon{display:flex;flex-direction:column;gap:14px}
+.hon h2 .acts{display:flex;gap:8px}
+/* the card as the employee sees it on the portal home */
+.eom{flex:1;border-radius:20px;background:var(--grad);color:#fff;padding:22px;display:flex;gap:18px;align-items:center}
+.eom .av{width:84px;height:84px;font-size:var(--t-num);background:rgba(255,255,255,.2);color:#fff}
+.eom small{color:#E4F5F8;font-size:var(--t-sm)}
+.eom b{display:block;font-family:"Alexandria",sans-serif;font-size:var(--t-h2);font-weight:500;line-height:1.5}
+.eom p{margin-top:8px;line-height:1.8}
+.off-note{opacity:.55}
+.tops{flex:1;display:grid;grid-auto-rows:1fr;gap:8px}
+.trow{display:flex;align-items:center;gap:14px;background:var(--sub);border-radius:16px;padding:10px 16px}
+.trow .rk{font-family:"Alexandria",sans-serif;font-size:var(--t-h2);font-weight:600;width:28px;text-align:center;color:var(--m)}
+.trow:first-child .rk{color:var(--ink)}
+.trow > div{flex:1;min-width:0}
+.trow b{display:block;font-weight:500}
+.trow small{color:var(--m);font-size:var(--t-sm)}
+.trow .amt{font-family:"Alexandria",sans-serif;font-weight:500}
+.where{font-size:var(--t-sm);color:var(--m)}
+@media (max-width:900px){.pair{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.eom{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">التكريم</h1><p>موظف الشهر والأعلى مبيعًا كما يظهران في رئيسية البوابة.</p></div></div>
+  <div class="pair">
+    <section class="card hon" id="eomCard"></section>
+    <section class="card hon" id="topCard"></section>
+  </div>
+  <section class="card">
+    <div class="bar"><h2 style="flex:none">سجل التكريم</h2><span class="sp"></span><div class="seg" id="tabs" role="group" aria-label="نوع التكريم"></div></div>
+    <div class="tb"><table><thead id="hHead"></thead><tbody id="hRows"></tbody></table></div>
+    <p class="note">بيانات تجريبية.</p>
+  </section>
+</div>
+<script src="ui.js?v=1124123349"></script>
+<script src="forms.js?v=1124123349"></script>
+<script>
+var htab="eom";
+function job(n){var e=EMPS.filter(function(x){return x.name===n})[0];return e?e.job+" — "+e.dept:""}
+function names(){return EMPS.map(function(e){return e.name})}
+function amt(v){return '<span class="n">'+Number(v||0).toLocaleString("en-US")+'</span> ر.ع'}
+/* saving a new month moves the month it replaces into the record */
+function archive(kind,old){if(old.month)HONOR.hist.unshift(kind==="eom"?{kind:kind,month:old.month,name:old.name,why:old.why}:{kind:kind,month:old.month,list:old.list})}
+FORMS.eom=function(){var x=HONOR.eom;
+  return {title:"موظف الشهر",size:"sm",saveLabel:"حفظ",html:
+    '<div class="fs"><h3>التكريم</h3>'+two(fld("الموظف",sel("name",names(),x.name),"صورته تُعرض من ملفه في النظام."),fld("الشهر",sel("month",MONTHS,x.month)))+
+      fld("سبب التكريم",txt("why",x.why,req("اكتب سبب التكريم")+' rows="3"'),"جملة أو جملتان تظهران للموظفين.")+fld("سبب التكريم بالإنجليزي",txt("en",x.en,'dir="ltr" rows="2"'))+'</div>'+
+    '<div class="fs"><h3>الظهور</h3>'+
+      sw("show","إظهار في رئيسية البوابة",x.show,"عند الإيقاف تبقى البطاقة محفوظة هنا ولا يراها الموظفون.")+'</div>',
+    save:function(f){if(f.month.value!==x.month)archive("eom",x);
+      HONOR.eom={name:f.name.value,month:f.month.value,why:f.why.value.trim(),en:f.en.value.trim(),show:f.show.checked};
+      return "تم الحفظ — موظف الشهر "+(f.show.checked?"ظاهر الآن في رئيسية البوابة.":"محفوظ وغير ظاهر للموظفين.")}}};
+FORMS.top=function(){var x=HONOR.top,L=x.list,opts=["—"].concat(names());
+  function row(i,label){var r=L[i]||{};return two(fld(label,sel("n"+i,i?opts:names(),r.name||(i?"—":names()[0]))),fld("قيمة المبيعات (ر.ع)",inp("a"+i,r.amt||"",'dir="ltr" inputmode="numeric"')))}
+  return {title:"الأعلى مبيعًا",size:"sm",saveLabel:"حفظ",html:
+    '<div class="fs"><h3>الترتيب</h3>'+fld("الشهر",sel("month",MONTHS,x.month))+row(0,"المركز الأول")+row(1,"المركز الثاني")+row(2,"المركز الثالث")+'</div>'+
+    '<div class="fs"><h3>الظهور</h3>'+sw("show","إظهار في رئيسية البوابة",x.show)+sw("showAmt","إظهار قيمة المبيعات للموظفين",x.showAmt,"عند الإيقاف يرى الموظفون الأسماء والترتيب فقط.")+'</div>',
+    check:function(f){var p=[0,1,2].map(function(i){return f["n"+i].value}).filter(function(v){return v!=="—"});
+      return p.some(function(v,i){return p.indexOf(v)!==i})?"لا يمكن تكرار الموظف نفسه في أكثر من مركز.":""},
+    save:function(f){if(f.month.value!==x.month)archive("top",x);
+      HONOR.top={month:f.month.value,show:f.show.checked,showAmt:f.showAmt.checked,list:[0,1,2].map(function(i){return {name:f["n"+i].value,amt:+f["a"+i].value||0}}).filter(function(r){return r.name!=="—"})};
+      return "تم الحفظ — الأعلى مبيعًا "+(f.show.checked?"ظاهر الآن في رئيسية البوابة.":"محفوظ وغير ظاهر للموظفين.")}}};
+document.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.hon)openForm(b.dataset.hon);
+  if(b.dataset.htab){htab=b.dataset.htab;render()}
+  if(b.dataset.vis){var o=HONOR[b.dataset.vis];o.show=!o.show;render();toast((b.dataset.vis==="eom"?"موظف الشهر ":"الأعلى مبيعًا ")+(o.show?"ظاهر الآن في رئيسية البوابة.":"أُخفي من رئيسية البوابة."))}
+});
+function head(title,o,key){return '<h2><span>'+title+' <span class="chip '+(o.show?'s':'d')+'">'+(o.show?'ظاهر في البوابة':'مخفي')+'</span></span><span class="acts"><button class="btn sm" data-vis="'+key+'">'+(o.show?'إخفاء من البوابة':'إظهار في البوابة')+'</button><button class="btn sm k" data-hon="'+key+'">تعديل</button></span></h2>'}
+function render(){
+  var e=HONOR.eom,t=HONOR.top;
+  $("eomCard").innerHTML=head("موظف الشهر",e,"eom")+
+    '<div class="eom'+(e.show?'':' off-note')+'">'+av(e.name)+'<div><small>موظف شهر '+esc(e.month)+'</small><b>'+esc(e.name)+'</b><small>'+esc(job(e.name))+'</small><p>'+esc(e.why)+'</p></div></div>';
+  $("topCard").innerHTML=head("الأعلى مبيعًا",t,"top")+
+    '<div class="tops'+(t.show?'':' off-note')+'">'+t.list.map(function(r,i){return '<div class="trow"><span class="rk n">'+(i+1)+'</span>'+av(r.name)+'<div><b>'+esc(r.name)+'</b><small>'+esc(job(r.name))+'</small></div><span class="amt">'+amt(r.amt)+'</span></div>'}).join("")+'</div>'+
+    '<p class="where">'+esc(t.month)+'، '+(t.showAmt?'وقيمة المبيعات ظاهرة للموظفين.':'وقيمة المبيعات ظاهرة هنا فقط وليست للموظفين.')+'</p>';
+  $("tabs").innerHTML=[["eom","موظف الشهر"],["top","الأعلى مبيعًا"]].map(function(x){return '<button data-htab="'+x[0]+'" aria-pressed="'+(x[0]===htab)+'">'+x[1]+'</button>'}).join("");
+  var list=HONOR.hist.filter(function(h){return h.kind===htab});
+  $("hHead").innerHTML=htab==="eom"?'<tr><th>الشهر</th><th>الموظف</th><th>سبب التكريم</th></tr>':'<tr><th>الشهر</th><th>الأول</th><th>الثاني</th><th>الثالث</th></tr>';
+  function cell(r){return r?'<div class="who">'+av(r.name)+'<div><b>'+esc(r.name)+'</b><small>'+amt(r.amt)+'</small></div></div>':'<span class="m">—</span>'}
+  $("hRows").innerHTML=list.length?list.map(function(h){
+    return htab==="eom"?'<tr><td>'+esc(h.month)+'</td><td><div class="who">'+av(h.name)+'<div><b>'+esc(h.name)+'</b><small>'+esc(job(h.name))+'</small></div></div></td><td class="full">'+esc(h.why)+'</td></tr>':
+      '<tr><td>'+esc(h.month)+'</td><td>'+cell(h.list[0])+'</td><td>'+cell(h.list[1])+'</td><td>'+cell(h.list[2])+'</td></tr>'}).join(""):
+    '<tr><td colspan="4" class="empty">لا يوجد سجل سابق بعد.</td></tr>';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تذكيرات الرئيسية — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1124123349">
+<link rel="stylesheet" href="forms.css?v=1124123349">
+<style>
+/* Home reminders. Read from the live portal home 2026-11-23: the "slides" are a strip of text reminders at the bottom of
+   the hero (number, small label, title, one line, «التفاصيل», 03 / 05), over one fixed picture. So this page edits text,
+   not pictures. The dark band is a preview of that strip; it follows the row you point at. */
+.hero{position:relative;border-radius:20px;overflow:hidden;color:#fff;margin-bottom:12px;background:#08343B url(../../03-assets/news/kitchen.jpg) center 30%/cover}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,28,32,.94) 30%,rgba(6,28,32,.5))}
+.hero > *{position:relative}
+.hero .cap{padding:14px 20px 26px;font-size:var(--t-sm);opacity:.75}
+.strip{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:18px;align-items:center;margin:0 20px;padding:14px 0 16px;border-top:1px solid rgba(255,255,255,.18)}
+.strip .no{font-family:"Alexandria",sans-serif;font-size:34px;font-weight:300;color:#CFDD28;line-height:1}
+.strip small{display:block;color:#CFDD28;font-size:var(--t-cap)}
+.strip h3{font-family:"Alexandria",sans-serif;font-size:var(--t-h3);font-weight:500;line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strip p{font-size:var(--t-sm);opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strip .more{border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 14px;font-size:var(--t-sm);white-space:nowrap}
+.strip .cnt{font-size:var(--t-sm);opacity:.8;white-space:nowrap;direction:ltr}
+.rl{display:grid;gap:8px}
+.rr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;padding:10px 16px;background:var(--card);border-radius:16px;border:1.5px solid transparent}
+.rr.cur{border-color:var(--sea)}
+.rr.off .tx,.rr.off .no{opacity:.5}
+.rr .no{font-family:"Alexandria",sans-serif;font-size:22px;font-weight:300;color:var(--sea);width:34px;text-align:center}
+.rr .tx{min-width:0;display:grid;gap:1px}
+.rr .mt{display:flex;gap:8px;align-items:center;font-size:var(--t-sm);color:var(--m)}
+.rr b{font-weight:500}
+.rr p{color:var(--m);font-size:var(--t-ui);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rr .ac{display:flex;gap:6px;align-items:center}
+.rr .btn:not(.k){background:var(--sub)}
+.ib{width:30px;height:30px;border-radius:50%;border:0;background:var(--sub);color:var(--ink);display:grid;place-items:center;flex:none}
+.ib:hover{background:var(--hover)}.ib:disabled{opacity:.35}
+.rr .del{background:none!important;color:var(--m)}
+.rr .del:hover{color:#B3261E}
+@media (max-width:760px){.strip{grid-template-columns:auto minmax(0,1fr)}.strip .more,.strip .cnt{display:none}.rr{grid-template-columns:auto minmax(0,1fr)}.rr .ac{grid-column:1/-1;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">تذكيرات الرئيسية</h1><p>الشريط المتحرك أسفل صورة رئيسية البوابة. يمرّ على التذكيرات الظاهرة بالترتيب المعروض هنا.</p></div><button class="btn k" data-form="slide">تذكير جديد</button></div>
+  <div class="hero" aria-label="معاينة الشريط كما يظهر في البوابة"><p class="cap">معاينة — هكذا يظهر التذكير في رئيسية البوابة</p><div class="strip" id="strip"></div></div>
+  <div class="rl" id="list"></div>
+  <p class="note" id="count"></p>
+</div>
+<script src="ui.js?v=1124123349"></script>
+<script src="forms.js?v=1124123349"></script>
+<script>
+var UP='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
+    DOWN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>',cur=0;
+function two2(n){return (n<10?"0":"")+n}
+function shown(){return SLIDES.filter(function(s){return s.st!=="مخفي"})}
+function strip(){var on=shown(),s=SLIDES[cur];if(!s||s.st==="مخفي")s=on[0];
+  $("strip").innerHTML=s?'<span class="no">'+two2(on.indexOf(s)+1)+'</span><div style="min-width:0"><small>'+esc(s.tag)+'</small><h3>'+esc(s.n)+'</h3><p>'+esc(s.x)+'</p></div>'+(s.u?'<span class="more">التفاصيل</span>':'<span></span>')+'<span class="cnt">'+two2(on.indexOf(s)+1)+' / '+two2(on.length)+'</span>':
+    '<p style="grid-column:1/-1;opacity:.8">لا توجد تذكيرات ظاهرة، فلن يظهر الشريط في البوابة.</p>'}
+document.addEventListener("mouseover",function(e){var r=e.target.closest(".rr");if(!r||+r.dataset.row===cur)return;cur=+r.dataset.row;
+  document.querySelectorAll(".rr").forEach(function(x){x.classList.toggle("cur",x===r)});strip()});
+function render(){
+  var n=SLIDES.length,on=shown();if(cur>=n)cur=0;
+  $("list").innerHTML=n?SLIDES.map(function(s,i){var off=s.st==="مخفي",a=' data-i="'+i+'"';
+    return '<article class="rr'+(off?' off':'')+(i===cur?' cur':'')+'" data-row="'+i+'"><span class="no">'+(off?'—':two2(on.indexOf(s)+1))+'</span>'+
+      '<div class="tx"><div class="mt"><span class="chip s">'+esc(s.tag)+'</span><span class="st '+(off?'off':'done')+'">'+(off?'مخفي':'ظاهر')+'</span>'+(s.u?'<span>زر «التفاصيل» مفعّل</span>':'<span>بدون رابط</span>')+'</div><b>'+esc(s.n)+'</b><p>'+esc(s.x)+'</p></div>'+
+      '<div class="ac"><button class="btn sm" data-form="slide"'+a+'>تعديل</button><button class="btn sm" data-hide="slide"'+a+'>'+(off?'إظهار':'إخفاء')+'</button>'+
+      '<button class="ib" data-move="slide" data-by="-1"'+a+(i===0?' disabled title="هذا أول تذكير"':' title="تقديم في الترتيب"')+' aria-label="تقديم في الترتيب">'+UP+'</button>'+
+      '<button class="ib" data-move="slide" data-by="1"'+a+(i===n-1?' disabled title="هذا آخر تذكير"':' title="تأخير في الترتيب"')+' aria-label="تأخير في الترتيب">'+DOWN+'</button>'+
+      '<button class="btn sm del" data-del="slide"'+a+'>حذف</button></div></article>'}).join(""):
+    '<p class="empty">لا توجد تذكيرات بعد. أضف أول تذكير من «تذكير جديد».</p>';
+  $("count").textContent=n?on.length+" من "+n+" تذكيرات ظاهرة في البوابة · النصوص منقولة من البوابة الحالية":"";
+  strip();
+}
+</script>
+</body>
+</html>

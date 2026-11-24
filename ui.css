@@ -1,0 +1,365 @@
+/* Sindbad dashboard v2.0 design system (direction I, chosen by Mohamed 2026-11-22). Official palette only. */
+@import url("https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap");
+:root{
+  --sea:#0A8BA0;--aqua:#70CDDD;--lime:#CFDD28;--char:#383837;--teal:#08707F;
+  --grad:linear-gradient(135deg,#2BB8C9 0%,#0A8BA0 100%);
+  --hatch:repeating-linear-gradient(135deg,#0A8BA0 0 5px,#46AFC0 5px 9px);
+  --bg:#F3F5F5;--card:#FFFFFF;--sub:#F3F5F5;--ink:#383837;--m:#566264;--line:#E6EAEA;
+  --pri:#383837;--on-pri:#FFFFFF;--soft:#DDF2F6;--on-soft:#08707F;--limebg:#EDF4B8;--on-lime:#4D5600;--hover:#E6EAEA;
+}
+[data-theme="dark"]{
+  --bg:#242423;--card:#30302F;--sub:#3A3A39;--ink:#F2F2EE;--m:#A9A9A4;--line:#454543;
+  --pri:#F2F2EE;--on-pri:#2A2A29;--soft:#1F4A52;--on-soft:#9FE0EC;--limebg:#4A5010;--on-lime:#E3EE70;--hover:#454543;--teal:#70CDDD;
+}
+*{box-sizing:border-box}
+/* type scale (audit 2026-11-23: 16 different sizes were in use). Every font-size in the app is one of these eight:
+   cap = labels, chips, hints · sm = secondary lines, small buttons · ui = controls, menus, side list · body = running text and tables
+   h3 = card titles · h2 = window titles, names · num = figures, phone page title · h1 = page title, headline figures */
+:root{--t-cap:11px;--t-sm:12px;--t-ui:13px;--t-body:14px;--t-h3:16px;--t-h2:18px;--t-num:26px;--t-h1:30px}
+/* the browser default for <small> is 0.83em = 12.5px, a ninth size: pin it to the scale */
+small{font-size:var(--t-sm)}
+html{color-scheme:light}[data-theme="dark"]{color-scheme:dark}
+body{margin:0;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;font-size:var(--t-body);line-height:1.7;background:var(--bg);color:var(--ink)}
+h1,h2,h3,p,ul{margin:0;padding:0}ul{list-style:none}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+a{color:var(--teal)}
+:focus-visible{outline:2px solid var(--sea);outline-offset:2px}
+.d{font-family:"Alexandria","IBM Plex Sans Arabic",sans-serif}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.n{font-family:"Alexandria",sans-serif;font-weight:500;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+td.n{text-align:right}
+.m{color:var(--m)}
+
+/* shell */
+.app{min-height:100vh;padding:22px 28px 60px}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+.pill{background:var(--card);border-radius:99px;display:flex;align-items:center}
+.brand{padding:12px 22px}
+.logo{display:block;width:112px;aspect-ratio:222/60;background:linear-gradient(90deg,var(--sea) 0 26%,var(--ink) 26%);-webkit-mask:url(../../03-assets/sindbad-logo-white.svg) center/contain no-repeat;mask:url(../../03-assets/sindbad-logo-white.svg) center/contain no-repeat}
+.top nav{padding:5px;gap:2px;margin-inline:auto;overflow-x:auto;max-width:100%;min-width:0;scrollbar-width:none}
+.top nav a{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:99px;color:var(--m);text-decoration:none;white-space:nowrap}
+.top nav a:hover{color:var(--ink)}
+.top nav a[aria-current]{background:var(--pri);color:var(--on-pri);font-weight:500}
+.top nav a b{background:var(--lime);color:#383837;border-radius:99px;font-size:var(--t-cap);padding:0 7px;line-height:19px}
+.tool{width:46px;height:46px;justify-content:center;border:0;flex:none}
+.tool:hover{background:var(--hover)}
+.user{padding-block:6px;padding-inline:6px 22px;gap:12px}
+.user{flex:none}
+.user b{display:block;font-weight:600;line-height:1.35;white-space:nowrap}
+.user small{display:block;color:var(--m);font-size:var(--t-cap);line-height:1.35}
+.av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:var(--t-sm);font-weight:600;background:var(--soft);color:var(--on-soft);flex:none}
+.user .av{width:42px;height:42px;font-size:var(--t-body);background:var(--grad);color:#fff}
+.hello{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.hello h1{font-size:var(--t-h1);font-weight:500;line-height:1.3}
+.hello p{color:var(--m)}
+
+/* pieces */
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.card{background:var(--card);border-radius:26px;padding:20px;min-width:0}
+.card h2{font-family:"Alexandria",sans-serif;font-size:var(--t-h3);font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.card h2 a{font-family:"IBM Plex Sans Arabic",sans-serif;font-size:var(--t-sm);text-decoration:none;padding:7px 0}
+.big{font-family:"Alexandria",sans-serif;font-size:var(--t-h1);font-weight:600;line-height:1.35}
+.big small{font-size:var(--t-body);font-weight:400;color:var(--m)}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:8px;padding:1px 8px;font-size:var(--t-cap);font-weight:600;background:var(--limebg);color:var(--on-lime);white-space:nowrap}
+.chip.s{background:var(--soft);color:var(--on-soft)}
+.chip.d{background:var(--sub);color:var(--ink)}
+.chip.k{background:var(--pri);color:var(--on-pri)}
+.btn{border:0;border-radius:99px;padding:11px 20px;font-size:var(--t-ui);font-weight:500;background:var(--card);color:var(--ink);white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{background:var(--hover)}
+.btn.k{background:var(--pri);color:var(--on-pri)}.btn.k:hover{opacity:.88}
+.btn.sm{padding:6px 14px;font-size:var(--t-sm)}
+.btn.w{background:#fff;color:#383837}.btn.gh{background:rgba(255,255,255,.18);color:#fff}
+.btn[disabled]{opacity:.5;cursor:default}
+.card .btn:not(.k):not(.w):not(.gh):not(.r){background:var(--sub)}
+.sub{background:var(--sub);border-radius:18px;padding:12px}
+.tile{background:var(--sub);border-radius:20px;padding:16px;display:flex;flex-direction:column}
+.tile header{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tile .ico{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--card);flex:none}
+.tile .big{margin-top:auto;padding-top:14px}
+.tile footer{font-size:var(--t-sm);color:var(--m);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tile.acc{background:var(--grad);color:#fff}
+.tile.acc .ico{background:rgba(255,255,255,.22);color:#fff}
+.tile.acc footer{color:#E4F5F8}
+.tile.acc .chip{background:rgba(255,255,255,.25);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:12px}
+.track{height:12px;border-radius:99px;background:repeating-linear-gradient(135deg,var(--line) 0 4px,var(--sub) 4px 8px);overflow:hidden}
+.track i{display:block;height:100%;border-radius:99px;background:var(--sea)}
+.track.thin{height:6px;background:var(--line)}
+
+/* toolbar + table */
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.bar .sp{margin-inline-start:auto}
+.field{background:var(--sub);border:1px solid transparent;border-radius:99px;padding:9px 18px;min-width:0}
+.field:focus{border-color:var(--sea);outline:0}
+input.field{width:260px;max-width:100%}
+.seg{display:flex;gap:2px;background:var(--sub);border-radius:99px;padding:4px;overflow-x:auto;max-width:100%}
+.seg button{border:0;background:none;border-radius:99px;padding:6px 14px;font-size:var(--t-sm);color:var(--m);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);font-weight:600}
+.seg button b{font-weight:600;margin-inline-start:6px}
+.tb{border:1px solid var(--line);border-radius:16px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{font-weight:400;color:var(--m);font-size:var(--t-sm);text-align:start;padding:11px 16px;background:var(--sub);white-space:nowrap}
+td{padding:11px 16px;border-top:1px solid var(--line);vertical-align:middle}
+td small{color:var(--m);display:block}
+.who{display:flex;gap:12px;align-items:center}
+.st{white-space:nowrap}
+.st::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;margin-inline-end:8px;background:var(--sea)}
+.st.late::before{background:var(--ink)}.st.done::before{background:#9AAE00}.st.off::before{background:var(--m)}
+.end{text-align:end}
+.empty{color:var(--m);padding:18px 4px}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--sea)}
+.ck{display:inline-grid;place-items:center;min-width:36px;min-height:36px;cursor:pointer}
+.pick{display:flex;align-items:center;gap:8px;white-space:nowrap;min-height:36px;cursor:pointer}
+.card .btn.r,.btn.r{background:#B3261E;color:#fff}
+.note{margin-top:18px;color:var(--m);font-size:var(--t-cap)}
+
+button.pill{border:0;cursor:pointer;text-align:start}
+.pop-w{position:relative;flex:none}
+.tool{position:relative}
+.tool .dot{position:absolute;top:11px;inset-inline-end:12px;width:9px;height:9px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 2px var(--card)}
+.pop{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:40;width:310px;max-width:calc(100vw - 32px);background:var(--card);border-radius:20px;padding:16px;box-shadow:0 20px 50px rgba(0,0,0,.18);border:1px solid var(--line)}
+.pop h3{font-family:"Alexandria",sans-serif;font-size:var(--t-body);font-weight:500;margin-bottom:8px}
+.nt{padding:9px 0;border-top:1px solid var(--line)}
+.nt small{display:block;color:var(--m)}
+a.nt.lk{display:flex;justify-content:space-between;align-items:center;gap:12px;text-decoration:none;color:var(--ink)}
+.menu{display:grid;gap:2px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+.menu button,.menu a{border:0;background:none;text-align:start;padding:8px 10px;border-radius:10px;color:var(--ink);text-decoration:none;display:flex;justify-content:space-between;gap:10px;font-size:var(--t-body)}
+.menu button:hover,.menu a:hover{background:var(--sub)}
+tr.det td{background:var(--sub);padding:12px 16px}
+.dl{display:grid;grid-template-columns:1fr auto auto;gap:6px 18px;align-items:center;font-size:var(--t-ui)}
+.pdf{flex:none;width:38px;height:46px;border-radius:9px 9px 9px 9px;background:var(--pri);color:var(--on-pri);font-family:"Alexandria",sans-serif;font-size:var(--t-cap);font-weight:700;display:grid;place-items:end center;padding-bottom:7px;position:relative;direction:ltr}
+.pdf::before{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 12px 12px 0;border-color:transparent var(--card) var(--soft) transparent;border-bottom-left-radius:4px}
+.pdfrow{display:flex;align-items:center;gap:12px;min-width:0}
+.pdfrow small{display:block;color:var(--m);font-size:var(--t-cap)}
+.pdfrow .ltr{font-size:var(--t-sm);word-break:break-all}
+.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,8px);background:#1F1F1E;color:#fff;padding:12px 20px;border-radius:14px;box-shadow:0 12px 34px rgba(0,0,0,.35);opacity:0;transition:.2s;pointer-events:none;z-index:90;max-width:calc(100vw - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+@media (max-width:1150px){.grid > *{grid-column:1/-1!important}.stats{grid-template-columns:1fr 1fr}}
+@media (max-width:760px){
+  .app{padding:16px 16px 60px}.top{flex-wrap:wrap;gap:8px}.brand{padding:10px 14px}.logo{width:94px}.tool{width:42px;height:42px}.top nav{order:5;width:100%;margin:0;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 22px,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(90deg,transparent,#000 22px,#000 calc(100% - 22px),transparent)}.top nav::-webkit-scrollbar{display:none}.top .brand{margin-inline-end:auto}.user div{display:none}.user{padding:6px}
+  .hello h1{font-size:var(--t-num)}input.field{width:100%}
+  /* tables become stacked rows */
+  .tb thead{display:none}.tb tr{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 14px;border-top:1px solid var(--line)}.tb tr:first-child{border-top:0}
+  .tb td{padding:0;border:0}.tb td.full{grid-column:1/-1}.tb td.end{text-align:start}.tb td.full .btn{width:100%}.tb td.hide{display:none}
+}
+
+/* ---- side navigation (fifth pass, 2026-11-23): a white card like every other card on the page. Full page names at
+   body size, the brand gradient marks the current page, and only the middle list scrolls so the foot is never cut off. ---- */
+.side{position:fixed;inset-block:16px;inset-inline-start:20px;width:248px;background:var(--card);border-radius:26px;display:flex;flex-direction:column;z-index:20;overflow:hidden}
+.side ~ .app{padding-inline-start:284px}
+.sbrand{display:flex;align-items:end;justify-content:space-between;gap:10px;padding:20px 20px 16px;text-decoration:none;flex:none}
+.sbrand .logo{width:116px}
+.sbrand small{font-size:var(--t-cap);color:var(--m);line-height:1.2;padding-bottom:3px}
+.side nav{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;padding:4px 12px 12px;display:flex;flex-direction:column;gap:2px}
+.side h3{font-size:var(--t-cap);font-weight:500;color:var(--m);padding:16px 12px 6px}
+.side nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;color:var(--ink);text-decoration:none;font-size:var(--t-body);line-height:1.5;flex:none}
+.side nav a svg{flex:none;color:var(--m)}
+.side nav a span{flex:1;min-width:0}
+.side nav a:hover{background:var(--sub)}
+.side nav a[aria-current]{background:var(--grad);color:#fff;font-weight:500}
+.side nav a[aria-current] svg{color:#fff}
+.side a i,.navl i,.navbtn b{font-style:normal;background:var(--lime);color:#383837;border-radius:99px;font-size:var(--t-cap);font-weight:600;padding:0 7px;line-height:19px}
+.sfoot{flex:none;padding:10px 12px 12px;border-top:1px solid var(--line);display:grid;gap:8px}
+.sportal{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:14px;color:var(--ink);text-decoration:none;font-size:var(--t-ui)}
+.sportal svg{color:var(--m);flex:none}
+.sportal:hover{background:var(--sub)}
+.sme{display:flex;align-items:center;gap:10px;background:var(--sub);border-radius:18px;padding:8px}
+.sme .av{width:38px;height:38px;font-size:var(--t-body);background:var(--grad);color:#fff}
+.sme div{flex:1;min-width:0}
+.sme b{display:block;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sme small{display:block;color:var(--m);font-size:var(--t-cap);line-height:1.35}
+.sme button{width:34px;height:34px;border:0;border-radius:50%;background:var(--card);color:var(--m);display:grid;place-items:center;flex:none}
+.sme button:hover{color:var(--ink)}
+/* ---- top bar: one card with the place, the search and the tools ---- */
+.crumb{display:none}
+.crumb b{color:var(--ink);font-weight:600}
+.crumb i{font-style:normal;opacity:.5}
+.gsw{flex:1;max-width:520px;margin-inline:auto}
+.gs{display:flex;align-items:center;gap:10px;background:var(--sub);border-radius:99px;padding:0 16px;color:var(--m);border:1px solid transparent}
+.gs:focus-within{border-color:var(--sea);background:var(--card)}
+.gs input{flex:1;min-width:0;border:0;background:none;outline:0;padding:11px 0;font:inherit;color:var(--ink)}
+.gres{inset-inline:0;width:auto;padding:8px;max-height:60vh;overflow-y:auto}
+.gres .navl i{background:var(--sub);color:var(--m);font-weight:500}
+.navl{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;text-decoration:none;color:var(--ink)}
+.navl b{display:block;font-weight:500;font-size:var(--t-body);line-height:1.6}
+.navl small{display:block;color:var(--m);font-size:var(--t-cap)}
+.navl:hover,.navl[aria-current]{background:var(--sub)}
+.navbtn{display:none;border:0;gap:10px;padding:12px 18px;font-weight:500;color:var(--ink)}
+.navbtn span{flex:1;text-align:start}
+dialog.navsheet{margin:auto 0 0;width:100vw;max-width:none;max-height:85dvh;border:0;border-radius:26px 26px 0 0;padding:14px 14px 22px;background:var(--card);color:var(--ink)}
+dialog.navsheet::backdrop{background:rgba(25,25,24,.5)}
+.navsheet header{display:flex;justify-content:space-between;align-items:center;padding:0 6px 6px;font-family:"Alexandria",sans-serif;font-size:var(--t-h3)}
+.navsheet header .tool{background:var(--sub);font-size:var(--t-h2)}
+.navsheet h3{font-size:var(--t-cap);font-weight:500;color:var(--m);padding:12px 14px 2px}
+/* the page tools share the title row, so no empty band sits above the page */
+/* wide screens: one top bar card aligned with the page cards: where you are, search, theme, alerts */
+@media (min-width:1001px){
+  .app{padding-top:16px}
+  .top{background:var(--card);border-radius:22px;padding:8px 20px 8px 8px;gap:10px;margin-bottom:20px}
+  [dir="rtl"] .top{padding:8px 20px 8px 8px}
+  .top .brand,.top .pop-w:has(.user){display:none}
+  .top .tool{background:var(--sub);width:42px;height:42px}.top .tool:hover{background:var(--hover)}
+  .crumb{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:var(--t-ui);color:var(--m);margin-inline-end:auto}
+  .gsw{flex:0 1 420px;margin:0}
+}
+@media (max-width:1000px){
+  .side{display:none}.side ~ .app{padding-inline-start:28px}
+  .top{flex-wrap:wrap;gap:8px}.top .brand{display:flex;margin-inline-end:auto}
+  .navbtn{display:flex;order:5;width:100%}
+}
+@media (max-width:1000px){.crumb{display:none}.gsw{order:6;flex:0 0 100%;max-width:none}.gs{background:var(--card)}}
+@media (max-width:760px){.side ~ .app{padding-inline-start:16px}}
+@media (max-width:760px){.gsw{display:none}}
+
+/* ---- side list colours: the brand sea gradient, chosen by Mohamed 2026-11-23 out of four looks («الازرق افضل بس مش عايز
+   شادو للازرار جواه»). No shadow on anything inside it; the same in light and dark. ---- */
+.side{background:linear-gradient(170deg,#12A3B8 0%,#0A8BA0 45%,#076C7D 100%);color:#fff}
+.side::after{content:"";position:absolute;inset:auto 0 0 0;height:230px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='44'%3E%3Cpath d='M0 11H60c12 0 14 6 26 6H150c12 0 14-6 26-6H240M0 33H20c12 0 14-6 26-6H110c12 0 14 6 26 6H240' fill='none' stroke='%23fff' stroke-opacity='.08' stroke-width='8'/%3E%3C/svg%3E");-webkit-mask-image:linear-gradient(transparent,#000);mask-image:linear-gradient(transparent,#000);pointer-events:none}
+.side > *{position:relative;z-index:1}
+.sbrand .logo{background:#fff}
+.sbrand small,.side h3,.sme small{color:rgba(255,255,255,.65)}
+.side nav a,.sportal{color:rgba(255,255,255,.9)}
+.side nav a svg,.sportal svg{color:rgba(255,255,255,.75)}
+.side nav a:hover,.sportal:hover{background:rgba(255,255,255,.12);color:#fff}
+.side nav a[aria-current]{background:#fff;color:#076C7D;font-weight:600;box-shadow:none}
+.side nav a[aria-current] svg{color:#0A8BA0}
+.sfoot{border-top-color:rgba(255,255,255,.16)}
+.sme{background:rgba(255,255,255,.12)}
+.sme button{background:rgba(255,255,255,.16);color:#fff;box-shadow:none}
+.sme button:hover{background:rgba(255,255,255,.26);color:#fff}
+.sme .av{background:#fff;color:#0A8BA0}
+.side nav{scrollbar-color:rgba(255,255,255,.3) transparent}
+/* side list type: the brand display face (Mohamed 2026-11-23: the body face was "not the best" here); no third family is allowed */
+.side nav a,.sportal,.side h3,.sme b{font-family:"Alexandria",sans-serif}
+.side nav a{font-size:var(--t-ui);font-weight:400;line-height:1.7}
+.side nav a[aria-current]{font-weight:500}
+.side h3{font-weight:400;letter-spacing:0}
+.sportal{font-size:var(--t-sm)}
+.sme b{font-weight:500;font-size:var(--t-ui)}
+/* ---- density pass (Mohamed 2026-11-23, on his 125% screen: «حاسس التصميم ضخم و زحمه»): smaller type scale above, and here
+   tighter padding, gaps, controls and rows. One block so the whole feel can be tuned in one place. ---- */
+body{line-height:1.6}
+.app{padding:14px 20px 40px}
+.hello{margin-bottom:14px;gap:12px}
+.hello h1{line-height:1.25}
+.grid{gap:12px}
+.card{padding:16px;border-radius:22px}
+.sub{padding:10px;border-radius:16px}
+.tile{padding:14px;border-radius:18px}
+.tile .ico{width:30px;height:30px}
+.tile .big{padding-top:8px}
+.big{line-height:1.25}
+.stats{gap:10px;padding:10px}
+.btn{padding:8px 16px}
+.btn.sm{padding:5px 12px}
+.field{padding:7px 16px}
+.seg{padding:3px}
+.seg button{padding:5px 12px}
+.bar{margin-bottom:12px;gap:8px}
+.av{width:34px;height:34px}
+.who{gap:10px}
+th{padding:8px 14px}
+td{padding:8px 14px}
+.note{margin-top:12px}
+.side{width:224px;inset-block:14px;inset-inline-start:16px;border-radius:22px}
+.side ~ .app{padding-inline-start:254px}
+.sbrand{padding:16px 16px 10px}
+.sbrand .logo{width:104px}
+.side nav{padding:2px 10px 10px}
+.side nav a{padding:7px 12px;gap:10px;border-radius:12px}
+.side h3{padding:12px 12px 4px}
+.sfoot{padding:8px 10px 10px;gap:6px}
+.sportal{padding:7px 12px}
+.sme{padding:6px;border-radius:16px}
+.sme .av{width:34px;height:34px}
+@media (min-width:1001px){.app{padding-top:14px}.top{padding:6px 16px 6px 6px;margin-bottom:14px;border-radius:20px}[dir="rtl"] .top{padding:6px 16px 6px 6px}.top .tool{width:36px;height:36px}.gs input{padding:8px 0}}
+@media (max-width:1000px){.side ~ .app{padding-inline-start:20px}}
+@media (max-width:760px){.side ~ .app{padding-inline-start:14px}.app{padding:14px 14px 40px}}
+/* side list text one step smaller (Mohamed 2026-11-23: «لسه كبير حاجه بسيطه»); Alexandria runs wide, so 12px here reads like 13px body */
+.side nav a{font-size:var(--t-sm)}
+.sportal{font-size:var(--t-sm)}
+.sme b{font-size:var(--t-sm)}
+.side nav a svg{width:18px;height:18px}
+/* ---- colour on the stat tiles: look 13 of 14, chosen by Mohamed 2026-11-23. White tiles straight on the page, and the
+   only colour is the icon on a pale circle of the tile's tone. Red tone = the tile reports a problem (.bad). ---- */
+.stats .tile{--tb:#EEEEEC;--tc:#383837}
+.stats .tile:nth-child(4n+1){--tb:#DFF1F5;--tc:#08707F}
+.stats .tile:nth-child(4n+2){--tb:#F1F5D2;--tc:#5C6600}
+.stats .tile:nth-child(4n+3){--tb:#E8F7FA;--tc:#0A8BA0}
+.stats .tile.bad{--tb:#FBE7E4;--tc:#B3261E}
+[data-theme="dark"] .stats .tile{--tb:rgba(255,255,255,.07);--tc:#E5E5E2}
+[data-theme="dark"] .stats .tile:nth-child(4n+1){--tb:rgba(10,139,160,.22);--tc:#7FD6E4}
+[data-theme="dark"] .stats .tile:nth-child(4n+2){--tb:rgba(207,221,40,.13);--tc:#DCE86A}
+[data-theme="dark"] .stats .tile:nth-child(4n+3){--tb:rgba(112,205,221,.14);--tc:#9FE0EC}
+[data-theme="dark"] .stats .tile.bad{--tb:rgba(220,70,60,.2);--tc:#FFB4AB}
+.stats{background:none;padding:0}
+.stats .tile:not(.acc){background:var(--card)}
+.stats .tile:not(.acc) .ico{background:var(--tb);color:var(--tc)}
+/* counts in the side list: white on the blue column, blue on the white current page (the lime clashed with the gradient) */
+.side nav a i{background:#fff;color:#076C7D;min-width:20px;text-align:center;padding:0 6px;line-height:20px;font-size:var(--t-cap);font-family:"IBM Plex Sans Arabic",sans-serif}
+.side nav a[aria-current] i{background:#0A8BA0;color:#fff}
+/* smaller and lighter counts (Mohamed: «الحجم و البولد») */
+.side nav a i{min-width:17px;line-height:17px;padding:0 5px;font-size:10.5px;font-weight:500}
+/* ---- notifications menu (second pass, 2026-11-23: «مش احسن حاجه … و فرق بين المقروء و الغير مقروء»). A feed of events.
+   Unread = pale blue row, strong title and a dot at the end; read = plain row, lighter title. ---- */
+.pop.bell{width:380px;padding:0;overflow:hidden}
+.pop.bell header{display:flex;align-items:center;gap:8px;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.pop.bell h3{margin:0}
+.unc{font-size:var(--t-sm);color:var(--m)}
+.pop.bell .lnk{margin-inline-start:auto;border:0;background:none;padding:0;color:var(--teal);font-size:var(--t-sm)}
+.pop.bell .lnk:hover{text-decoration:underline}
+.nlist{max-height:min(60vh,420px);overflow-y:auto;padding:6px}
+.al{display:flex;align-items:flex-start;gap:12px;padding:10px;border-radius:14px;text-decoration:none;color:var(--ink)}
+.al + .al{margin-top:2px}
+.al:hover{background:var(--sub)}
+.al em{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none;font-style:normal;background:#DFF1F5;color:#08707F}
+.al.ok em{background:#F1F5D2;color:#5C6600}
+.al.bad em{background:#FBE7E4;color:#B3261E}
+.al > span{flex:1;min-width:0;display:grid;gap:1px}
+.al b{font-weight:400;color:var(--m);line-height:1.6}
+.al small{color:var(--m);font-size:var(--t-sm)}
+.al time{color:var(--m);font-size:var(--t-cap);margin-top:2px;direction:rtl}
+.al.un{background:#EEF8FA}
+.al.un:hover{background:#E2F3F6}
+.al.un b{font-weight:600;color:var(--ink)}
+.und{width:8px;height:8px;border-radius:50%;background:#0A8BA0;flex:none;margin-top:13px}
+[data-theme="dark"] .al em{background:rgba(10,139,160,.22);color:#7FD6E4}
+[data-theme="dark"] .al.ok em{background:rgba(207,221,40,.13);color:#DCE86A}
+[data-theme="dark"] .al.bad em{background:rgba(220,70,60,.2);color:#FFB4AB}
+[data-theme="dark"] .al.un{background:rgba(10,139,160,.16)}
+[data-theme="dark"] .al.un:hover{background:rgba(10,139,160,.24)}
+[data-theme="dark"] .und{background:#7FD6E4}
+/* alert count on the bell: a small numbered badge on the corner of the button (it was a large plain dot sitting on the icon) */
+.tool .dot{top:-3px;inset-inline-end:-3px;width:auto;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#0A8BA0;color:#fff;font-style:normal;font-size:10px;font-weight:600;line-height:16px;text-align:center;box-shadow:0 0 0 2px var(--card)}
+@media (max-width:1000px){.tool .dot{box-shadow:0 0 0 2px var(--bg)}}
+/* one colour for "something is wrong" (Mohamed 2026-11-23: late was drawn in green): late, stopped and rejected are red everywhere */
+:root{--bad:#C0392B}
+[data-theme="dark"]{--bad:#F2857B}
+.st.late::before{background:var(--bad)}
+/* Mohamed's call, 2026-11-23: read = green, late = grey (he asked to undo the red). --late is that grey, in the bar and the status dots. */
+/* not a new grey: the charcoal already used across the page */
+:root,[data-theme="dark"]{--late:var(--ink)}
+.st.late::before{background:var(--late)}
+/* a red chip for things that report a problem, e.g. the "شكوى" badge (Mohamed 2026-11-23) */
+.chip.bad{background:#FBE7E4;color:#B3261E}
+[data-theme="dark"] .chip.bad{background:rgba(220,70,60,.2);color:#FFB4AB}
+
+/* ---- one counter for "how many did it" everywhere (Mohamed 2026-11-24: «عايز توحيد … اللى شافوا و اللى مشافوش»):
+   count, what it counts, percentage, a thin bar. ui.js prog() builds it. Used for readers of a document, people who
+   saw a news item, people who answered a training, and documents an employee has read. ---- */
+.pgx{min-width:150px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;font-size:var(--t-ui);text-align:start}
+.pgx .t{display:grid;gap:0;line-height:1.5}
+.pgx .t b{font-family:"Alexandria",sans-serif;font-weight:500;font-size:var(--t-h3)}
+.pgx small{color:var(--m);font-size:var(--t-cap)}
+.pgx.off .t{color:var(--m);grid-column:1/-1}
+.pgx .pcx{font-family:"Alexandria",sans-serif;font-weight:500;font-size:var(--t-h3);color:var(--teal)}
+.pgx .track{grid-column:1/-1;margin:2px 0 0}
+/* one window for "who did it and who did not": not-yet first, done second, same row for a person everywhere */
+.pp{display:flex;align-items:center;gap:10px;padding:5px 0}
+.pp .who{flex:1;min-width:0}
+.pp .ppx{display:flex;gap:8px;align-items:center;flex:none;font-size:var(--t-sm)}
+.sc{font-family:"Alexandria",sans-serif;font-weight:500;white-space:nowrap}
+.ppc{margin-top:10px;flex-wrap:wrap;width:fit-content;max-width:100%}
+.pp .ppx .m{font-size:var(--t-cap)}

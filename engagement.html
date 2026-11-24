@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>التفاعل — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1124123349">
+<link rel="stylesheet" href="forms.css?v=1124123349">
+<style>
+/* Engagement (Mohamed's vision 2026-11-22): does each employee open the news, read the files, complete the account, do the
+   training. Four plain measures per person; the level is only a count of how many of the four are done. */
+.mini{display:flex;align-items:center;gap:8px;min-width:110px}
+.mini .track{flex:1;margin:0}
+.mini .n{font-size:var(--t-sm);color:var(--m);white-space:nowrap}
+.lv{display:inline-flex;gap:3px;vertical-align:middle;margin-inline-end:8px}
+.lv i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.lv i.on{background:var(--sea)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">التفاعل</h1><p>هل يفتح الموظفون الأخبار، ويقرأون المستندات، ويكملون حساباتهم وتدريبهم؟</p></div><button class="btn" id="csv">تصدير</button></div>
+  <div class="card stats" id="stats" style="margin-bottom:12px"></div>
+  <section class="card">
+    <div class="bar">
+      <div class="seg" id="tabs" role="group" aria-label="مستوى التفاعل"></div>
+      <span class="sp"></span>
+      <select class="field" id="dept" aria-label="القسم"></select>
+      <input class="field" id="q" type="search" placeholder="ابحث باسم الموظف" aria-label="بحث">
+    </div>
+    <div class="tb"><table><thead><tr><th>الموظف</th><th>آخر دخول</th><th>الأخبار</th><th>المستندات</th><th>الحساب</th><th>التدريب</th><th>التفاعل</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="note" id="count"></p>
+  </section>
+</div>
+<script src="ui.js?v=1124123349"></script>
+<script src="forms.js?v=1124123349"></script>
+<script>
+/* shortcut: sample numbers built from the employee's place in the list; replace with the real view, read and training records in APEX */
+var NEWSN=NEWS.filter(function(n){return n.st!=="مسودة"}).length,DOCN=5,FILEN=8;
+var ROWS=EMPS.filter(function(e){return e.st==="نشط"||e.st==="موقوف"}).map(function(e,i){
+  var a=ACKS.filter(function(x){return x.name===e.name})[0];
+  return {e:e,news:[NEWSN,NEWSN,2,1,3,0,1][i%7],docs:a?a.done:[5,4,2,5,1,0,3][i%7],files:[8,8,5,6,2,0,8][i%7],train:["مكتمل","مكتمل","قيد التنفيذ","مكتمل","لم يبدأ","لم يبدأ","قيد التنفيذ"][i%7]}});
+ROWS.forEach(function(r){r.score=(r.news>=NEWSN?1:0)+(r.docs>=DOCN?1:0)+(r.files>=FILEN?1:0)+(r.train==="مكتمل"?1:0);r.lv=r.score>=3?"جيد":r.score>=1?"متوسط":"ضعيف"});
+var TABS=["الكل","جيد","متوسط","ضعيف"],tab="الكل",shown=[];
+function cnt(s){return ROWS.filter(function(r){return s==="الكل"||r.lv===s}).length}
+function bar(n,all){return '<div class="mini"><div class="track thin"><i style="width:'+pc(n,all)+'%"></i></div><span class="n">'+n+' / '+all+'</span></div>'}
+document.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.tab){tab=b.dataset.tab;render()}
+  if(b.id==="csv"){var csv=[["الموظف","القسم","آخر دخول","الأخبار","المستندات","ملفات الحساب","التدريب","التفاعل"]].concat(shown.map(function(r){return [r.e.name,r.e.dept,r.e.last,r.news+"/"+NEWSN,r.docs+"/"+DOCN,r.files+"/"+FILEN,r.train,r.lv]})).map(function(r){return r.map(function(v){v=String(v==null?"":v);return '"'+(/^[=+@\-\t\r]/.test(v)?"'":"")+v.replace(/"/g,'""')+'"'}).join(",")}).join("\r\n");
+    var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"}));a.download="engagement.csv";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000);toast("تم تصدير "+shown.length+" موظفين إلى engagement.csv.")}});
+document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id==="dept")render()});
+function render(){
+  if(!$("dept").options.length){var ds=ROWS.map(function(r){return r.e.dept}).filter(function(d,i,a){return a.indexOf(d)===i});
+    $("dept").innerHTML='<option value="">كل الأقسام</option>'+ds.map(function(d){return '<option>'+esc(d)+'</option>'}).join("")}
+  var n=ROWS.length;function share(f){return pc(ROWS.filter(f).length,n)+"%"}
+  $("stats").innerHTML=[["acc","bell","فتحوا كل الأخبار",share(function(r){return r.news>=NEWSN}),NEWSN+" أخبار منشورة"],["","doc","قرأوا كل المستندات",share(function(r){return r.docs>=DOCN}),DOCN+" مستندات مطلوبة"],["","users","حسابات مكتملة",share(function(r){return r.files>=FILEN}),FILEN+" ملفات لكل موظف"],["","cap","أتمّوا التدريب",share(function(r){return r.train==="مكتمل"}),"برنامج التدريب الحالي"]].map(function(k){
+    return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
+  $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'<b>'+cnt(s)+'</b></button>'}).join("");
+  var q=$("q").value.trim(),dp=$("dept").value;
+  var list=ROWS.filter(function(r){return (tab==="الكل"||r.lv===tab)&&(!dp||r.e.dept===dp)&&(!q||r.e.name.indexOf(q)>-1)}).sort(function(a,b){return a.score-b.score});
+  shown=list;
+  $("rows").innerHTML=list.length?list.map(function(r){var e=r.e;
+    return '<tr><td class="full"><div class="who">'+av(e.name)+'<div><b>'+esc(e.name)+'</b><small>'+esc(e.dept)+'</small></div></div></td><td class="hide m">'+ltr(e.last)+'</td>'+
+      '<td>'+bar(r.news,NEWSN)+'</td><td>'+bar(r.docs,DOCN)+'</td><td class="hide">'+bar(r.files,FILEN)+'</td>'+
+      '<td class="hide"><span class="st '+(r.train==="مكتمل"?'done':r.train==="لم يبدأ"?'late':'')+'">'+r.train+'</span></td>'+
+      '<td class="full"><span class="lv" aria-hidden="true">'+[0,1,2,3].map(function(i){return '<i'+(i<r.score?' class="on"':'')+'></i>'}).join("")+'</span>'+r.lv+'</td></tr>'}).join(""):
+    '<tr><td colspan="7" class="empty">لا يوجد موظفون بهذه الشروط. جرّب تغيير البحث أو المستوى.</td></tr>';
+  $("count").textContent=list.length+" من "+n+" موظفين لهم حساب · الأقل تفاعلًا أولًا · بيانات تجريبية";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>إقرارات القراءة — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1124123349">
+<style>
+.prog{display:flex;align-items:center;gap:10px;min-width:150px}.prog .track{flex:1}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">إقرارات القراءة</h1><p>من قرأ المستندات المطلوبة ومن لم يقرأ بعد، مع إرسال تذكير واحد لكل موظف.</p></div></div>
+  <div class="card stats" id="stats" style="margin-bottom:16px"></div>
+  <section class="card">
+    <div class="bar">
+      <div class="seg" id="tabs" role="group" aria-label="الحالة"></div>
+      <input class="field" id="q" type="search" placeholder="ابحث باسم الموظف أو المستند" aria-label="بحث">
+      <span class="sp"></span>
+      <label class="pick"><input type="checkbox" id="all"> تحديد الكل</label>
+      <button class="btn k" id="send" disabled></button>
+    </div>
+    <div class="tb"><table><thead><tr><th></th><th>الموظف</th><th>قرأ</th><th>متأخر أكثر من 14 يومًا</th><th>آخر تذكير</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="note">«تحديد الكل» يحدّد الظاهرين المؤهلين للتذكير فقط. يستلم الموظف رسالة واحدة تضم جميع مستنداته · بيانات تجريبية</p>
+  </section>
+</div>
+<script src="ui.js?v=1124123349"></script>
+<script>
+var TABS=["الكل","لديهم إقرارات معلّقة","مكتمل"],tab="لديهم إقرارات معلّقة",sel={},open={};
+var AD=DOCS.filter(function(d){return d.ack});
+function docsOf(a){return AD.map(function(d,k){return {n:d.n,v:d.v,read:k<a.done,late:k>=a.done&&k<a.done+a.late}})}
+function ok(a){return a.done<a.all&&!a.rem}
+function vis(){var q=$("q").value.trim();return ACKS.map(function(a,i){a.i=i;return a}).filter(function(a){
+  return (tab==="الكل"||(tab==="مكتمل")===(a.done===a.all))&&(!q||(a.name+a.dept+AD.map(function(d){return d.n}).join(" ")).indexOf(q)>-1)})}
+function send(ids){ids.forEach(function(i){ACKS[i].rem="الآن";delete sel[i]});render();toast("تم إرسال تذكير لـ "+ids.length+" موظف.")}
+document.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.tab){tab=b.dataset.tab;sel={};render()}
+  if(b.dataset.one)send([+b.dataset.one]);
+  if(b.dataset.open){open[b.dataset.open]=!open[b.dataset.open];render()}
+  if(b.id==="send")send(Object.keys(sel).map(Number));
+});
+document.addEventListener("input",function(e){
+  if(e.target.id==="q")render();
+  if(e.target.id==="all"){sel={};if(e.target.checked)vis().filter(ok).forEach(function(a){sel[a.i]=1});render()}
+  if(e.target.dataset.pick){if(e.target.checked)sel[e.target.dataset.pick]=1;else delete sel[e.target.dataset.pick];render()}
+});
+function render(){
+  var d=0,a=0,l=0;ACKS.forEach(function(x){d+=x.done;a+=x.all;l+=x.late});
+  $("stats").innerHTML=[["acc","check","نسبة الإقرار",pc(d,a)+"%",'<span class="chip">'+d+' من '+a+'</span>'],["","clock","لم تُقرأ بعد",a-d,"إقرار مطلوب"],["bad","clock","متأخر",l,"أكثر من 14 يومًا"],["","doc","مستندات تتطلب إقرارًا",AD.length,"من 82 مستند"]].map(function(k){
+    return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
+  $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'</button>'}).join("");
+  var list=vis(),n=Object.keys(sel).length,can=list.filter(ok).length;
+  $("all").checked=can>0&&n===can;$("all").disabled=!can;
+  $("send").disabled=!n;$("send").textContent=n?"إرسال تذكير للمحددين ("+n+")":"إرسال تذكير للمحددين";
+  $("rows").innerHTML=list.length?list.map(function(x){var left=x.all-x.done;
+    return '<tr><td>'+(left?'<label class="ck"><input type="checkbox" data-pick="'+x.i+'" aria-label="تحديد '+esc(x.name)+'"'+(sel[x.i]?' checked':'')+(ok(x)?'':' disabled')+'></label>':'')+'</td>'+
+      '<td><div class="who">'+av(x.name)+'<div><b>'+esc(x.name)+'</b><small>'+esc(x.dept)+'</small></div></div></td>'+
+      '<td class="full">'+prog(x.done,x.all,"مستندات قرأها")+'</td>'+
+      '<td class="full">'+(x.late?'<span class="st late">'+x.late+' متأخر</span>':left?'<span class="st">ضمن المهلة</span>':'<span class="st done">مكتمل</span>')+'</td>'+
+      '<td class="hide m">'+(x.rem||'—')+'</td>'+
+      '<td class="end full"><button class="btn sm" data-open="'+x.i+'" aria-expanded="'+!!open[x.i]+'">'+(open[x.i]?'إخفاء المستندات':'المستندات')+'</button> '+(left?(x.rem?'<button class="btn sm" disabled>أُرسل '+esc(x.rem)+'</button>':'<button class="btn sm" data-one="'+x.i+'">إرسال تذكير</button>'):'')+'</td></tr>'+
+      (open[x.i]?'<tr class="det"><td colspan="6" class="full"><div class="dl">'+docsOf(x).map(function(d){return '<span><b>'+esc(d.n)+'</b> <span class="m">· الإصدار '+d.v+'</span></span><span class="st '+(d.read?'done">قرأ وأقرّ':d.late?'late">متأخر':'">بانتظار الإقرار')+'</span><span class="m">'+(d.read?ltr("2026-11-1"+(d.v+2)):'—')+'</span>'}).join("")+'</div></td></tr>':'')}).join(""):
+    '<tr><td colspan="6" class="empty">لا يوجد موظفون هنا. '+(tab==="لديهم إقرارات معلّقة"?'جميع الموظفين قرأوا المطلوب.':'جرّب تغيير البحث.')+'</td></tr>';
+}
+</script>
+</body>
+</html>

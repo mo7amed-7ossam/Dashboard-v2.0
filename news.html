@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الأخبار والإعلانات — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1124123349">
+<link rel="stylesheet" href="forms.css?v=1124123349">
+<style>
+/* UI review 2026-11-23: the big empty covers made the page huge and left a lone card on a second row. This is a working
+   list for the person who publishes: small cover, title and state first, one line of text, actions at the end. */
+.nl{border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.nr{display:flex;gap:14px;align-items:center;padding:12px 14px}
+.nr + .nr{border-top:1px solid var(--line)}
+.nr.draft{background:var(--sub)}
+.thumb{width:92px;height:62px;border-radius:12px;flex:none;background:var(--sub);display:grid;place-items:center;font-size:var(--t-cap);color:var(--m);position:relative;overflow:hidden}
+.nr.main .thumb{background:var(--grad);color:#fff}
+.nr.draft .thumb{background:var(--card)}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thumb.has::after{display:none}
+.thumb::after{content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='22'%3E%3Cpath d='M0 6H30c6 0 7 3 13 3H75c6 0 7-3 13-3H120M0 17H10c6 0 7-3 13-3H55c6 0 7 3 13 3H120' fill='none' stroke='%23888' stroke-opacity='.14' stroke-width='4'/%3E%3C/svg%3E")}
+.nb{flex:1;min-width:0;display:grid;gap:3px}
+.nb h3{font-family:"Alexandria",sans-serif;font-size:var(--t-h3);font-weight:500;line-height:1.5;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nb p{color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nm{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:var(--t-sm);color:var(--m)}
+.nm .lnk{border:0;background:none;padding:0;color:var(--teal);font-size:inherit}
+.nm .lnk:hover{text-decoration:underline}
+.na{display:flex;gap:6px;flex:none}
+.nr .pgx{flex:none;width:170px}
+@media (max-width:760px){.nr .pgx{width:100%}.nr{flex-wrap:wrap}.nb{flex-basis:calc(100% - 110px)}.nb p{white-space:normal}.na{width:100%}.na .btn{flex:1}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">الأخبار والإعلانات</h1><p>ما يُنشر هنا يظهر في رئيسية البوابة فورًا. خبر رئيسي واحد فقط، والمسودة لا تظهر للموظفين.</p></div><button class="btn k" data-form="news">خبر جديد</button></div>
+  <section class="card">
+    <div class="bar">
+      <div class="seg" id="tabs" role="group" aria-label="الحالة"></div>
+      <span class="sp"></span>
+      <select class="field" id="cat" aria-label="التصنيف"></select>
+      <input class="field" id="q" type="search" placeholder="ابحث في العناوين والنصوص" aria-label="بحث">
+    </div>
+    <div class="nl" id="news"></div>
+    <p class="note" id="count"></p>
+  </section>
+</div>
+<script src="ui.js?v=1124123349"></script>
+<script src="forms.js?v=1124123349"></script>
+<script>
+var TABS=["الكل","منشور","مسودة"],tab="الكل";
+function state(x){return x.st==="مسودة"?"مسودة":"منشور"}
+function cnt(s){return NEWS.filter(function(x){return s==="الكل"||state(x)===s}).length}
+document.addEventListener("click",function(e){var b=e.target.closest("[data-tab]");if(b){tab=b.dataset.tab;render()}});
+document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id==="cat")render()});
+function render(){
+  if(!$("cat").options.length)$("cat").innerHTML='<option value="">كل التصنيفات</option>'+NCATS.map(function(c){return '<option>'+esc(c)+'</option>'}).join("");
+  $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'<b>'+cnt(s)+'</b></button>'}).join("");
+  var q=$("q").value.trim().toLowerCase(),c=$("cat").value;
+  var list=NEWS.filter(function(x){return (tab==="الكل"||state(x)===tab)&&(!c||x.cat===c)&&(!q||(x.t+" "+x.x).toLowerCase().indexOf(q)>-1)});
+  $("news").innerHTML=list.length?list.map(function(x){var i=NEWS.indexOf(x),a=audCount(x.aud),draft=x.st==="مسودة";
+    return '<article class="nr'+(x.main?' main':'')+(draft?' draft':'')+'"><div class="thumb'+(x.img?' has':'')+'">'+(x.img?'<img src="../../03-assets/news/'+esc(x.img)+'" alt="" loading="lazy">':'بدون صورة')+'</div>'+
+      '<div class="nb"><h3>'+esc(x.t)+(x.main?'<span class="chip">الخبر الرئيسي</span>':'')+(draft?'<span class="chip d">مسودة</span>':'')+'</h3><p>'+esc(x.x)+'</p>'+
+      '<div class="nm"><span class="chip s">'+esc(x.cat)+'</span><span>'+ltr(x.date)+'</span>'+(x.u?'<span class="chip s">'+ic("link",12)+' رابط</span>':'')+'<span>يظهر لـ <span class="n">'+a+'</span> من <span class="n">'+EMPS.length+'</span></span>'+
+        '</div></div>'+(draft?'':prog(Math.min(seenOf(x),a),a,x.ack?"اطّلعوا وأكّدوا":"اطّلعوا"))+
+      '<div class="na">'+(draft?'':'<button class="btn sm" data-seen="'+i+'">من اطّلع</button>')+'<button class="btn sm" data-form="news" data-i="'+i+'">تعديل</button><button class="btn sm" data-del="news" data-i="'+i+'">حذف</button></div></article>'}).join(""):
+    '<p class="empty" style="padding:18px">'+(NEWS.length?'لا توجد أخبار بهذه الشروط. جرّب تغيير البحث أو الحالة.':'لا توجد أخبار بعد. أضف أول خبر من «خبر جديد».')+'</p>';
+  $("count").textContent=list.length+" من "+NEWS.length+" أخبار · بيانات تجريبية";
+}
+</script>
+</body>
+</html>

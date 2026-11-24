@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الشكاوى والمقترحات — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1124123349">
+<link rel="stylesheet" href="forms.css?v=1124123349">
+<style>
+/* Complaints and suggestions. The sender chooses (Mohamed 2026-11-23): stay anonymous, or put their name on it (`by` in
+   COMPL). Anonymous = nothing identifies them, no name, department or device. Either way the employee keeps a follow-up
+   code and the reply written here is shown to whoever opens that code. */
+.snd{display:inline-flex;gap:6px;align-items:center;color:var(--ink)}
+.snd.anon{color:var(--m)}
+/* readability pass (Mohamed: «مش سهله فى القراءه»): what kind of message and how old go first, then the text itself at
+   reading size with a line no longer than about 75 characters; no tinted rows, the state sits at the end. */
+.cl{display:grid;gap:14px;margin-top:14px}
+.fb .bar{margin:0}
+.cr .btn:not(.k){background:var(--sub)}
+/* messages grouped under their state (look 3 of 4, chosen by Mohamed 2026-11-23); each message is its own card */
+.gh{font-family:"Alexandria",sans-serif;font-size:var(--t-ui);font-weight:500;color:var(--m);margin:10px 4px -2px;display:flex;gap:8px;align-items:center}
+.gh b{font-weight:500;background:var(--card);border-radius:99px;padding:0 8px;color:var(--ink)}
+.gh:first-child{margin-top:0}
+.cr{display:flex;gap:20px;align-items:center;padding:14px 18px;background:var(--card);border-radius:16px}
+.cb{flex:1;min-width:0;display:grid;gap:3px}
+.cb p{font-size:var(--t-body);line-height:1.75;color:var(--ink);max-width:90ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:var(--t-sm);color:var(--m)}
+.cm .chip{font-size:var(--t-cap);padding:1px 8px}
+.cs{flex:none;display:flex;gap:12px;align-items:center}
+.cm .code{font-size:var(--t-cap)}
+.cw .dr-b{grid-template-columns:minmax(0,1fr);gap:0;padding-block:8px}
+.cw .dr-b > *{padding-block:14px}
+.cw .dr-b > * + *{border-top:1px solid var(--line)}
+.cw .quote{font-size:var(--t-body);line-height:1.9}
+.cw h3{font-family:"Alexandria",sans-serif;font-size:var(--t-ui);font-weight:500;color:var(--m);margin-bottom:6px}
+.cw .in{background:var(--sub);border-color:transparent}
+.cw textarea.in{min-height:76px;resize:vertical}
+.anon{display:flex;gap:8px;align-items:center;font-size:var(--t-sm);color:var(--m)}
+@media (max-width:760px){.cr{flex-wrap:wrap}.cs{width:100%;justify-content:space-between}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">الشكاوى والمقترحات</h1><p>شكاوى الموظفين ومقترحاتهم. يختار المرسل أن يذكر اسمه أو يبقى مجهولًا، ويتابع رسالته برمز خاص به.</p></div></div>
+  <div class="card stats" id="stats" style="margin-bottom:12px"></div>
+  <section class="card fb">
+    <div class="bar">
+      <div class="seg" id="tabs" role="group" aria-label="الحالة"></div>
+      <span class="sp"></span>
+      <select class="field" id="kind" aria-label="النوع"><option value="">شكاوى ومقترحات</option><option>شكوى</option><option>مقترح</option></select>
+      <select class="field" id="cat" aria-label="التصنيف"></select>
+      <select class="field" id="who" aria-label="المرسل"><option value="">كل المرسلين</option><option value="1">ذكر اسمه</option><option value="0">مجهول</option></select>
+      <input class="field" id="q" type="search" placeholder="ابحث في النص أو الاسم أو الرمز" aria-label="بحث">
+    </div>
+  </section>
+  <div class="cl" id="list"></div>
+  <p class="note" id="count"></p>
+</div>
+<script src="ui.js?v=1124123349"></script>
+<script src="forms.js?v=1124123349"></script>
+<script>
+var TABS=["جديدة","قيد المراجعة","مغلقة","الكل"],tab="جديدة",CLS={"قيد المراجعة":"","مغلقة":"done"};
+function kindOf(c){return c.kind||"شكوى"}
+function sender(c){var e=c.by&&EMPS.filter(function(e){return e.name===c.by})[0];return c.by?'<span class="snd">'+ic("users",14)+esc(c.by)+(e?" · "+esc(e.dept):"")+'</span>':'<span class="snd anon">'+ic("users",14)+'مجهول</span>'}
+function when(a){var n=days(a);return n===0?"اليوم":n===1?"أمس":n===2?"منذ يومين":"منذ "+n+(n<=10?" أيام":" يومًا")}
+function cnt(s){return COMPL.filter(function(c){return s==="الكل"||c.st===s}).length}
+function days(a){return Math.max(0,Math.round((new Date(TODAY)-new Date(a.slice(0,10)))/864e5))}
+function openC(c){
+  var d=dlg("drawer md cw");
+  d.innerHTML='<form novalidate style="display:contents"><div class="dr-h"><h2>'+kindOf(c)+' <span class="ltr m">'+c.code+'</span></h2><button type="button" class="xbtn" data-close aria-label="إغلاق" title="إغلاق">×</button></div><div class="dr-b">'+
+    '<div><div class="cm" style="margin-bottom:8px"><span class="chip'+(c.kind?'':' bad')+'">'+kindOf(c)+'</span><span class="chip s">'+esc(c.cat)+'</span>'+sender(c)+'<span>وصلت '+ltr(c.at)+'</span></div><p class="quote">'+esc(c.x)+'</p></div>'+
+    '<div><h3>الحالة</h3><div class="picks">'+["جديدة","قيد المراجعة","مغلقة"].map(function(s){return '<label><input type="radio" name="st" value="'+s+'"'+(s===c.st?' checked':'')+'><span>'+s+'</span></label>'}).join("")+'</div></div>'+
+    '<label class="f"><h3>الرد على صاحب الرسالة</h3><textarea class="in" name="reply" placeholder="يظهر هذا الرد لمن يفتح الرسالة برمز المتابعة.">'+esc(c.reply||"")+'</textarea><small>'+(c.by?'ذكر المرسل اسمه، ويظهر له الرد عند فتح رسالته.':'لا يُرسل إشعار باسم الموظف، لأن هويته غير معروفة للنظام.')+'</small></label>'+
+    '<label class="f"><h3>ملاحظة داخلية</h3><textarea class="in" name="note" placeholder="للإدارة فقط، ولا تظهر للموظف.">'+esc(c.note||"")+'</textarea></label></div>'+
+    '<div class="dr-f"><span class="anon dirty" style="margin-inline-end:auto">'+(c.by?'المرسل: '+esc(c.by):'المرسل مجهول')+'</span><button type="button" class="btn" data-close>إلغاء</button><button class="btn k">حفظ</button></div></form>';
+  d.querySelector("form").addEventListener("submit",function(ev){ev.preventDefault();var f=ev.target,was=c.st;
+    c.st=f.st.value;c.reply=f.reply.value.trim();c.note=f.note.value.trim();d.close();render();
+    toast("تم الحفظ — "+kindOf(c)+" "+c.code+" «"+c.st+"»"+(c.reply?"، والرد ظاهر لصاحبها.":"."))});
+  d.showModal();
+}
+document.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.tab){tab=b.dataset.tab;render()}
+  if(b.dataset.view)openC(COMPL[b.dataset.view])});
+document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id==="cat"||e.target.id==="who"||e.target.id==="kind")render()});
+function render(){
+  if(!$("cat").options.length){var cs=COMPL.map(function(c){return c.cat}).filter(function(v,i,a){return a.indexOf(v)===i});
+    $("cat").innerHTML='<option value="">كل التصنيفات</option>'+cs.map(function(c){return '<option>'+esc(c)+'</option>'}).join("")}
+  var fresh=COMPL.filter(function(c){return c.st==="جديدة"}),oldest=fresh.reduce(function(m,c){return Math.max(m,days(c.at))},0);
+  $("stats").innerHTML=[[fresh.length?"acc":"","mail","رسائل جديدة",fresh.length,fresh.length?"أقدمها منذ "+oldest+" أيام":"لا توجد رسائل جديدة"],["","clock","قيد المراجعة",cnt("قيد المراجعة"),"تنتظر الإغلاق"],["","check","مغلقة",cnt("مغلقة"),"هذا الشهر"],["","doc","بدون رد",COMPL.filter(function(c){return c.st!=="جديدة"&&!c.reply}).length,"فُتحت ولم يُكتب لها رد"]].map(function(k){
+    return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
+  $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'<b>'+cnt(s)+'</b></button>'}).join("");
+  var q=$("q").value.trim().toLowerCase(),c=$("cat").value,kd=$("kind").value,wh=$("who").value;
+  var list=COMPL.filter(function(x){return (tab==="الكل"||x.st===tab)&&(!c||x.cat===c)&&(!kd||kindOf(x)===kd)&&(!wh||!!x.by===(wh==="1"))&&(!q||(x.x+" "+x.code+" "+(x.by||"")).toLowerCase().indexOf(q)>-1)});
+  function chips(x){return '<span class="chip'+(x.kind?'':' bad')+'">'+kindOf(x)+'</span><span class="chip s">'+esc(x.cat)+'</span>'}
+  function info(x){return sender(x)+'<span>'+when(x.at)+'</span><span class="ltr code">'+x.code+'</span>'+(x.reply?'<span class="st done">كُتب لها رد</span>':'')}
+  function card(x){return '<article class="cr"><div class="cb"><div class="cm">'+chips(x)+info(x)+'</div><p>'+esc(x.x)+'</p></div><div class="cs"><button class="btn sm'+(x.st==="جديدة"?' k':'')+'" data-view="'+COMPL.indexOf(x)+'">'+(x.st==="جديدة"?'مراجعة':'عرض')+'</button></div></article>'}
+  $("list").innerHTML=!list.length?'<p class="empty" style="padding:18px">'+(tab==="جديدة"&&!q&&!c&&!kd&&!wh?'لا توجد رسائل جديدة.':'لا توجد رسائل بهذه الشروط. جرّب تغيير البحث أو الحالة.')+'</p>':
+    ["جديدة","قيد المراجعة","مغلقة"].map(function(g){var l=list.filter(function(x){return x.st===g});
+      return l.length?(tab==="الكل"?'<h3 class="gh">'+g+'<b>'+l.length+'</b></h3>':'')+l.map(card).join(""):""}).join("");
+  $("count").textContent=list.length+" من "+COMPL.length+" رسائل · بيانات تجريبية";
+}
+</script>
+</body>
+</html>

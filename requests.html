@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الطلبات — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1124123349">
+<link rel="stylesheet" href="forms.css?v=1124123349">
+<style>
+/* request window: one plain surface, sections split by a hairline (same language as the employee window) */
+.rq .dr-b{grid-template-columns:minmax(0,1fr);gap:0;padding-block:8px}
+.rq .dr-b > *{padding-block:16px}
+.rq .dr-b > * + *{border-top:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.kv div{display:grid;gap:2px}
+.kv span{font-size:var(--t-cap);color:var(--m)}
+.kv b{font-weight:500}
+.bal{margin-top:12px;font-size:var(--t-sm);color:var(--m)}
+.bal.bad{color:#B3261E;font-weight:500}
+[data-theme="dark"] .bal.bad{color:#FFB4AB}
+.sec > h3{font-family:"Alexandria",sans-serif;font-size:var(--t-ui);font-weight:500;color:var(--m);margin-bottom:6px}
+.step{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0}
+.step + .step,.snote + .step{border-top:1px solid var(--line)}
+.step > div{display:grid;gap:2px}
+.step b{font-weight:500}
+.step .m,.step small{font-size:var(--t-sm);color:var(--m)}
+.snote{background:var(--sub);border-radius:12px;padding:10px 14px;font-size:var(--t-ui);margin-bottom:10px}
+.rq .dirty::before{display:none}
+.rq .in{background:var(--sub);border-color:transparent}
+.rq .in:focus{border-color:var(--sea)}
+.rq textarea.in{min-height:72px;resize:vertical}
+@media (max-width:760px){.kv{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">الطلبات</h1><p>متابعة طلبات الإجازات والسلف والانصراف المبكر. يقرّر فيها قائد الفريق من البوابة، والسلف تعتمدها الموارد البشرية من هنا بعد موافقته.</p></div><button class="btn" id="csv">تصدير</button></div>
+  <div class="card stats" id="stats" style="margin-bottom:16px"></div>
+  <section class="card">
+    <div class="bar">
+      <div class="seg" id="tabs" role="group" aria-label="الحالة"></div>
+      <span class="sp"></span>
+      <select class="field" id="type" aria-label="نوع الطلب"><option value="">كل الأنواع</option><option>إجازة</option><option>سلفة</option><option>انصراف مبكر</option></select>
+      <input class="field" id="q" type="search" placeholder="ابحث باسم الموظف أو رقم الطلب" aria-label="بحث">
+    </div>
+    <div class="tb"><table><thead><tr><th>الموظف</th><th>الطلب</th><th>التفاصيل</th><th>تاريخ التقديم</th><th>الحالة</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="note" id="count"></p>
+  </section>
+</div>
+<script src="ui.js?v=1124123349"></script>
+<script src="forms.js?v=1124123349"></script>
+<script>
+/* follow-up screen. The team leader decides in the portal; the only decision here is HR's on an advance the leader approved. */
+var OPEN="قيد الإجراء",TABS=[OPEN,"معتمد","مرفوض","ملغى","الكل"],tab=OPEN,CLS={"معتمد":"done","مرفوض":"late","ملغى":"off"},shown=[];
+function cnt(s){return REQS.filter(function(r){return s==="الكل"||r.st===s}).length}
+function emp(r){return EMPS.filter(function(e){return e.name===r.name})[0]||{dept:"—",job:"—"}}
+function days(a){return Math.max(0,Math.round((new Date(TODAY)-new Date(a.slice(0,10)))/864e5))}
+function ago(a){var n=days(a);return n===0?"اليوم":n===1?"منذ يوم":n===2?"منذ يومين":"منذ "+n+(n<=10?" أيام":" يومًا")}
+/* who holds the request now: the team leader first, HR second and only for advances */
+function waits(r){return r.st!==OPEN?"":r.lead?"الموارد البشرية":"قائد الفريق"}
+function leadOf(r){var d=D.depts.filter(function(x){return x.name===emp(r).dept})[0];return d&&d.lead!==r.name?d.lead:"المدير المباشر"}
+function line(r){var d=r.d;
+  return r.type==="إجازة"?'إجازة '+esc(d.kind)+'، <span class="n">'+d.days+'</span> '+(d.days>10||d.days<3?'يوم':'أيام')+' من '+ltr(d.from):
+    r.type==="سلفة"?'<span class="n">'+d.amount+'</span> ر.ع على <span class="n">'+d.months+'</span> أقساط':
+    'الانصراف '+ltr(d.time)+' يوم '+ltr(d.date)}
+function short(r){return r.type==="إجازة"&&r.d.kind==="سنوية"&&r.d.days>r.d.bal}
+function status(r){return r.st===OPEN?'<span class="st">بانتظار '+waits(r)+'</span><small>'+ago((r.lead||r).at)+'</small>':'<span class="st '+CLS[r.st]+'">'+esc(r.st)+'</span>'}
+function hrTurn(r){return r.type==="سلفة"&&r.st===OPEN&&r.lead&&r.lead.ok&&!r.hr}
+function openReq(r){
+  var d=dlg("drawer md rq"),e=emp(r),x=r.d,bad=short(r),cancelled=r.st==="ملغى",mine=hrTurn(r);
+  function kv(l,v){return '<div><span>'+l+'</span><b>'+v+'</b></div>'}
+  /* one row per step of the path: done, declined, waiting, or not reached */
+  function step(title,who,dec,reached){
+    var cls=dec?(dec.ok?"done":"late"):reached?"":"off",txt=dec?(dec.ok?"وافق":"رفض"):reached?"بانتظار القرار":cancelled?"لم يصل إليه":"لم يحن دوره";
+    return '<div class="step"><div><b>'+title+'</b><span class="m">'+esc(who)+'</span></div><div class="end"><span class="st '+cls+'">'+txt+'</span>'+(dec?'<small>'+ltr(dec.at)+'</small>':'')+'</div></div>'+(dec&&dec.note?'<p class="snote">'+esc(dec.note)+'</p>':'')}
+  d.innerHTML='<div class="dr-h"><h2>طلب '+esc(r.type)+' <span class="ltr m">'+r.no+'</span></h2><button type="button" class="xbtn" data-close aria-label="إغلاق" title="إغلاق">×</button></div><div class="dr-b">'+
+    '<div class="ehead">'+av(r.name)+'<div class="eid"><b class="en">'+esc(r.name)+'</b><span class="m">'+esc(e.dept)+' — '+esc(e.job)+'</span></div><span class="chip '+(r.st===OPEN?'':r.st==="معتمد"?'s':'d')+'">'+(r.st===OPEN?'بانتظار '+waits(r):esc(r.st))+'</span></div>'+
+    '<div><div class="kv">'+(r.type==="إجازة"?kv("نوع الإجازة",esc(x.kind))+kv("من",ltr(x.from))+kv("إلى",ltr(x.to))+kv("المدة",'<span class="n">'+x.days+'</span> يوم'):
+      r.type==="سلفة"?kv("المبلغ",'<span class="n">'+x.amount+'</span> ر.ع')+kv("عدد الأقساط",'<span class="n">'+x.months+'</span>')+kv("القسط الشهري",'<span class="n">'+Math.round(x.amount/x.months)+'</span> ر.ع')+kv("تاريخ التقديم",ltr(r.at.slice(0,10))):
+      kv("اليوم",ltr(x.date))+kv("وقت الانصراف",ltr(x.time))+kv("تاريخ التقديم",ltr(r.at.slice(0,10))))+'</div>'+
+      (r.type==="إجازة"&&x.kind==="سنوية"?'<p class="bal'+(bad?' bad':'')+'">'+(bad?'الرصيد لا يكفي: المتاح <span class="n">'+x.bal+'</span> يوم والمطلوب <span class="n">'+x.days+'</span>.':'رصيد الإجازة السنوية <span class="n">'+x.bal+'</span> يوم، ويبقى <span class="n">'+(x.bal-x.days)+'</span> بعد الاعتماد.')+'</p>':'')+'</div>'+
+    '<div class="sec"><h3>سبب الطلب</h3><p>'+esc(r.why)+'</p></div>'+
+    '<div class="sec"><h3>مسار الطلب</h3>'+
+      '<div class="step"><div><b>تقديم الطلب</b><span class="m">'+esc(r.name)+'</span></div><div class="end"><span class="st '+(cancelled?'off">ألغاه الموظف':'done">قُدّم')+'</span><small>'+ltr(r.at)+'</small></div></div>'+
+      step("قائد الفريق",leadOf(r),r.lead,!cancelled)+
+      (r.type==="سلفة"?step("الموارد البشرية","قسم الموارد البشرية",r.hr,!!(r.lead&&r.lead.ok)):'')+'</div>'+
+    (mine?'<label class="f sec"><span>ملاحظة للموظف (مطلوبة عند الرفض)</span><textarea class="in" id="rqNote"></textarea></label>':'')+'</div>'+
+    '<div class="dr-f">'+(mine?'':'<span class="dirty">'+(r.st===OPEN?'للمتابعة فقط، والقرار عند قائد الفريق في البوابة.':'للمتابعة فقط.')+'</span>')+'<button type="button" class="btn" data-close>إغلاق</button>'+
+      (mine?'<button type="button" class="btn" data-do="no">رفض السلفة</button><button type="button" class="btn k" data-do="ok">اعتماد السلفة</button>':'')+'</div>';
+  d.onclick=function(ev){var b=ev.target.closest("[data-do]");if(!b)return;var ok=b.dataset.do==="ok",n=$("rqNote"),note=n.value.trim();
+    if(!ok&&!note){var l=n.closest(".f");if(!l.querySelector(".err"))l.insertAdjacentHTML("beforeend",'<small class="err">اكتب سبب الرفض ليصل إلى الموظف.</small>');n.setAttribute("aria-invalid","true");n.focus();return}
+    r.hr={ok:ok,at:TODAY+" 10:00",note:note};r.st=ok?"معتمد":"مرفوض";d.close();shell();render();
+    toast((ok?"تم اعتماد":"تم رفض")+" سلفة "+r.name+" "+r.no+"، وسيُبلَّغ عبر واتساب.")};
+  d.showModal();
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.tab){tab=b.dataset.tab;render()}
+  if(b.dataset.view)openReq(REQS[b.dataset.view]);
+  if(b.id==="csv"){var csv=[["رقم الطلب","الموظف","النوع","تاريخ التقديم","الحالة","بانتظار"]].concat(shown.map(function(r){return [r.no,r.name,r.type,r.at,r.st,waits(r)]})).map(function(r){return r.map(function(v){v=String(v==null?"":v);return '"'+(/^[=+@\-\t\r]/.test(v)?"'":"")+v.replace(/"/g,'""')+'"'}).join(",")}).join("\r\n");
+    var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"}));a.download="requests.csv";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000);toast("تم تصدير "+shown.length+" طلبات إلى requests.csv.")}
+});
+document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id==="type")render()});
+function render(){
+  var open=REQS.filter(function(r){return r.st===OPEN}),ok=REQS.filter(function(r){return r.st==="معتمد"});
+  var atLead=open.filter(function(r){return !r.lead}).length;
+  function sum(t,k){return ok.filter(function(r){return r.type===t}).reduce(function(s,r){return s+r.d[k]},0)}
+  $("stats").innerHTML=[["acc","clock","قيد الإجراء",open.length,atLead+" عند قادة الفرق، "+(open.length-atLead)+" عند الموارد البشرية"],["","check","طلبات معتمدة",ok.length,"هذا الشهر"],["","doc","أيام إجازة معتمدة",sum("إجازة","days"),"هذا الشهر"],["","chart","سلف معتمدة",sum("سلفة","amount")+' <small>ر.ع</small>',"هذا الشهر"]].map(function(k){
+    return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
+  $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'<b>'+cnt(s)+'</b></button>'}).join("");
+  var q=$("q").value.trim(),ty=$("type").value;
+  var list=REQS.filter(function(r){return (tab==="الكل"||r.st===tab)&&(!ty||r.type===ty)&&(!q||(r.name+r.no).toLowerCase().indexOf(q.toLowerCase())>-1)});
+  shown=list;
+  $("rows").innerHTML=list.length?list.map(function(r){var i=REQS.indexOf(r),e=emp(r);
+    return '<tr><td class="full"><div class="who">'+av(r.name)+'<div><b>'+esc(r.name)+'</b><small>'+esc(e.dept)+'</small></div></div></td>'+
+      '<td><span class="chip '+(r.type==="إجازة"?'s':r.type==="سلفة"?'':'d')+'">'+esc(r.type)+'</span><small class="ltr">'+r.no+'</small></td>'+
+      '<td class="full">'+line(r)+(short(r)&&r.st===OPEN?'<small class="err">الرصيد لا يكفي</small>':'')+'</td><td class="hide m">'+ltr(r.at)+'</td>'+
+      '<td>'+status(r)+'</td><td class="end full"><button class="btn sm'+(hrTurn(r)?' k':'')+'" data-view="'+i+'">'+(hrTurn(r)?'مراجعة السلفة':'عرض')+'</button></td></tr>'}).join(""):
+    '<tr><td colspan="6" class="empty">'+(tab===OPEN&&!q&&!ty?'لا توجد طلبات قيد الإجراء.':'لا توجد طلبات بهذه الشروط. جرّب تغيير البحث أو الحالة.')+'</td></tr>';
+  $("count").textContent=list.length+" من "+REQS.length+" طلبات · بيانات تجريبية";
+}
+</script>
+</body>
+</html>

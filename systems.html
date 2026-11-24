@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الأنظمة والروابط — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1124123349">
+<link rel="stylesheet" href="forms.css?v=1124123349">
+<style>
+.sys{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px}
+.sy{display:flex;flex-direction:column;gap:10px}
+.sy.off{opacity:.62}
+.sy header{display:flex;gap:12px;align-items:center}
+.sy .ico{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:var(--soft);color:var(--on-soft);flex:none}
+.sy h3{font-family:"Alexandria",sans-serif;font-size:var(--t-h3);font-weight:500}
+.sy p{color:var(--m);font-size:var(--t-ui)}
+.sy .url{background:var(--sub);border-radius:12px;padding:6px 12px;font-size:var(--t-sm);color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:left}
+/* fewer words per card: two text actions, order as two arrow buttons, delete kept quiet at the end */
+.sy footer{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:auto;padding-top:4px}
+.sy footer .sp{margin-inline-start:auto}
+.ib{width:30px;height:30px;border-radius:50%;border:0;background:var(--sub);color:var(--ink);display:grid;place-items:center;flex:none}
+.ib:hover{background:var(--hover)}.ib:disabled{opacity:.35}
+.sy footer .del{background:none!important;color:var(--m)}
+.sy footer .del:hover{color:#B3261E}
+h2.sec{font-family:"Alexandria",sans-serif;font-size:var(--t-h2);font-weight:500;margin:30px 0 4px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">الأنظمة والروابط</h1><p>روابط الأنظمة في صفحة «الأنظمة» بالبوابة. النظام بدون رابط يظهر للموظف بشارة «الرابط قريبًا».</p></div><button class="btn k" data-form="sys">نظام جديد</button></div>
+  <div class="sys" id="sys"></div>
+  <h2 class="sec">تطبيقات الجوال <button class="btn" data-form="app">تطبيق جديد</button></h2>
+  <p class="m" style="margin-bottom:14px">تظهر في صفحة «الأنظمة» بالبوابة مع أزرار App Store و Google Play.</p>
+  <div class="sys" id="apps"></div>
+  <h2 class="sec">روابط وخدمات إضافية <button class="btn" data-form="link">رابط جديد</button></h2>
+  <p class="m" style="margin-bottom:14px">تظهر أسفل صفحة «الأنظمة» بالبوابة.</p>
+  <div class="sys" id="links"></div>
+  <p class="note">بيانات تجريبية.</p>
+</div>
+<script src="ui.js?v=1124123349"></script>
+<script src="forms.js?v=1124123349"></script>
+<script>
+function acts(set,i,len,off){
+  var a=' data-i="'+i+'"';
+  return '<footer><button class="btn sm" data-form="'+set+'"'+a+'>تعديل</button><button class="btn sm" data-hide="'+set+'"'+a+'>'+(off?'إظهار':'إخفاء')+'</button>'+
+    '<span class="sp"></span>'+
+    '<button class="ib" data-move="'+set+'" data-by="-1"'+a+(i===0?' disabled title="هذا أول عنصر"':' title="تقديم في الترتيب"')+' aria-label="تقديم في الترتيب"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>'+
+    '<button class="ib" data-move="'+set+'" data-by="1"'+a+(i===len-1?' disabled title="هذا آخر عنصر"':' title="تأخير في الترتيب"')+' aria-label="تأخير في الترتيب"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>'+
+    '<button class="btn sm del" data-del="'+set+'"'+a+'>حذف</button></footer>';
+}
+function card(set,arr){return function(s,i){var off=s.st==="مخفي",app=set==="app";
+  return '<article class="card sy'+(off?' off':'')+'"><header><span class="ico" style="background:'+(s.color||"var(--sea)")+';color:'+(s.color==="#CFDD28"||s.color==="#70CDDD"?"#383837":"#fff")+'">'+ic(app?"phone":icName(s.icon))+'</span><div><h3>'+ltr(s.n)+'</h3>'+
+    (app?'<span class="chip s">'+esc(s.s)+'</span> ':'')+(s.inner?'<span class="chip s">داخل البوابة</span> ':'')+'<span class="st '+(off?'off':(s.u||s.inner||app)?'done':'')+'">'+esc(s.st)+'</span></div></header>'+
+    '<p>'+esc(app?(s.who||"")+(s.x?" · "+s.x:""):s.x)+'</p>'+
+    (app?'':s.inner?'<div class="url" style="direction:rtl;text-align:right">صفحة داخل البوابة</div>':s.u?'<div class="url">'+esc(s.u)+'</div>':'<div class="url" style="direction:rtl;text-align:right">بدون رابط حتى الآن</div>')+acts(set,i,arr.length,off)+'</article>'}}
+function render(){
+  $("sys").innerHTML=SYS.length?SYS.map(card("sys",SYS)).join(""):'<p class="empty">لا توجد أنظمة بعد. أضف أول نظام من «نظام جديد».</p>';
+  $("apps").innerHTML=APPS.length?APPS.map(card("app",APPS)).join(""):'<p class="empty">لا توجد تطبيقات بعد. أضف أول تطبيق من «تطبيق جديد».</p>';
+  $("links").innerHTML=LINKS.length?LINKS.map(card("link",LINKS)).join(""):'<p class="empty">لا توجد روابط بعد. أضف أول رابط من «رابط جديد».</p>';
+}
+</script>
+</body>
+</html>
