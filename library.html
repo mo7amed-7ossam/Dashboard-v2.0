@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>المكتبة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1124173016">
-<link rel="stylesheet" href="forms.css?v=1124173016">
+<link rel="stylesheet" href="ui.css?v=1124174253">
+<link rel="stylesheet" href="forms.css?v=1124174253">
 <style>.showm{display:none}@media (max-width:760px){.showm{display:inline-flex}}.vbtn{gap:6px}
 .vr{display:grid;grid-template-columns:auto 96px 1fr auto auto;gap:6px 18px;align-items:center;padding:10px 0;font-size:var(--t-ui)}
 .vr + .vr{border-top:1px solid var(--line)}
@@ -14,6 +14,7 @@
 tr.det .btn{background:var(--card)!important}
 @media (max-width:760px){.vr{grid-template-columns:1fr auto}.vr .vn,.vr .vf{grid-column:1/-1}}
 #rows td.end,#rows td.m{white-space:nowrap}
+@media (max-width:760px){#rows td.end,#rows td.m{white-space:normal}#rows td.end{display:grid;grid-template-columns:1fr 1fr;gap:6px}#rows td.end .btn{width:100%}.who .bx{white-space:normal;max-width:100%}#rows .who > div{min-width:0}#rows .who small{white-space:normal;overflow-wrap:anywhere}}
 #rows .pgx{min-width:130px}
 .who .bx{max-width:60ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* books sent by employees from the portal wait here until someone publishes or rejects them (Mohamed 2026-11-24) */
@@ -38,8 +39,8 @@ tr.wait td{background:var(--sub)}
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1124173016"></script>
-<script src="forms.js?v=1124173016"></script>
+<script src="ui.js?v=1124174253"></script>
+<script src="forms.js?v=1124174253"></script>
 <script>
 var tab="الكل",openV={},PEND="بانتظار المراجعة";
 function waiting(){return DOCS.filter(function(d){return d.st===PEND})}

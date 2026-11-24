@@ -259,3 +259,5 @@ dialog.drawer[data-step="2"] .audlist{max-height:min(46vh,420px)}
 .sheet{width:min(100%,280px);aspect-ratio:1/1.3;background:var(--card);border:1px solid var(--line);border-radius:8px;display:grid;place-items:center;text-align:center;padding:20px;color:var(--m);line-height:2}
 .sheet b{color:var(--ink);font-weight:500}
 @media (max-width:760px){.fv .dr-b{grid-template-columns:minmax(0,1fr)}}
+/* phone: a window's buttons wrap instead of squeezing into one line (four-step windows have four of them) */
+@media (max-width:600px){.dr-f{flex-wrap:wrap;gap:8px}.dr-f .btn{flex:1 1 auto}.dr-f .btn.k{flex-basis:100%}}

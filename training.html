@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التدريب — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1124173016">
-<link rel="stylesheet" href="forms.css?v=1124173016">
+<link rel="stylesheet" href="ui.css?v=1124174253">
+<link rel="stylesheet" href="forms.css?v=1124174253">
 <style>
 /* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
    multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
@@ -49,6 +49,7 @@
 /* a person's test result in the people window: three fixed columns (score, attempts, the leader's decision) so the
    rows line up like the «نتائج الموظفين» table (look 3 of 3, chosen by Mohamed 2026-11-24) */
 .rsx{display:grid;grid-template-columns:76px 86px 160px;gap:10px;align-items:center;justify-items:start}
+@media (max-width:760px){.rsx{grid-template-columns:auto auto minmax(0,1fr);gap:8px}}
 .rs-n b{font-family:"Alexandria",sans-serif;font-weight:500}
 .rs-try{color:var(--m);font-size:var(--t-cap);white-space:nowrap}
 .pge{color:var(--m);font-size:var(--t-sm);padding:2px 0 6px}
@@ -89,8 +90,8 @@
   <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار المدير المباشر</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1124173016"></script>
-<script src="forms.js?v=1124173016"></script>
+<script src="ui.js?v=1124174253"></script>
+<script src="forms.js?v=1124174253"></script>
 <script>
 var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
     MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,

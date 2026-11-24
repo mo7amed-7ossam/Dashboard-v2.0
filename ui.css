@@ -378,3 +378,5 @@ p.empty::before{content:"";width:44px;height:44px;border-radius:50%;background:v
 /* lists that sit straight on the page (not inside a card) get the card colour, or the panel would vanish into the page */
 .pl > p.empty,.cl > p.empty,.rl > p.empty,.sys > p.empty{background:var(--card)}
 .pl > p.empty::before,.cl > p.empty::before,.rl > p.empty::before,.sys > p.empty::before{background-color:var(--sub)}
+/* phone: what comes after a person's name in the people window drops under the name instead of pushing it out */
+@media (max-width:760px){.pp{flex-wrap:wrap;gap:4px 10px}.pp .ppx{width:100%;padding-inline-start:46px;flex-wrap:wrap}}
