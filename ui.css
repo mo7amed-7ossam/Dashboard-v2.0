@@ -35,7 +35,7 @@ td.n{text-align:right}
 .top{display:flex;align-items:center;gap:14px;margin-bottom:26px}
 .pill{background:var(--card);border-radius:99px;display:flex;align-items:center}
 .brand{padding:12px 22px}
-.logo{display:block;width:112px;aspect-ratio:222/60;background:linear-gradient(90deg,var(--sea) 0 26%,var(--ink) 26%);-webkit-mask:url(../../03-assets/sindbad-logo-white.svg) center/contain no-repeat;mask:url(../../03-assets/sindbad-logo-white.svg) center/contain no-repeat}
+.logo{display:block;width:112px;aspect-ratio:222/60;background:linear-gradient(90deg,var(--sea) 0 26%,var(--ink) 26%);-webkit-mask:url(assets/sindbad-logo-white.svg) center/contain no-repeat;mask:url(assets/sindbad-logo-white.svg) center/contain no-repeat}
 .top nav{padding:5px;gap:2px;margin-inline:auto;overflow-x:auto;max-width:100%;min-width:0;scrollbar-width:none}
 .top nav a{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:99px;color:var(--m);text-decoration:none;white-space:nowrap}
 .top nav a:hover{color:var(--ink)}

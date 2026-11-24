@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>تذكيرات الرئيسية — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1124172645">
-<link rel="stylesheet" href="forms.css?v=1124172645">
+<link rel="stylesheet" href="ui.css?v=1124173016">
+<link rel="stylesheet" href="forms.css?v=1124173016">
 <style>
 /* Home reminders. Read from the live portal home 2026-11-23: the "slides" are a strip of text reminders at the bottom of
    the hero (number, small label, title, one line, «التفاصيل», 03 / 05), over one fixed picture. So this page edits text,
    not pictures. The dark band is a preview of that strip; it follows the row you point at. */
-.hero{position:relative;border-radius:20px;overflow:hidden;color:#fff;margin-bottom:12px;background:#08343B url(../../03-assets/news/kitchen.jpg) center 30%/cover}
+.hero{position:relative;border-radius:20px;overflow:hidden;color:#fff;margin-bottom:12px;background:#08343B url(assets/news/kitchen.jpg) center 30%/cover}
 .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,28,32,.94) 30%,rgba(6,28,32,.5))}
 .hero > *{position:relative}
 .hero .cap{padding:14px 20px 26px;font-size:var(--t-sm);opacity:.75}
@@ -47,8 +47,8 @@
   <div class="rl" id="list"></div>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1124172645"></script>
-<script src="forms.js?v=1124172645"></script>
+<script src="ui.js?v=1124173016"></script>
+<script src="forms.js?v=1124173016"></script>
 <script>
 var UP='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
     DOWN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>',cur=0;

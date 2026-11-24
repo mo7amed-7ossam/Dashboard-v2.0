@@ -146,7 +146,7 @@ function newsForm(x){
       two(fld("رابط مع الخبر (اختياري)",inp("u",x.u,'dir="ltr" inputmode="url" placeholder="https://"'),"يظهر في الخبر زر يفتح هذا الرابط."),fld("نص زر الرابط",inp("ub",x.ub,'placeholder="فتح الرابط"'),"يُترك فارغًا فيُكتب «فتح الرابط»."))+'</div>'+
     '<div class="stackc"><div class="fs"><h3>النشر</h3>'+two(fld("حالة النشر",sel("pub",["مسودة","منشور"],x.st||"منشور"),"المسودة لا تظهر للموظفين."),fld("الخبر الرئيسي",sel("main",["لا","نعم — هذا هو الخبر الرئيسي"],x.main?"نعم — هذا هو الخبر الرئيسي":"لا"),"خبر واحد فقط في البوابة."))+
       fld("تأكيد الاطلاع",sel("ackn",["غير مطلوب","مطلوب"],x.ack?"مطلوب":"غير مطلوب"),"عند طلبه يضغط الموظف «اطّلعت» على الخبر، ويظهر في المتابعة من اطّلع ومن لم يطّلع.")+'</div>'+
-    '<div class="fs grow"><h3>صورة الخبر</h3><label class="drop"'+(x.img?' data-cur="../../03-assets/news/'+esc(x.img)+'"':'')+'><b>صورة الغلاف</b><small>JPG أو PNG أو WEBP — أقل من 5 ميغابايت.'+(x.t?" اتركه فارغًا إن لم ترغب في تغيير الصورة الحالية.":"")+'</small><input type="file" name="img" accept="image/jpeg,image/png,image/webp"></label></div></div>'+
+    '<div class="fs grow"><h3>صورة الخبر</h3><label class="drop"'+(x.img?' data-cur="assets/news/'+esc(x.img)+'"':'')+'><b>صورة الغلاف</b><small>JPG أو PNG أو WEBP — أقل من 5 ميغابايت.'+(x.t?" اتركه فارغًا إن لم ترغب في تغيير الصورة الحالية.":"")+'</small><input type="file" name="img" accept="image/jpeg,image/png,image/webp"></label></div></div>'+
     '<div class="fs wide" data-step="2">'+A.html+'</div>',
     steps:["الخبر","لمن يظهر"],isNew:!x.t,
     init:function(f){A.draw(f)},bind:function(f){A.bind(f)},check:function(f){return A.check(f)},
