@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>الطلبات — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1124123349">
-<link rel="stylesheet" href="forms.css?v=1124123349">
+<link rel="stylesheet" href="ui.css?v=1124170740">
+<link rel="stylesheet" href="forms.css?v=1124170740">
 <style>
 /* request window: one plain surface, sections split by a hairline (same language as the employee window) */
 .rq .dr-b{grid-template-columns:minmax(0,1fr);gap:0;padding-block:8px}
@@ -35,7 +35,7 @@
 <body>
 <div class="app">
   <header id="top"></header>
-  <div class="hello"><div><h1 class="d">الطلبات</h1><p>متابعة طلبات الإجازات والسلف والانصراف المبكر. يقرّر فيها قائد الفريق من البوابة، والسلف تعتمدها الموارد البشرية من هنا بعد موافقته.</p></div><button class="btn" id="csv">تصدير</button></div>
+  <div class="hello"><div><h1 class="d">الطلبات</h1><p>متابعة طلبات الإجازات والسلف والانصراف المبكر. يقرّر فيها المدير المباشر من البوابة، والسلف تعتمدها الموارد البشرية من هنا بعد موافقته.</p></div><button class="btn" id="csv">تصدير</button></div>
   <div class="card stats" id="stats" style="margin-bottom:16px"></div>
   <section class="card">
     <div class="bar">
@@ -48,8 +48,8 @@
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1124123349"></script>
-<script src="forms.js?v=1124123349"></script>
+<script src="ui.js?v=1124170740"></script>
+<script src="forms.js?v=1124170740"></script>
 <script>
 /* follow-up screen. The team leader decides in the portal; the only decision here is HR's on an advance the leader approved. */
 var OPEN="قيد الإجراء",TABS=[OPEN,"معتمد","مرفوض","ملغى","الكل"],tab=OPEN,CLS={"معتمد":"done","مرفوض":"late","ملغى":"off"},shown=[];
@@ -58,7 +58,7 @@ function emp(r){return EMPS.filter(function(e){return e.name===r.name})[0]||{dep
 function days(a){return Math.max(0,Math.round((new Date(TODAY)-new Date(a.slice(0,10)))/864e5))}
 function ago(a){var n=days(a);return n===0?"اليوم":n===1?"منذ يوم":n===2?"منذ يومين":"منذ "+n+(n<=10?" أيام":" يومًا")}
 /* who holds the request now: the team leader first, HR second and only for advances */
-function waits(r){return r.st!==OPEN?"":r.lead?"الموارد البشرية":"قائد الفريق"}
+function waits(r){return r.st!==OPEN?"":r.lead?"الموارد البشرية":"المدير المباشر"}
 function leadOf(r){var d=D.depts.filter(function(x){return x.name===emp(r).dept})[0];return d&&d.lead!==r.name?d.lead:"المدير المباشر"}
 function line(r){var d=r.d;
   return r.type==="إجازة"?'إجازة '+esc(d.kind)+'، <span class="n">'+d.days+'</span> '+(d.days>10||d.days<3?'يوم':'أيام')+' من '+ltr(d.from):
@@ -83,10 +83,10 @@ function openReq(r){
     '<div class="sec"><h3>سبب الطلب</h3><p>'+esc(r.why)+'</p></div>'+
     '<div class="sec"><h3>مسار الطلب</h3>'+
       '<div class="step"><div><b>تقديم الطلب</b><span class="m">'+esc(r.name)+'</span></div><div class="end"><span class="st '+(cancelled?'off">ألغاه الموظف':'done">قُدّم')+'</span><small>'+ltr(r.at)+'</small></div></div>'+
-      step("قائد الفريق",leadOf(r),r.lead,!cancelled)+
+      step("المدير المباشر",leadOf(r),r.lead,!cancelled)+
       (r.type==="سلفة"?step("الموارد البشرية","قسم الموارد البشرية",r.hr,!!(r.lead&&r.lead.ok)):'')+'</div>'+
     (mine?'<label class="f sec"><span>ملاحظة للموظف (مطلوبة عند الرفض)</span><textarea class="in" id="rqNote"></textarea></label>':'')+'</div>'+
-    '<div class="dr-f">'+(mine?'':'<span class="dirty">'+(r.st===OPEN?'للمتابعة فقط، والقرار عند قائد الفريق في البوابة.':'للمتابعة فقط.')+'</span>')+'<button type="button" class="btn" data-close>إغلاق</button>'+
+    '<div class="dr-f">'+(mine?'':'<span class="dirty">'+(r.st===OPEN?'للمتابعة فقط، والقرار عند المدير المباشر في البوابة.':'للمتابعة فقط.')+'</span>')+'<button type="button" class="btn" data-close>إغلاق</button>'+
       (mine?'<button type="button" class="btn" data-do="no">رفض السلفة</button><button type="button" class="btn k" data-do="ok">اعتماد السلفة</button>':'')+'</div>';
   d.onclick=function(ev){var b=ev.target.closest("[data-do]");if(!b)return;var ok=b.dataset.do==="ok",n=$("rqNote"),note=n.value.trim();
     if(!ok&&!note){var l=n.closest(".f");if(!l.querySelector(".err"))l.insertAdjacentHTML("beforeend",'<small class="err">اكتب سبب الرفض ليصل إلى الموظف.</small>');n.setAttribute("aria-invalid","true");n.focus();return}
@@ -106,7 +106,7 @@ function render(){
   var open=REQS.filter(function(r){return r.st===OPEN}),ok=REQS.filter(function(r){return r.st==="معتمد"});
   var atLead=open.filter(function(r){return !r.lead}).length;
   function sum(t,k){return ok.filter(function(r){return r.type===t}).reduce(function(s,r){return s+r.d[k]},0)}
-  $("stats").innerHTML=[["acc","clock","قيد الإجراء",open.length,atLead+" عند قادة الفرق، "+(open.length-atLead)+" عند الموارد البشرية"],["","check","طلبات معتمدة",ok.length,"هذا الشهر"],["","doc","أيام إجازة معتمدة",sum("إجازة","days"),"هذا الشهر"],["","chart","سلف معتمدة",sum("سلفة","amount")+' <small>ر.ع</small>',"هذا الشهر"]].map(function(k){
+  $("stats").innerHTML=[["acc","clock","قيد الإجراء",open.length,atLead+" عند المديرين المباشرين، "+(open.length-atLead)+" عند الموارد البشرية"],["","check","طلبات معتمدة",ok.length,"هذا الشهر"],["","doc","أيام إجازة معتمدة",sum("إجازة","days"),"هذا الشهر"],["","chart","سلف معتمدة",sum("سلفة","amount")+' <small>ر.ع</small>',"هذا الشهر"]].map(function(k){
     return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
   $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'<b>'+cnt(s)+'</b></button>'}).join("");
   var q=$("q").value.trim(),ty=$("type").value;

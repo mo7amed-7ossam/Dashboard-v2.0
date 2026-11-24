@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>نظرة عامة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1124123349">
+<link rel="stylesheet" href="ui.css?v=1124170740">
 <style>
 /* UI review 2026-11-23: every figure appears once. Row 1 = what waits and how big things are, row 2 = reading health
    (one headline, one bar) beside the per-department picture, row 3 = the work lists. */
@@ -88,7 +88,7 @@ a.tile.acc:hover{outline-color:transparent;filter:brightness(1.04)}
   </div>
   <p class="note">نموذج تصميم: الأرقام والأسماء للعرض فقط.</p>
 </div>
-<script src="ui.js?v=1124123349"></script>
+<script src="ui.js?v=1124170740"></script>
 <script>
 document.addEventListener("click",function(e){
   var b=e.target.closest("button");if(!b)return;
@@ -101,7 +101,7 @@ function render(){
   var t=totals(),n=D.reqs.length,hr=hrQueue(),inTime=t.pend-t.late;
   $("tiles").innerHTML=[
     [n?"acc":"","users","بانتظار اعتمادك",n,n?"تسجيلات جديدة":"لا توجد تسجيلات","employees.html"],
-    ["","doc","سلف بانتظار قرارك",hr,hr?"وافق عليها قائد الفريق":"لا توجد سلف","requests.html"],
+    ["","doc","سلف بانتظار قرارك",hr,hr?"وافق عليها المدير المباشر":"لا توجد سلف","requests.html"],
     ["bad","clock","إقرارات متأخرة",t.late,"تجاوزت 14 يومًا","acks.html"],
     ["","users","موظفون نشطون",D.stats.emps,"في "+D.depts.length+" أقسام","employees.html"]
   ].map(function(k){return '<a class="tile '+k[0]+'" href="'+k[5]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></a>'}).join("");
@@ -117,7 +117,7 @@ function render(){
   $("reqs").innerHTML=n?'<div class="reqs">'+D.reqs.map(function(r,i){
     return '<div class="rc"><div class="who">'+av(r.name)+'<div><b>'+esc(r.name)+'</b><br><small>'+esc(r.meta)+'</small></div></div>'+(when[r.name]?'<time>طلب التسجيل: '+ltr(when[r.name])+'</time>':'')+'<div class="acts"><button class="btn w" data-approve="'+i+'">اعتماد</button><button class="btn gh" data-reject="'+i+'">رفض</button></div></div>'}).join("")+'</div>':'<p class="empty">لا توجد حسابات بانتظار الاعتماد.</p>';
   var adv=REQS.filter(function(r){return r.type==="سلفة"&&r.st==="قيد الإجراء"&&r.lead&&r.lead.ok&&!r.hr});
-  $("advs").innerHTML=adv.length?'<h3 class="sech">سلف وافق عليها قائد الفريق <a href="requests.html">كل الطلبات</a></h3>'+adv.map(function(r){
+  $("advs").innerHTML=adv.length?'<h3 class="sech">سلف وافق عليها المدير المباشر <a href="requests.html">كل الطلبات</a></h3>'+adv.map(function(r){
     return '<div class="adv"><div class="who">'+av(r.name)+'<div><b>'+esc(r.name)+'</b><small><span class="n">'+r.d.amount+'</span> ر.ع على <span class="n">'+r.d.months+'</span> أقساط</small></div></div><a class="btn sm k" href="requests.html">مراجعة</a></div>'}).join(""):'';
   $("allBtn").innerHTML=t.people?'<button class="btn sm" data-remind="all">إرسال تذكير للكل ('+t.people+' موظف)</button>':'';
   $("rows").innerHTML=D.depts.map(function(d,i){var all=d.read+d.pend,p=pc(d.read,all);

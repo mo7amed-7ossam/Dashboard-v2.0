@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التدريب — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1124123349">
-<link rel="stylesheet" href="forms.css?v=1124123349">
+<link rel="stylesheet" href="ui.css?v=1124170740">
+<link rel="stylesheet" href="forms.css?v=1124170740">
 <style>
 /* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
    multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
@@ -84,13 +84,13 @@
   <header id="top"></header>
   <div class="hello"><div><h1 class="d">التدريب</h1><p>ما يظهر في «مركز التدريب» بالبوابة: اسم التدريب ووصفه، ملفاته وفيديوهاته، آخر موعد لإتمامه، أسئلته، ولمن يُوجَّه.</p></div><button class="btn k" data-form="prog">تدريب جديد</button></div>
   <div class="seg" id="views" role="group" aria-label="العرض" style="margin-bottom:12px"></div>
-  <section class="card"><div class="bar" style="margin:0"><div class="seg" id="tabs" role="group" aria-label="نوع التدريب"></div><span class="sp"></span><select class="field" id="rt" aria-label="التدريب"></select><select class="field" id="rd" aria-label="قرار قائد الفريق"></select><input class="field" id="q" type="search" placeholder="ابحث باسم التدريب" aria-label="بحث"></div></section>
+  <section class="card"><div class="bar" style="margin:0"><div class="seg" id="tabs" role="group" aria-label="نوع التدريب"></div><span class="sp"></span><select class="field" id="rt" aria-label="التدريب"></select><select class="field" id="rd" aria-label="قرار المدير المباشر"></select><input class="field" id="q" type="search" placeholder="ابحث باسم التدريب" aria-label="بحث"></div></section>
   <div class="pl" id="list"></div>
-  <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار قائد الفريق</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
+  <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار المدير المباشر</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1124123349"></script>
-<script src="forms.js?v=1124123349"></script>
+<script src="ui.js?v=1124170740"></script>
+<script src="forms.js?v=1124170740"></script>
 <script>
 var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
     MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
@@ -148,7 +148,7 @@ FORMS.prog=function(src){
             (q.opts.length<MAXO?'<button type="button" class="qadd" data-ao="'+i+'">+ إضافة اختيار</button>':'')+'</div></div>'}).join("")+
             '<button type="button" class="qadd big" data-add="q">+ إضافة سؤال</button></div>':
           '<p class="pge">لا توجد أسئلة بعد. الأسئلة اختيار من متعدد، ولا حد لعددها: يجيب عنها الموظف بعد إتمام مواد التدريب.</p>')+
-          '<p class="pge" style="padding-top:10px">تُحسب درجة الموظف بعدد إجاباته الصحيحة، ثم يراجعها قائد فريقه ويقرر اعتمادها أو إعادة الاختبار.</p>'}
+          '<p class="pge" style="padding-top:10px">تُحسب درجة الموظف بعدد إجاباته الصحيحة، ثم يراجعها مديره المباشر ويقرر اعتمادها أو إعادة الاختبار.</p>'}
       bm.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
         if(b.dataset.add){read();var l=P.mats[P.mats.length-1];P.mats.push({k:l?kindOf(l):MK[0],t:""});drawM();var rs=bm.querySelectorAll("[data-r]");rs[rs.length-1].querySelector("[data-k=t]").focus()}
         if(b.dataset.rm){read();P.mats.splice(+b.dataset.rm,1);drawM()}
@@ -183,18 +183,13 @@ FORMS.prog=function(src){
     save:function(f){var o=src||{done:0},r=A.calc();if(isNew)TRAIN.push(o);
       o.tab=f.tab.value;o.st=f.st.value;o.n=f.n.value;o.en=f.en.value;o.x=f.x.value;o.xen=f.xen.value;o.due=f.due.value;o.mats=P.mats;o.qs=P.qs;o.aud=A.value();o.done=Math.min(o.done,r.see.length);
       return o.st==="منشور"?"تم الحفظ — «"+o.n+"» منشور في مركز التدريب لـ "+r.see.length+" موظفين"+(r.exc.length?" (مستثنى "+r.exc.length+")":"")+".":"تم الحفظ كمسودة — «"+o.n+"» غير ظاهر للموظفين."}}};
-/* shortcut: sample results built from the employee's place in the audience; replace with the real attempts in APEX */
-var LEAD=["اعتمد النتيجة","بانتظار قائد الفريق","طلب إعادة الاختبار"];
-function results(p){var see=audCalc(audState(p.aud)).see,q=p.qs.length;
-  return see.map(function(e,i){var fin=i<p.done,sc=fin?Math.max(0,q-[0,1,0,2,1,0][i%6]):null,ld=fin?(sc<q/2?LEAD[2]:LEAD[i%2]):"";
-    return {e:e.e||e,sc:sc,ld:ld,tries:fin&&i%4===3?2:fin?1:0}})}
 function openResults(p){var R=results(p),by={};R.forEach(function(r){by[r.e.name]=r});
   peoplePanel({title:"من أجاب عن أسئلة التدريب",name:p.n,item:p,size:"lg",
     done:R.filter(function(r){return r.sc!=null}).map(function(r){return r.e}),rest:R.filter(function(r){return r.sc==null}).map(function(r){return r.e}),
     restLabel:"لم يُجيبوا بعد",doneLabel:"أجابوا عن الأسئلة",noRest:"الجميع أجاب عن أسئلة هذا التدريب.",noDone:"لم يُجب أحد بعد.",
     extra:function(e){var r=by[e.name];return r.sc==null?'':'<span class="rsx"><span class="rs-n"><b class="n">'+r.sc+'</b> من <b class="n">'+p.qs.length+'</b></span><span class="rs-try">'+tries(r.tries)+'</span>'+ldChip(r.ld)+'</span>'},
     chips:[LEAD[1],LEAD[0],LEAD[2]].map(function(l){return {label:l,test:function(e){return by[e.name].ld===l}}}),
-    note:'الدرجة يحسبها النظام بعدد الإجابات الصحيحة، وقرار الاعتماد أو إعادة الاختبار لقائد الفريق من البوابة.'})}
+    note:'الدرجة يحسبها النظام بعدد الإجابات الصحيحة، وقرار الاعتماد أو إعادة الاختبار للمدير المباشر من البوابة.'})}
 /* second view of the page: every employee's result in every published training and what their team leader decided.
    Follow-up only, like the results window. Rows waiting for the leader come first. */
 var view="list",NOANS="لم يُجب بعد";
@@ -211,7 +206,7 @@ function renderRes(){
     return '<tr><td class="full"><div class="who">'+av(e.name)+'<div><b>'+esc(e.name)+'</b><small>'+esc(e.dept)+'</small></div></div></td><td>'+esc(x.p.n)+'</td>'+
       '<td>'+(r.sc==null?'<span class="m">'+NOANS+'</span>':'<span class="sc"><span class="n">'+r.sc+'</span> من <span class="n">'+x.p.qs.length+'</span></span>')+'</td><td class="m hide">'+(r.tries?tries(r.tries):'—')+'</td><td class="full">'+ldChip(r.ld)+'</td></tr>'}).join(""):
     '<tr><td colspan="5" class="empty">'+(rows.length?'لا توجد نتائج بهذه الشروط. جرّب تغيير التدريب أو القرار.':'لا توجد نتائج بعد: لم يُنشر تدريب له أسئلة.')+'</td></tr>';
-  $("count").textContent=list.length+" من "+rows.length+" نتيجة · الدرجة يحسبها النظام، والقرار لقائد الفريق من البوابة · بيانات تجريبية";
+  $("count").textContent=list.length+" من "+rows.length+" نتيجة · الدرجة يحسبها النظام، والقرار للمدير المباشر من البوابة · بيانات تجريبية";
 }
 function cnt(s){return TRAIN.filter(function(p){return s==="الكل"||p.tab===s}).length}
 document.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;

@@ -7,6 +7,20 @@ var COLORS=["#0A8BA0","#70CDDD","#CFDD28","#383837"];
 /* the 17 dashboard permissions, as listed in the live employee drawer; [name, granted by HR role, granted by management role] */
 var PERMS=[["عرض النظرة العامة",1,1],["عرض الموظفين",1,1],["تعديل وتفعيل الموظفين",1,0],["اعتماد أو رفض التسجيل",1,0],["حذف حساب الدخول",0,0],["عرض مستندات الموظفين",1,0],["اعتماد أو رفض مستندات الموظفين",1,0],["عرض الحساب البنكي للموظفين",1,0],["عرض الطلبات",1,1],["اعتماد أو رفض الطلبات",1,0],["عرض تقرير إقرارات القراءة",1,1],["إدارة المستندات",1,0],["إدارة الأخبار",1,0],["إدارة الأنظمة والروابط",0,0],["عرض سجل النشاط",0,1],["دخول لوحة التحكم",1,1],["إدارة الأدوار والصلاحيات",0,0]];
 var EMP_FILES=["شهادة المؤهل الدراسي","شهادة الميلاد","صحيفة الحالة الجنائية","الصور الشخصية","شهادات الخبرة والدورات","صورة الإقامة","صور جواز السفر","رقم الحساب البنكي (IBAN)"];
+/* Profile completeness (Mohamed 2026-11-24: «نسبة اكتمال الملف الشخصي دا مهم جدا»): the two basic fields an employee
+   fills in, one personal link, plus the eight required documents, each counted once. prof(e) = {done, all, miss:[labels], items}.
+   shortcut: sample values per employee until real data exists; replace profSeed with the real columns and uploads. */
+var PROF_BASIC=[["en","الاسم بالإنجليزي"],["phone","الرقم الشخصي"]];
+function profSeed(e){if(e.files)return;var k=EMPS.indexOf(e),n=[8,8,5,6,2,0,7,3,8,4][k%10];e.files={};for(var i=0;i<n;i++)e.files[i]=1;
+  if(e.en==null&&k%4!==3)e.en=String(e.mail||"").split("@")[0].split(".").map(function(w){return w.charAt(0).toUpperCase()+w.slice(1)}).join(" ");
+  if(e.phone==null&&k%5!==4)e.phone="9"+String(2100000+k*7919);
+  if(e.li==null&&e.site==null&&k%3!==2)e.li="https://www.linkedin.com/in/"+String(e.mail||"").split("@")[0].replace(/\./g,"-")}
+function prof(e){profSeed(e);
+  var items=PROF_BASIC.map(function(b){return {n:b[1],ok:!!String(e[b[0]]||"").trim(),kind:"بيان"}})
+    /* one personal link is enough: LinkedIn or a portfolio / personal site (counted since Mohamed's «تتحسب», 2026-11-24) */
+    .concat([{n:"رابط شخصي",ok:!!String(e.li||e.site||"").trim(),kind:"بيان"}]).concat(EMP_FILES.map(function(n,i){return {n:n,ok:!!e.files[i],kind:"مستند"}}));
+  var miss=items.filter(function(x){return !x.ok}).map(function(x){return x.n});
+  return {items:items,all:items.length,done:items.length-miss.length,miss:miss}}
 function fld(label,html,hint){return '<label class="f"><span>'+label+'</span>'+html+(hint?'<small>'+hint+'</small>':'')+'</label>'}
 function inp(name,val,attrs){return '<input class="in" name="'+name+'" value="'+esc(val)+'" '+(attrs||"")+'>'}
 function txt(name,val,attrs){return '<textarea class="in" name="'+name+'" '+(attrs||"")+'>'+esc(val)+'</textarea>'}
@@ -48,7 +62,7 @@ function uniq(a){return a.filter(function(v,i){return v&&a.indexOf(v)===i})}
    The mockup computes on the sample EMPS; in APEX this is SINDBAD_LIB.can_view. */
 function audCats(){
   var c=[{id:"all",g:"عام",label:"جميع الموظفين",f:function(){return true}},
-         {id:"lead",g:"عام",label:"قادة الفرق",f:function(e){return D.depts.some(function(d){return d.lead===e.name})}}];
+         {id:"lead",g:"عام",label:"المديرون المباشرون",f:function(e){return D.depts.some(function(d){return d.lead===e.name})}}];
   [["dept","الأقسام"],["branch","الفروع"],["job","الوظائف"]].forEach(function(k){
     uniq(EMPS.map(function(e){return e[k[0]]})).forEach(function(v){c.push({id:k[0]+":"+v,g:k[1],label:v,f:function(e){return e[k[0]]===v}})})});
   return c;
@@ -142,6 +156,25 @@ function newsForm(x){
       return o.st==="منشور"?"تم الحفظ — الخبر منشور ويظهر لـ "+r.see.length+" موظفين.":"تم الحفظ كمسودة — غير ظاهر للموظفين."}};
 }
 /* shared by systems and extra links: same fields as the live form */
+/* Browsing an employee's profile documents (Mohamed 2026-11-24: «اقدر استعرض ملفات الملف الشخصى»): a window over
+   the employee window, list of the eight documents beside the one being looked at, previous / next between the
+   uploaded ones. shortcut: the page shown is a placeholder and the file facts are sample values; in APEX the pane
+   shows the real PDF or picture. */
+var FILE_EN=["qualification","birth-certificate","police-clearance","photos","experience","residence","passport","iban"];
+function fileMeta(e,i){var img=i===3||i===6,k=EMPS.indexOf(e)+i;
+  return {file:(FILE_EN[i]||"document")+"-"+(EMPS.indexOf(e)+1)+(img?".jpg":".pdf"),type:img?"صورة JPG":"ملف PDF",size:[0.4,1.2,0.8,2.1,1.6,0.6,1.9,0.3][k%8]+" ميغابايت",up:"2026-"+(k%2?"10":"11")+"-"+("0"+(3+k%20)).slice(-2)}}
+function openFiles(e,start){var d=dlg("drawer md fv"),cur=start,have=EMP_FILES.map(function(n,i){return i}).filter(function(i){return e.files[i]});
+  function draw(){var m=fileMeta(e,cur),at=have.indexOf(cur);
+    d.innerHTML='<div class="dr-h"><h2>ملفات '+esc(e.name)+'</h2><button type="button" class="xbtn" data-close aria-label="إغلاق" title="إغلاق">×</button></div><div class="dr-b">'+
+      '<div class="fvl" role="group" aria-label="مستندات الملف الشخصي">'+EMP_FILES.map(function(n,i){var ok=!!e.files[i];return '<button type="button" data-fi="'+i+'"'+(ok?'':' disabled')+(i===cur?' aria-current="true"':'')+'><span>'+n+'</span><span class="st '+(ok?'done">مرفوع':'late">ناقص')+'</span></button>'}).join("")+'</div>'+
+      '<div class="fvp"><div class="sheet"><div><b>'+EMP_FILES[cur]+'</b><br>معاينة المستند</div></div>'+
+        '<p class="m"><bdi dir="ltr">'+m.file+'</bdi> · '+m.type+' · '+m.size+' · رُفع '+ltr(m.up)+'</p></div></div>'+
+      '<div class="dr-f"><span class="m" style="margin-inline-end:auto">'+(at+1)+' من '+have.length+' مرفوعة</span><button type="button" class="btn" data-step="-1"'+(at<=0?' disabled':'')+'>السابق</button><button type="button" class="btn" data-step="1"'+(at>=have.length-1?' disabled':'')+'>التالي</button>'+
+      '<button type="button" class="btn" data-mock="تنزيل «'+m.file+'»">تنزيل</button><button type="button" class="btn k" data-close>إغلاق</button></div>';
+    d.querySelectorAll("[data-fi]").forEach(function(b){b.onclick=function(){cur=+b.dataset.fi;draw()}});
+    d.querySelectorAll("[data-step]").forEach(function(b){b.onclick=function(){cur=have[at+(+b.dataset.step)];draw()}})}
+  draw();d.showModal()}
+function mgrOf(e,dept){var d=D.depts.filter(function(x){return x.name===dept})[0],l=d&&d.lead;return !l?"لا يوجد مدير مباشر لهذا القسم بعد":l===e.name?"هو المدير المباشر للقسم":l}
 function linkForm(arr,kindNew,kindEdit,place){return function(s){s=s||{};return {title:s.n?kindEdit:kindNew,size:"sm",html:
   '<div class="fs"><h3>البيانات</h3>'+two(fld("الاسم بالعربي",inp("n",s.n,req("اكتب الاسم"))),fld("الاسم بالإنجليزي",inp("en",s.en,'dir="ltr"')))+
     two(fld("الوصف بالعربي",txt("x",s.x)),fld("الوصف بالإنجليزي",txt("xen",s.xen,'dir="ltr"')))+
@@ -177,19 +210,23 @@ var FORMS={slide:slideForm,
   /* Employee window (Mohamed, 2026-11-22: no tabs, less detail, softer, permissions elsewhere): one calm screen.
      Fields on a plain surface, then three one-line rows: permissions (own window), employee file (opens in place), account. */
   emp:function(e){
-    var on=e.st==="نشط",none=e.st==="بدون حساب",wait=e.st==="بانتظار التفعيل";e.files=e.files||{};
-    var done=EMP_FILES.filter(function(n,i){return e.files[i]}).length;
+    var on=e.st==="نشط",none=e.st==="بدون حساب",wait=e.st==="بانتظار التفعيل",P=prof(e),canLead=(on||e.st==="موقوف")&&e.role!=="مدير النظام";
     function roleLine(){var r=roleOf(e);return esc(r)+' — <span class="n">'+permCount(r,e.ov)+'</span> من '+PERMS.length+' صلاحية مفعّلة'}
     return {title:"تفاصيل الموظف",saveLabel:"حفظ التغييرات",cls:"emp",html:
     '<div class="ehead">'+av(e.name)+'<div class="eid"><b class="en">'+esc(e.name)+'</b><span class="m">'+ltr(e.mail)+'</span></div><span class="chip '+(on?'s':wait?'':'d')+'">'+esc(e.st)+'</span></div>'+
     '<div class="esec four"><h3>البيانات الأساسية</h3>'+two(fld("الاسم بالعربي",inp("name",e.name,req("اكتب اسم الموظف"))),fld("الاسم بالإنجليزي",inp("en",e.en,'dir="ltr"')))+
-      two(fld("الرقم الشخصي",inp("phone",e.phone,'dir="ltr" inputmode="tel" placeholder="9XXXXXXX"')),fld("رقم الشركة (اختياري)",inp("cphone",e.cphone,'dir="ltr" inputmode="tel" placeholder="7XXXXXXX"')))+'</div>'+
-    '<div class="esec three"><h3>العمل</h3>'+two(fld("القسم",sel("dept",D.depts.map(function(d){return d.name}),e.dept),"يُحدَّد الفرع من القسم."),fld("الوظيفة",sel("job",JOBS.indexOf(e.job)<0?[e.job].concat(JOBS):JOBS,e.job)))+
-      ((on||e.st==="موقوف")&&e.role!=="مدير النظام"?sw("lead","قائد القسم",e.lead,"يصبح هذا الموظف قائد قسمه بدل القائد الحالي."):"")+'</div>'+
+      two(fld("الرقم الشخصي",inp("phone",e.phone,'dir="ltr" inputmode="tel" placeholder="9XXXXXXX"')),fld("رقم الشركة (اختياري)",inp("cphone",e.cphone,'dir="ltr" inputmode="tel" placeholder="7XXXXXXX"')))+
+      /* personal links (Mohamed 2026-11-24): LinkedIn, a portfolio or a personal site. Optional, not counted in completeness. */
+      [fld("LinkedIn",inp("li",e.li,'dir="ltr" inputmode="url" placeholder="https://www.linkedin.com/in/"')),fld("معرض أعمال أو موقع شخصي",inp("site",e.site,'dir="ltr" inputmode="url" placeholder="https://"'),"يكفي رابط واحد من الاثنين ليُحسب في اكتمال الملف.")].map(function(h){return h.replace('<label class="f"','<label class="f wide2"')}).join("")+'</div>'+
+    '<div class="esec '+(canLead?'four':'three')+'"><h3>العمل</h3>'+two(fld("القسم",sel("dept",D.depts.map(function(d){return d.name}),e.dept),"يُحدَّد الفرع من القسم."),fld("الوظيفة",sel("job",JOBS.indexOf(e.job)<0?[e.job].concat(JOBS):JOBS,e.job)))+
+      /* direct manager = the leader of the employee's department, employees sit directly under him (Mohamed 2026-11-24).
+         So it is shown, not chosen: it follows the department field. */
+      two('<div class="f"><span>المدير المباشر</span><output class="in" id="mgrOut" style="display:block">'+esc(mgrOf(e,e.dept))+'</output><small>يتحدّد من القسم، ويتغيّر بتغييره.</small></div>',
+        (canLead?sw("lead","مدير مباشر للقسم",e.lead||mgrOf(e,e.dept)==="هو المدير المباشر للقسم","يصبح هذا الموظف المدير المباشر لقسمه بدل المدير الحالي."):""))+'</div>'+
     '<div class="elist">'+
       '<div class="erow"><div><b>الدور والصلاحيات</b><span class="m" id="roleLine">'+roleLine()+'</span></div><button type="button" class="btn sm" data-perms>تعديل الصلاحيات</button></div>'+
-      '<details class="edet"><summary class="erow"><div><b>ملف الموظف</b><span class="m"><span class="n">'+done+'</span> من '+EMP_FILES.length+' مستندات مرفوعة</span></div><span class="btn sm"><span class="o">عرض</span><span class="c">إخفاء</span></span></summary>'+
-        '<div class="efs">'+EMP_FILES.map(function(n,i){return '<div class="ef"><span>'+n+'</span><span class="st '+(e.files[i]?'done">مرفوع':'late">ناقص')+'</span></div>'}).join("")+'</div></details>'+
+      '<details class="edet"><summary class="erow"><div><b>اكتمال الملف الشخصي</b><span class="m">'+(P.miss.length?'ينقصه '+(P.miss.length===1?'بند واحد':P.miss.length===2?'بندان':P.miss.length+' بنود')+': '+esc(P.miss.slice(0,2).join("، "))+(P.miss.length>2?' …':''):'كل البنود مكتملة')+'</span></div>'+prog(P.done,P.all,"بنود مكتملة")+'<span class="btn sm"><span class="o">عرض</span><span class="c">إخفاء</span></span></summary>'+
+        '<div class="efs">'+P.items.map(function(x){var fi=x.kind==="مستند"?EMP_FILES.indexOf(x.n):-1;return '<div class="ef"><span>'+x.n+'</span><span class="efa">'+(fi>-1&&x.ok?'<button type="button" class="btn sm" data-file="'+fi+'">عرض</button>':'')+'<span class="st '+(x.ok?'done">'+(x.kind==="مستند"?'مرفوع':'مكتمل'):'late">ناقص')+'</span></span></div>'}).join("")+'</div></details>'+
       '<div class="erow"><div><b>'+(wait?"طلب التسجيل":"الحساب")+'</b><span class="m">'+
         (wait?"سجّل الموظف وينتظر قرارك.":on?"نشط. آخر دخول: "+ltr(e.last||"—"):e.st==="موقوف"?"موقوف، ولا يستطيع الدخول إلى البوابة.":none?"لا يوجد حساب دخول.":"رُفض طلب التسجيل.")+'</span></div><div class="acts" id="accActs">'+
         (wait?'<button type="button" class="btn sm k" data-acc="approve">اعتماد التسجيل</button><button type="button" class="btn sm" data-acc="askReject">رفض التسجيل</button>':
@@ -197,9 +234,11 @@ var FORMS={slide:slideForm,
          e.st==="موقوف"?'<button type="button" class="btn sm" data-acc="start">تفعيل الحساب</button><button type="button" class="btn sm" data-acc="askPurge">حذف الموظف</button>':
          none?'<button type="button" class="btn sm" data-acc="askPurge">حذف الموظف نهائيًا</button>':
          '<button type="button" class="btn sm" data-acc="askPurge">حذف الموظف</button>')+'</div></div></div>',
-    bind:function(f){f.addEventListener("click",function(ev){
+    bind:function(f){f.addEventListener("click",function(ev){var fb=ev.target.closest("[data-file]");if(fb)openFiles(e,+fb.dataset.file)});
+      f.dept.addEventListener("input",function(){f.querySelector("#mgrOut").textContent=mgrOf(e,f.dept.value)});
+      f.addEventListener("click",function(ev){
       if(ev.target.closest("[data-perms]"))openPerms(e,function(){f.querySelector("#roleLine").innerHTML=roleLine()})})},
-    save:function(f){e.name=f.name.value;e.en=f.en.value;e.phone=f.phone.value;e.cphone=f.cphone.value;e.dept=f.dept.value;e.job=f.job.value;if(f.lead)e.lead=f.lead.checked;
+    save:function(f){e.name=f.name.value;e.en=f.en.value;e.phone=f.phone.value;e.cphone=f.cphone.value;e.li=f.li.value.trim();e.site=f.site.value.trim();e.dept=f.dept.value;e.job=f.job.value;if(f.lead)e.lead=f.lead.checked;
       return "تم حفظ بيانات "+e.name+"."}}}
 };
 FORMS.sys=linkForm(SYS,"نظام جديد","تعديل نظام","صفحة «الأنظمة»");
@@ -362,3 +401,10 @@ document.addEventListener("click",function(e){
   if(k.hide){var h=SETS[k.hide]()[i],off=h.st==="مخفي";h.st=off?((h.u||h.inner||h.s||k.hide==="slide")?"ظاهر":"الرابط قريبًا"):"مخفي";render();toast(off?"تم إظهار "+h.n+" في البوابة.":"تم إخفاء "+h.n+" من البوابة.")}
   if(k.move){var m=SETS[k.move](),j=i+(+k.by);if(j<0||j>=m.length)return;var t=m[i];m[i]=m[j];m[j]=t;render();toast("تم تغيير ترتيب "+t.n+".")}
 });
+
+/* training results, shared by the training page and the reminders page */
+/* shortcut: sample results built from the employee's place in the audience; replace with the real attempts in APEX */
+var LEAD=["اعتمد النتيجة","بانتظار المدير المباشر","طلب إعادة الاختبار"];
+function results(p){var see=audCalc(audState(p.aud)).see,q=p.qs.length;
+  return see.map(function(e,i){var fin=i<p.done,sc=fin?Math.max(0,q-[0,1,0,2,1,0][i%6]):null,ld=fin?(sc<q/2?LEAD[2]:LEAD[i%2]):"";
+    return {e:e.e||e,sc:sc,ld:ld,tries:fin&&i%4===3?2:fin?1:0}})}
