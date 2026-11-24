@@ -58,6 +58,8 @@ var COMPL=[
 /* Notifications for the person using the dashboard, newest first. tone: "" info, "ok" done, "bad" problem.
    Read state is kept per browser in localStorage "sb-read"; the first three start unread. */
 var NOTES=[
+  {id:"n9",ic:"folder",t:"رفع عمر صادق كتابًا إلى المكتبة",x:"«دليل القياسات القياسية للمطابخ». بانتظار مراجعتك.",at:"اليوم 09:12",go:"library.html"},
+  {id:"n8",ic:"cap",tone:"bad",t:"ينتهي موعد تدريب «منتجات مطابخ OPPEIN 2026» بعد 4 أيام",x:"لم يُجب عن أسئلته نصف الموجَّه لهم.",at:"اليوم 08:50",go:"training.html"},
   {id:"n7",ic:"users",t:"سجّل سالم الحارثي حسابًا جديدًا",x:"العمليات، فرع صلالة. بانتظار اعتمادك.",at:"اليوم 08:41",go:"employees.html"},
   {id:"n6",ic:"doc",t:"وافق المدير المباشر على سلفة عمر صادق",x:"300 ر.ع على 3 أقساط. بانتظار قرارك.",at:"أمس 17:10",go:"requests.html"},
   {id:"n5",ic:"users",t:"سجّلت ريم البلوشي حسابًا جديدًا",x:"التسويق، المكتب الرئيسي. بانتظار اعتمادك.",at:"أمس 16:05",go:"employees.html"},
@@ -235,6 +237,8 @@ function shell(){
     add(COMPL,function(c){return c.code},function(c){return (c.kind||"شكوى")+" — "+c.cat+" — "+c.st},"complaints.html","رسالة");
     add(REQS,function(r){return r.no+" "+r.name},function(r){return r.type+" — "+r.st},"requests.html","طلب");
     add(NEWS,function(n){return n.t},function(n){return n.cat||"خبر"},"news.html","خبر");
+    add(TRAIN,function(p){return p.n},function(p){return p.tab+" — "+p.st},"training.html","تدريب");
+    add(SLIDES,function(x){return x.n},function(x){return x.tag},"slides.html","تذكير");
     box.innerHTML=hit.length?hit.join(""):'<p class="m" style="padding:10px 14px">لا توجد نتائج لهذا البحث.</p>';box.hidden=false};
   /* opening a notification marks it read; "mark all" keeps the menu open so the change is seen */
   $("bellPop").addEventListener("click",function(e){
@@ -257,3 +261,6 @@ document.addEventListener("DOMContentLoaded",function(){
 /* the one counter (see .pgx in ui.css): done of all, what is counted, percentage, bar */
 function prog(done,all,label){var p=pc(done,all);
   return '<div class="pgx" title="'+done+' من '+all+' '+label+'"><div class="t"><span><b class="n">'+done+'</b> من <b class="n">'+all+'</b></span><small>'+label+'</small></div><span class="pcx">'+p+'%</span><div class="track thin"><i style="width:'+p+'%"></i></div></div>'}
+
+/* the empty state (see .nil in ui.css) */
+function nil(title,sub,icon){return '<div class="nil"><i>'+ic(icon||"check",20)+'</i><b>'+title+'</b>'+(sub?'<span>'+sub+'</span>':'')+'</div>'}

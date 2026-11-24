@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التفاعل — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1124170740">
-<link rel="stylesheet" href="forms.css?v=1124170740">
+<link rel="stylesheet" href="ui.css?v=1124172645">
+<link rel="stylesheet" href="forms.css?v=1124172645">
 <style>
 /* Engagement (Mohamed's vision 2026-11-22): does each employee open the news, read the files, complete the account, do the
    training. Four plain measures per person; the level is only a count of how many of the four are done. */
@@ -33,14 +33,19 @@
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1124170740"></script>
-<script src="forms.js?v=1124170740"></script>
+<script src="ui.js?v=1124172645"></script>
+<script src="forms.js?v=1124172645"></script>
 <script>
 /* shortcut: sample numbers built from the employee's place in the list; replace with the real view, read and training records in APEX */
 var NEWSN=NEWS.filter(function(n){return n.st!=="مسودة"}).length,DOCN=5,FILEN=prof(EMPS[0]).all;
+/* training is read from the training page's results: how many of the published trainings directed to the employee he answered */
+var LIVE=TRAIN.filter(function(p){return p.st==="منشور"&&p.qs.length}),TR={};
+LIVE.forEach(function(p){results(p).forEach(function(r){var x=TR[r.e.name]=TR[r.e.name]||{all:0,done:0};x.all++;if(r.sc!=null)x.done++})});
+function trainOf(e){var x=TR[e.name];return !x?"غير موجَّه له":x.done>=x.all?"مكتمل":x.done?"قيد التنفيذ":"لم يبدأ"}
+function trainTxt(e){var x=TR[e.name];return x?x.done+" من "+x.all:""}
 var ROWS=EMPS.filter(function(e){return e.st==="نشط"||e.st==="موقوف"}).map(function(e,i){
   var a=ACKS.filter(function(x){return x.name===e.name})[0];
-  return {e:e,news:[NEWSN,NEWSN,2,1,3,0,1][i%7],docs:a?a.done:[5,4,2,5,1,0,3][i%7],files:prof(e).done,train:["مكتمل","مكتمل","قيد التنفيذ","مكتمل","لم يبدأ","لم يبدأ","قيد التنفيذ"][i%7]}});
+  return {e:e,news:[NEWSN,NEWSN,2,1,3,0,1][i%7],docs:a?a.done:[5,4,2,5,1,0,3][i%7],files:prof(e).done,train:trainOf(e)}});
 ROWS.forEach(function(r){r.score=(r.news>=NEWSN?1:0)+(r.docs>=DOCN?1:0)+(r.files>=FILEN?1:0)+(r.train==="مكتمل"?1:0);r.lv=r.score>=3?"جيد":r.score>=1?"متوسط":"ضعيف"});
 var TABS=["الكل","جيد","متوسط","ضعيف"],tab="الكل",shown=[];
 function cnt(s){return ROWS.filter(function(r){return s==="الكل"||r.lv===s}).length}
@@ -54,7 +59,7 @@ function render(){
   if(!$("dept").options.length){var ds=ROWS.map(function(r){return r.e.dept}).filter(function(d,i,a){return a.indexOf(d)===i});
     $("dept").innerHTML='<option value="">كل الأقسام</option>'+ds.map(function(d){return '<option>'+esc(d)+'</option>'}).join("")}
   var n=ROWS.length;function share(f){return pc(ROWS.filter(f).length,n)+"%"}
-  $("stats").innerHTML=[["acc","bell","فتحوا كل الأخبار",share(function(r){return r.news>=NEWSN}),NEWSN+" أخبار منشورة"],["","doc","قرأوا كل المستندات",share(function(r){return r.docs>=DOCN}),DOCN+" مستندات مطلوبة"],["","users","ملفات شخصية مكتملة",share(function(r){return r.files>=FILEN}),FILEN+" بنود لكل موظف"],["","cap","أتمّوا التدريب",share(function(r){return r.train==="مكتمل"}),"برنامج التدريب الحالي"]].map(function(k){
+  $("stats").innerHTML=[["acc","bell","فتحوا كل الأخبار",share(function(r){return r.news>=NEWSN}),NEWSN+" أخبار منشورة"],["","doc","قرأوا كل المستندات",share(function(r){return r.docs>=DOCN}),DOCN+" مستندات مطلوبة"],["","users","ملفات شخصية مكتملة",share(function(r){return r.files>=FILEN}),FILEN+" بنود لكل موظف"],["","cap","أتمّوا التدريب",share(function(r){return r.train==="مكتمل"}),LIVE.length+" تدريبات منشورة"]].map(function(k){
     return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
   $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'<b>'+cnt(s)+'</b></button>'}).join("");
   var q=$("q").value.trim(),dp=$("dept").value;
@@ -63,7 +68,7 @@ function render(){
   $("rows").innerHTML=list.length?list.map(function(r){var e=r.e;
     return '<tr><td class="full"><div class="who">'+av(e.name)+'<div><b>'+esc(e.name)+'</b><small>'+esc(e.dept)+'</small></div></div></td><td class="hide m">'+ltr(e.last)+'</td>'+
       '<td>'+bar(r.news,NEWSN)+'</td><td>'+bar(r.docs,DOCN)+'</td><td class="hide">'+bar(r.files,FILEN)+'</td>'+
-      '<td class="hide"><span class="st '+(r.train==="مكتمل"?'done':r.train==="لم يبدأ"?'late':'')+'">'+r.train+'</span></td>'+
+      '<td class="hide"><span class="st '+(r.train==="مكتمل"?'done':r.train==="لم يبدأ"?'late':r.train==="غير موجَّه له"?'off':'')+'">'+r.train+'</span>'+(trainTxt(e)?' <small class="m">'+trainTxt(e)+'</small>':'')+'</td>'+
       '<td class="full"><span class="lv" aria-hidden="true">'+[0,1,2,3].map(function(i){return '<i'+(i<r.score?' class="on"':'')+'></i>'}).join("")+'</span>'+r.lv+'</td></tr>'}).join(""):
     '<tr><td colspan="7" class="empty">لا يوجد موظفون بهذه الشروط. جرّب تغيير البحث أو المستوى.</td></tr>';
   $("count").textContent=list.length+" من "+n+" موظفين لهم حساب · الأقل تفاعلًا أولًا · بيانات تجريبية";

@@ -363,3 +363,18 @@ td{padding:8px 14px}
 .sc{font-family:"Alexandria",sans-serif;font-weight:500;white-space:nowrap}
 .ppc{margin-top:10px;flex-wrap:wrap;width:fit-content;max-width:100%}
 .pp .ppx .m{font-size:var(--t-cap)}
+
+/* ---- a good-looking empty state (Mohamed 2026-11-24: «لو فاضيه جمل شكلها و هى فاضيه»): a soft panel with a mark,
+   what is true now, and what will show up here. Use it wherever an area can be empty and has room; a table keeps
+   its one-line .empty. ---- */
+.nil{display:grid;place-content:center;justify-items:center;gap:4px;text-align:center;background:var(--sub);border-radius:16px;padding:22px 18px;color:var(--m);font-size:var(--t-sm);line-height:1.8}
+.nil i{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--card);color:var(--teal);margin-bottom:6px}
+.nil b{color:var(--ink);font-weight:500;font-size:var(--t-body)}
+/* the same look for every empty list on the other pages (a <p class="empty"> outside a table), so an empty area
+   reads the same everywhere; a table's empty row (td.empty) stays one quiet line */
+p.empty{display:grid;justify-items:center;gap:8px;text-align:center;background:var(--sub);border-radius:16px;padding:26px 18px!important;color:var(--m);font-size:var(--t-sm);line-height:1.8;margin:0}
+p.empty::before{content:"";width:44px;height:44px;border-radius:50%;background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2308707F' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/20px no-repeat}
+[data-theme="dark"] p.empty::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237FD6E4' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")}
+/* lists that sit straight on the page (not inside a card) get the card colour, or the panel would vanish into the page */
+.pl > p.empty,.cl > p.empty,.rl > p.empty,.sys > p.empty{background:var(--card)}
+.pl > p.empty::before,.cl > p.empty::before,.rl > p.empty::before,.sys > p.empty::before{background-color:var(--sub)}
