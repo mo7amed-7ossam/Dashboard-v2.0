@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>نظرة عامة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1124174253">
-<link rel="stylesheet" href="forms.css?v=1124174253">
+<link rel="stylesheet" href="ui.css?v=1124180110">
+<link rel="stylesheet" href="forms.css?v=1124180110">
 <style>
 /* UI review 2026-11-23: every figure appears once. Row 1 = what waits and how big things are, row 2 = reading health
    (one headline, one bar) beside the per-department picture, row 3 = the work lists. */
 a.tile{color:inherit;text-decoration:none}
 a.tile:hover{outline:2px solid var(--line)}
 a.tile.acc:hover{outline-color:transparent;filter:brightness(1.04)}
-.hero{grid-column:span 5;display:flex;flex-direction:column;gap:14px}
+.hero{grid-column:span 4;display:flex;flex-direction:column;gap:14px}
 .hero .lead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 .hero .pct{font-family:"Alexandria",sans-serif;font-size:calc(var(--t-h1) + 12px);font-weight:600;line-height:1.1}
 .hero .lead > span{color:var(--m)}
@@ -27,73 +27,58 @@ a.tile.acc:hover{outline-color:transparent;filter:brightness(1.04)}
 .legend span i{width:8px;height:8px;border-radius:50%;flex:none}
 .legend b{font-family:"Alexandria",sans-serif;font-size:var(--t-h2);font-weight:600;line-height:1.3}
 .hero .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
-.chart{grid-column:span 7;display:flex;flex-direction:column;gap:12px}
-.key{font-family:"IBM Plex Sans Arabic",sans-serif;font-size:var(--t-sm);font-weight:400;color:var(--m);display:flex;gap:14px}
-.key span{display:flex;align-items:center;gap:6px}
-.key i{width:10px;height:10px;border-radius:3px;background:var(--ink)}
-.key i.h{background:var(--hatch)}
-/* every column is the whole department, so heights compare as shares, and the share is written on top */
-.cols{flex:1;display:grid;grid-template-columns:repeat(6,1fr);gap:14px;min-height:150px}
-.col{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
-.col b{font-family:"Alexandria",sans-serif;font-size:var(--t-sm);font-weight:600}
-.col .stack{flex:1;width:100%;max-width:44px;display:flex;flex-direction:column;gap:3px}
-.col .stack i{display:block;border-radius:8px;min-height:6px}
-.col .p{background:var(--hatch)}.col .r{background:var(--ink)}
-.col span{font-size:var(--t-cap);color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-/* second row of tiles = the newer pages, in the same tile as the first row (look 4 of 7, chosen by Mohamed 2026-11-24) */
-.wait{grid-column:span 4;display:flex;flex-direction:column}
-.wait #nil{flex:1;display:grid;margin-top:12px}
+/* GPT review 2026-11-24: what waits for a decision sits first, as short rows; every row carries its own button */
+.wait{margin-bottom:12px}
+.wait h2 small{font-family:"IBM Plex Sans Arabic",sans-serif;font-weight:400;color:var(--m)}
+.dq{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.dq:empty{display:none}
+.dr:last-child:nth-child(odd){grid-column:1/-1}
+.dr{display:flex;align-items:center;gap:12px;background:var(--sub);border-radius:16px;padding:8px 12px;min-width:0}
+.dr > .av,.dr > em{flex:none}
+.dr > em{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--on-soft);font-style:normal}
+.dr > div{flex:1;min-width:0;line-height:1.5}
+.dr b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dr small{display:block;color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dr .acts{display:flex;gap:6px;flex:none}
 .wait #nil:empty{display:none}
-.sech{display:flex;justify-content:space-between;align-items:center;font-size:var(--t-sm);font-weight:400;color:var(--m);margin-top:12px}
-.sech a{color:var(--teal);text-decoration:none}
-.adv{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--sub);border-radius:14px;padding:8px 10px;margin-top:8px}
-.adv small{display:block;color:var(--m)}
-.reqs{display:grid;grid-auto-rows:1fr;gap:10px;margin-top:8px}
-.wait .empty{align-self:center}
-.rc{border-radius:16px;padding:14px;color:#fff;background:#383837;display:flex;flex-direction:column;gap:2px}
-.rc .who .av{background:rgba(255,255,255,.18);color:#fff}
-.rc time{font-size:var(--t-sm);color:rgba(255,255,255,.75);margin-top:8px}
-[data-theme="dark"] .rc{background:#1F1F1E}
-.rc:nth-child(2){background:var(--grad)}
-.rc small{color:rgba(255,255,255,.75)}
-.rc .acts{display:flex;gap:6px;margin-top:auto;padding-top:10px}
-.rc .btn{flex:1;padding:6px 8px;font-size:var(--t-sm)}
+.wait #nil{margin-top:12px}
+/* reading per department: the same three colours as the bar beside it (read, inside the deadline, late) */
+.mb{display:flex;gap:2px;height:8px;min-width:120px;margin-top:5px}
+.mb i{display:block;border-radius:99px;min-width:4px}
+.c-read{background:#9AAE00}.c-in{background:var(--sea)}.c-late{background:var(--late)}
+td.lt b{font-family:"Alexandria",sans-serif;font-weight:600}
+td.lt span{color:var(--m)}
 .table{grid-column:span 8;display:flex;flex-direction:column}
 .table .tb{flex:1}
 .table table{height:100%}
 .table h2{margin-bottom:12px}
-@media (max-width:1100px){.hero,.chart,.wait,.table{grid-column:1/-1}}
-@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}.cols{gap:8px}}
+@media (max-width:1100px){.hero,.table{grid-column:1/-1}.dq{grid-template-columns:1fr}}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}.dr{flex-wrap:wrap}.dr .acts{width:100%}.dr .acts .btn{flex:1}}
 </style>
 </head>
 <body>
 <div class="app">
   <header id="top"></header>
   <div class="hello"><div><h1 class="d">صباح الخير، محمد</h1><p>ما ينتظر قرارك، وحال إقرارات القراءة اليوم.</p></div><p>الأحد 22 نوفمبر 2026</p></div>
+  <section class="card wait"><h2><span>ينتظر قرارك <small id="waitN"></small></span></h2><div class="dq" id="dq"></div><div id="nil"></div></section>
   <div class="card stats" id="tiles" style="margin-bottom:12px"></div>
-    <div class="card stats" id="moreT" style="margin-bottom:12px"></div>
   <div class="grid">
     <section class="card hero">
       <h2>إقرارات القراءة</h2>
-      <div class="lead"><span class="pct n" id="pct"></span><span><b id="readN"></b> من <b id="allN"></b> إقرارًا تمت قراءتها</span></div>
+      <div class="lead"><span class="pct n" id="pct"></span><span>قُرئ <b id="readN"></b> إقرارًا من أصل <b id="allN"></b></span></div>
       <div class="split" id="split" role="img"></div>
       <div class="legend" id="legend"></div>
       <div class="acts" id="ackActs"></div>
     </section>
-    <section class="card chart">
-      <h2>نسبة القراءة في كل قسم <span class="key"><span><i></i>قرأ</span><span><i class="h"></i>لم يقرأ</span></span></h2>
-      <div class="cols" id="cols"></div>
-    </section>
-    <section class="card wait"><h2>ينتظر قرارك</h2><div id="reqs"></div><div id="advs"></div><div id="nil"></div></section>
     <section class="card table">
-      <h2>تذكير الأقسام <span id="allBtn"></span></h2>
-      <div class="tb"><table><thead><tr><th>القسم</th><th>قرأ</th><th>الحالة</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+      <h2>القراءة في كل قسم <span id="allBtn"></span></h2>
+      <div class="tb"><table><thead><tr><th>القسم</th><th>قرأ من الإجمالي</th><th>متأخر</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
     </section>
   </div>
   <p class="note">نموذج تصميم: الأرقام والأسماء للعرض فقط.</p>
 </div>
-<script src="ui.js?v=1124174253"></script>
-<script src="forms.js?v=1124174253"></script>
+<script src="ui.js?v=1124180110"></script>
+<script src="forms.js?v=1124180110"></script>
 <script>
 document.addEventListener("click",function(e){
   var b=e.target.closest("button");if(!b)return;
@@ -114,40 +99,38 @@ function render(){
   NEWS.filter(function(x){return x.st!=="مسودة"&&x.ack}).forEach(function(x){var au=audCalc(audState(x.aud)).see.map(function(r){return r.e});au.slice(Math.min(seenOf(x),au.length)).forEach(function(e){if(actN[e.name])remNames[e.name]=1})});
   R.forEach(function(r){if(actN[r.e.name]&&(r.sc==null||r.ld===LEAD[2]))remNames[r.e.name]=1});
   remN=Object.keys(remNames).length;
-  var MORE=[
-    ["cap","التدريب",live.length?pc(ans,R.length)+"% أجابوا":"لا تدريب منشور",live.length?(waitM?waitM+" نتائج بانتظار المدير المباشر":"لا نتائج معلّقة"):"أضف أول تدريب","training.html",0,live.length?pc(ans,R.length)+"%":"—","أجابوا عن أسئلة التدريب"],
-    ["mail","الشكاوى والمقترحات",newC?(newC===1?"رسالة جديدة":newC===2?"رسالتان جديدتان":newC+" رسائل جديدة"):"لا رسائل جديدة","تنتظر المراجعة والرد","complaints.html",newC,newC,"شكاوى ومقترحات جديدة"],
-    ["folder","كتب ومراجع",books?(books===1?"كتاب بانتظار المراجعة":books===2?"كتابان بانتظار المراجعة":books+" كتب بانتظار المراجعة"):"لا كتب بانتظار المراجعة","رفعها الموظفون من البوابة","library.html",books,books,"كتب بانتظار المراجعة"],
-    ["clock","تذكير الموظفين","كل ما ينتظر الموظفين","مستندات، أخبار، تدريب، وملفات ناقصة","reminders.html",0,remN,"موظفون ينتظرهم تذكير"]
-  ];
-  $("moreT").innerHTML=MORE.map(function(k){return '<a class="tile" href="'+k[4]+'"><header><span>'+k[1]+'</span><span class="ico">'+ic(k[0],18)+'</span></header><div class="big">'+k[6]+'</div><footer>'+k[7]+'</footer></a>'}).join("");
+  var profP=pc(act.reduce(function(a,e){return a+prof(e).done},0),act.reduce(function(a,e){return a+prof(e).all},0)),full=act.filter(function(e){return !prof(e).miss.length}).length;
+  /* follow-up only: whatever needs a decision is in the rows above, so no figure appears twice */
   $("tiles").innerHTML=[
-    [n?"acc":"","users","بانتظار اعتمادك",n,n?"تسجيلات جديدة":"لا توجد تسجيلات","employees.html"],
-    ["","doc","سلف بانتظار قرارك",hr,hr?"وافق عليها المدير المباشر":"لا توجد سلف","requests.html"],
     ["bad","clock","إقرارات متأخرة",t.late,"تجاوزت 14 يومًا","acks.html"],
-    ["","users","اكتمال الملفات الشخصية",pc(act.reduce(function(a,e){return a+prof(e).done},0),act.reduce(function(a,e){return a+prof(e).all},0))+"%",act.filter(function(e){return !prof(e).miss.length}).length+" من "+act.length+" موظفين نشطين ملفهم مكتمل","employees.html"]
+    ["","users","متوسط اكتمال الملفات الشخصية",profP+"%",(full===1?"ملف واحد مكتمل":full===2?"ملفان مكتملان":full+" ملفات مكتملة")+" من أصل "+act.length,"employees.html"],
+    ["","cap","التدريب",live.length?pc(ans,R.length)+"%":"—",live.length?"أجاب "+ans+" من "+R.length+(waitM?" · "+waitM+" بانتظار المدير المباشر":""):"لا تدريب منشور","training.html"],
+    ["","clock","تذكير الموظفين",remN,"موظفون ينتظرهم تذكير","reminders.html"]
   ].map(function(k){return '<a class="tile '+k[0]+'" href="'+k[5]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></a>'}).join("");
   $("pct").textContent=t.pct+"%";$("readN").textContent=t.read;$("allN").textContent=t.all;
-  var parts=[["#9AAE00","قرأ وأقرّ",t.read],["var(--sea)","ضمن المهلة",inTime],["var(--late)","متأخر",t.late]];
+  var parts=[["#9AAE00","قرأ وأقرّ",t.read],["var(--sea)","ضمن المهلة",inTime],["var(--late)","متأخر",t.late]];/* same colours as .c-read .c-in .c-late */
   $("split").innerHTML=parts.map(function(x){return x[2]?'<i style="flex:'+x[2]+';background:'+x[0]+'"></i>':''}).join("");
   $("split").setAttribute("aria-label",parts.map(function(x){return x[1]+" "+x[2]}).join("، "));
   $("legend").innerHTML=parts.map(function(x){return '<div><b class="n">'+x[2]+'</b><span><i style="background:'+x[0]+'"></i>'+x[1]+'</span></div>'}).join("");
   $("ackActs").innerHTML=(t.people?'<button class="btn k" data-remind="all">إرسال تذكير للكل</button>':'<button class="btn k" disabled>أُرسل التذكير</button>')+'<a class="btn" href="acks.html">كل الإقرارات</a>';
-  $("cols").innerHTML=D.depts.map(function(d){var all=d.read+d.pend,p=pc(d.read,all);
-    return '<div class="col" title="'+esc(d.name)+': '+d.read+' قرأوا، '+d.pend+' لم يقرأوا"><b class="n">'+p+'%</b><div class="stack">'+(d.pend?'<i class="p" style="flex:'+d.pend+'"></i>':'')+'<i class="r" style="flex:'+d.read+'"></i></div><span>'+esc(d.name)+'</span></div>'}).join("");
   var when={};REG.forEach(function(x){when[x[0]]=x[3]});
-  $("reqs").innerHTML=n?'<h3 class="sech">تسجيلات جديدة <a href="employees.html">كل الموظفين</a></h3><div class="reqs">'+D.reqs.map(function(r,i){
-    return '<div class="rc"><div class="who">'+av(r.name)+'<div><b>'+esc(r.name)+'</b><br><small>'+esc(r.meta)+'</small></div></div>'+(when[r.name]?'<time>طلب التسجيل: '+ltr(when[r.name])+'</time>':'')+'<div class="acts"><button class="btn w" data-approve="'+i+'">اعتماد</button><button class="btn gh" data-reject="'+i+'">رفض</button></div></div>'}).join("")+'</div>':'';
   var adv=REQS.filter(function(r){return r.type==="سلفة"&&r.st==="قيد الإجراء"&&r.lead&&r.lead.ok&&!r.hr});
-  $("advs").innerHTML=adv.length?'<h3 class="sech">سلف وافق عليها المدير المباشر <a href="requests.html">كل الطلبات</a></h3>'+adv.map(function(r){
-    return '<div class="adv"><div class="who">'+av(r.name)+'<div><b>'+esc(r.name)+'</b><small><span class="n">'+r.d.amount+'</span> ر.ع على <span class="n">'+r.d.months+'</span> أقساط</small></div></div><a class="btn sm k" href="requests.html">مراجعة</a></div>'}).join(""):'';
-  /* what is empty is said once, in the space that is left, instead of a bare line in the middle of a gap */
-  $("nil").innerHTML=!n&&!adv.length?nil("لا شيء ينتظر قرارك الآن","تظهر هنا التسجيلات الجديدة والسلف التي وافق عليها المدير المباشر."):
-    !n?nil("لا توجد تسجيلات جديدة","كل الحسابات المسجَّلة تم اعتمادها أو رفضها.","users"):!adv.length?nil("لا توجد سلف بانتظار قرارك","تظهر هنا السلفة بعد موافقة المدير المباشر عليها.","doc"):"";
+  var rows=D.reqs.map(function(r,i){
+    return '<div class="dr">'+av(r.name)+'<div><b>'+esc(r.name)+'</b><small>تسجيل جديد · '+esc(r.meta)+(when[r.name]?' · '+ltr(when[r.name]):'')+'</small></div><div class="acts"><button class="btn sm k" data-approve="'+i+'">اعتماد الحساب</button><button class="btn sm" data-reject="'+i+'">رفض</button></div></div>'})
+  .concat(adv.map(function(r){
+    return '<div class="dr">'+av(r.name)+'<div><b>'+esc(r.name)+'</b><small>سلفة وافق عليها المدير المباشر · <span class="n">'+r.d.amount+'</span> ر.ع على <span class="n">'+r.d.months+'</span> أقساط</small></div><div class="acts"><a class="btn sm k" href="requests.html">مراجعة السلفة</a></div></div>'}));
+  if(books)rows.push('<div class="dr"><em>'+ic("folder",18)+'</em><div><b>'+(books===1?"كتاب واحد بانتظار المراجعة":books===2?"كتابان بانتظار المراجعة":books+" كتب بانتظار المراجعة")+'</b><small>رفعها الموظفون من البوابة</small></div><div class="acts"><a class="btn sm k" href="library.html">مراجعة الكتب</a></div></div>');
+  if(newC)rows.push('<div class="dr"><em>'+ic("mail",18)+'</em><div><b>'+(newC===1?"رسالة جديدة":newC===2?"رسالتان جديدتان":newC+" رسائل جديدة")+'</b><small>شكاوى ومقترحات تنتظر المراجعة والرد</small></div><div class="acts"><a class="btn sm k" href="complaints.html">مراجعة الرسائل</a></div></div>');
+  var total=n+adv.length+books+newC;
+  $("waitN").textContent=total?"· "+total:"";
+  $("dq").innerHTML=rows.join("");
+  $("nil").innerHTML=rows.length?"":nil("لا شيء ينتظر قرارك الآن","تظهر هنا التسجيلات الجديدة، والسلف التي وافق عليها المدير المباشر، والكتب والرسائل الجديدة.");
   $("allBtn").innerHTML=t.people?'<button class="btn sm" data-remind="all">إرسال تذكير للكل ('+t.people+' موظف)</button>':'';
-  $("rows").innerHTML=D.depts.map(function(d,i){var all=d.read+d.pend,p=pc(d.read,all);
-    return '<tr><td><b>'+esc(d.name)+'</b><small>'+esc(d.lead)+'</small></td><td class="n">'+d.read+' / '+all+'</td>'+
-      '<td class="full"><span class="st '+(p===100?'done">مكتمل':d.late?'late">'+d.late+' متأخر':'">منتظم')+'</span></td>'+
+  /* most late first: the department that needs the reminder is on top */
+  $("rows").innerHTML=D.depts.map(function(d,i){return [d,i]}).sort(function(a,b){return b[0].late-a[0].late||b[0].pend-a[0].pend}).map(function(x){var d=x[0],i=x[1],all=d.read+d.pend,inT=d.pend-d.late;
+    return '<tr><td><b>'+esc(d.name)+'</b><small>'+esc(d.lead)+'</small></td>'+
+      '<td class="full"><span class="n">'+d.read+'</span> من <span class="n">'+all+'</span><div class="mb" role="img" aria-label="قرأ '+d.read+'، ضمن المهلة '+inT+'، متأخر '+d.late+'">'+(d.read?'<i class="c-read" style="flex:'+d.read+'"></i>':'')+(inT?'<i class="c-in" style="flex:'+inT+'"></i>':'')+(d.late?'<i class="c-late" style="flex:'+d.late+'"></i>':'')+'</div></td>'+
+      '<td class="lt">'+(d.late?'<b class="n">'+d.late+'</b>':all===d.read?'<span class="st done">مكتمل</span>':'<span>لا يوجد</span>')+'</td>'+
       '<td class="end full">'+(d.pend?(d.sent?'<button class="btn sm" disabled>أُرسل التذكير</button>':'<button class="btn sm" data-remind="'+i+'">إرسال تذكير</button>'):'')+'</td></tr>'}).join("");
 }
 </script>
