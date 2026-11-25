@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>المكتبة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125114142">
-<link rel="stylesheet" href="forms.css?v=1125114142">
+<link rel="stylesheet" href="ui.css?v=1125114422">
+<link rel="stylesheet" href="forms.css?v=1125114422">
 <style>.showm{display:none}@media (max-width:760px){.showm{display:inline-flex}}.vbtn{gap:6px}
 .vr{display:grid;grid-template-columns:auto 96px 1fr auto auto;gap:6px 18px;align-items:center;padding:10px 0;font-size:var(--t-ui)}
 .vr + .vr{border-top:1px solid var(--line)}
@@ -40,10 +40,16 @@ tr.wait td{background:var(--sub)}
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125114142"></script>
-<script src="forms.js?v=1125114142"></script>
+<script src="ui.js?v=1125114422"></script>
+<script src="forms.js?v=1125114422"></script>
 <script>
 var tab="الكل",openV={},PEND="بانتظار المراجعة";
+/* mockup only: switch the document window between the layouts on offer */
+var lastDoc;
+document.addEventListener("click",function(e){var b=e.target.closest("[data-form=doc]"),k=e.target.closest("[data-look]");
+  if(b)lastDoc=b.dataset.i;
+  if(k){window.DOCV=+k.dataset.look;document.querySelector("dialog[open]").close();openForm("doc",lastDoc==null?undefined:DOCS[lastDoc])}
+  if(b||k)setTimeout(function(){var f=document.querySelector("dialog[open] .dr-f");if(f&&!f.querySelector(".looks"))f.insertAdjacentHTML("afterbegin",'<span class="looks">الشكل '+[1,2,3].map(function(n){return '<button type="button" data-look="'+n+'" aria-pressed="'+((window.DOCV||1)===n)+'">'+n+'</button>'}).join("")+'</span>')},0)});
 function waiting(){return DOCS.filter(function(d){return d.st===PEND})}
 document.addEventListener("click",function(e){var b=e.target.closest("button[data-tab]");if(b){tab=b.dataset.tab;render()}
   var v=e.target.closest("button[data-vrow]");if(v){openV[v.dataset.vrow]=!openV[v.dataset.vrow];render()}

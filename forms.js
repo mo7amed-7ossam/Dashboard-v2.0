@@ -117,22 +117,35 @@ function mkAudience(v){
 }
 function docForm(d){
   d=d||{};var isNew=!d.n,A=mkAudience(d.aud);
-  return {title:isNew?"مستند جديد":"تعديل مستند",saveLabel:isNew?"إضافة كمستند جديد":"حفظ",html:
-    /* two columns whose rows line up (Mohamed 2026-11-25: «مش مظبوطه»): no hint lines under single fields, so names sit beside the
-       acknowledgement row, and the file box takes exactly the height of the category and the version note beside it */
-    '<div class="fs"><h3>بيانات المستند</h3>'+two(fld("اسم المستند بالعربي",inp("n",d.n,req("اكتب اسم المستند"))),fld("اسم المستند بالإنجليزي",inp("en",d.en,'dir="ltr"')))+fld("التصنيف",sel("c",CATS,d.c))+
-      /* books and references only (Mohamed 2026-11-24): who wrote it, a short description, and who uploaded it */
-      '<div id="bookRow">'+two(fld("مؤلف الكتاب",inp("author",d.author)),fld("وصف مختصر للكتاب (سطران على الأكثر)",txt("bx",d.bx,'rows="2" maxlength="220"')))+
-        '<p class="m" style="font-size:var(--t-sm);margin-top:6px">'+(isNew?'سيُسجَّل الكتاب باسم من رفعه: '+ME+'.':'رفعه: '+esc(d.by||ME)+' · '+ltr(d.up))+'</p></div>'+
-      '<label class="f grow"><span>ما الجديد في الإصدار؟</span>'+txt("note","",'rows="2" placeholder="يظهر للموظف مع الإصدار الجديد."')+'</label></div>'+
-    '<div class="fs"><h3>الإقرار والملف</h3>'+two(fld("إقرار القراءة",sel("ack",["مطلوب","غير مطلوب"],d.ack===false?"غير مطلوب":"مطلوب")),
-        '<label class="f"><span id="dueL"></span><input class="in" type="date" name="due" value="'+esc(d.due||"")+'"></label>')+
-      '<div class="f grow"><span>الملف</span><label class="drop"><b>ملف PDF</b><small>'+(isNew?"سيكون هذا الملف الإصدار 1.":"الإصدار الحالي "+d.v+". إن لم تختر ملفًا فلن يُنشأ إصدار جديد.")+'</small><input type="file" name="file" accept="application/pdf"></label></div></div>'+
+  /* three layouts to choose from (Mohamed 2026-11-25: «مش عاجبنى»): window.DOCV = 1, 2 or 3; remove the losers once he picks */
+  var V=window.DOCV||1,
+    fN=fld("اسم المستند بالعربي",inp("n",d.n,req("اكتب اسم المستند"))),fE=fld("اسم المستند بالإنجليزي",inp("en",d.en,'dir="ltr"')),fC=fld("التصنيف",sel("c",CATS,d.c)),
+    fA=fld("إقرار القراءة",sel("ack",["مطلوب","غير مطلوب"],d.ack===false?"غير مطلوب":"مطلوب")),
+    fD='<label class="f"><span id="dueL"></span><input class="in" type="date" name="due" value="'+esc(d.due||"")+'"></label>',
+    /* books and references only (Mohamed 2026-11-24): who wrote it, a short description, and who uploaded it */
+    bk='<div id="bookRow">'+two(fld("مؤلف الكتاب",inp("author",d.author)),fld("وصف مختصر للكتاب (سطران على الأكثر)",txt("bx",d.bx,'rows="2" maxlength="220"')))+
+        '<p class="m" style="font-size:var(--t-sm);margin-top:6px">'+(isNew?'سيُسجَّل الكتاب باسم من رفعه: '+ME+'.':'رفعه: '+esc(d.by||ME)+' · '+ltr(d.up))+'</p></div>',
+    nt=function(g){return '<label class="f'+(g?' grow':'')+'"><span>ما الجديد في الإصدار؟</span>'+txt("note","",'rows="2" placeholder="يظهر للموظف مع الإصدار الجديد."')+'</label>'},
+    dp='<div class="f grow"><span>الملف</span><label class="drop"><b>ملف PDF</b><small>'+(isNew?"سيكون هذا الملف الإصدار 1.":"الإصدار الحالي "+d.v+". إن لم تختر ملفًا فلن يُنشأ إصدار جديد.")+'</small><input type="file" name="file" accept="application/pdf"></label></div>',
+    r3=function(a,b,c){return '<div class="r3">'+a+b+c+'</div>'},
+    lay=V===2?
+      /* 2: full-width bands, top to bottom: what it is, then its acknowledgement beside its file, then the note */
+      '<div class="fs wide"><h3>بيانات المستند</h3>'+r3(fN,fE,fC)+bk+'</div>'+
+      '<div class="fs wide"><h3>الإقرار والملف</h3><div class="row2" style="align-items:stretch">'+two(fA,fD)+dp+'</div>'+nt()+'</div>':
+     V===3?
+      /* 3: every field in two rows on the wide side, the file in its own narrow column */
+      '<div class="fs"><h3>بيانات المستند</h3>'+two(fN,fE)+r3(fC,fA,fD)+bk+nt(1)+'</div>'+
+      '<div class="fs"><h3>الملف</h3>'+dp.replace('<span>الملف</span>','')+'</div>':
+      /* 1: two equal columns whose rows line up */
+      '<div class="fs"><h3>بيانات المستند</h3>'+two(fN,fE)+fC+bk+nt(1)+'</div>'+
+      '<div class="fs"><h3>الإقرار والملف</h3>'+two(fA,fD)+dp+'</div>';
+  return {cls:"docv"+V,title:isNew?"مستند جديد":"تعديل مستند",saveLabel:isNew?"إضافة كمستند جديد":"حفظ",html:
+    lay+
     '<div class="fs wide" data-step="2">'+A.html+'</div>',
     steps:["بيانات المستند","لمن يظهر"],isNew:isNew,
     init:function(f){A.draw(f);var bk=f.c.value===BOOK;f.querySelector("#bookRow").style.display=bk?"":"none";
       /* a book has more on the details side (author, description), so its version note moves under the file to keep the two columns level */
-      if(bk){var nf=f.note.closest(".f");nf.classList.remove("grow");f.querySelector(".drop").closest(".fs").appendChild(nf)}
+      if(bk&&V===1){var nf=f.note.closest(".f");nf.classList.remove("grow");f.querySelector(".drop").closest(".fs").appendChild(nf)}
       [["author","اكتب اسم مؤلف الكتاب"],["bx","اكتب وصفًا مختصرًا للكتاب"]].forEach(function(k){if(bk)f[k[0]].dataset.req=k[1];else delete f[k[0]].dataset.req})},
     bind:function(f){A.bind(f);function due(){var on=f.ack.value==="مطلوب";f.due.disabled=!on;f.querySelector("#dueL").textContent=on?"آخر موعد للإقرار":"آخر موعد (الإقرار غير مطلوب)";if(on)f.due.dataset.req="حدّد آخر موعد للإقرار";else delete f.due.dataset.req}
       due();f.ack.addEventListener("change",due)},check:function(f){return A.check(f)},

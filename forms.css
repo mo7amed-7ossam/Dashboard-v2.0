@@ -278,3 +278,22 @@ dialog.drawer[data-step="2"] .audlist{max-height:min(46vh,420px)}
 .f.grow > .drop,.f.grow > textarea{flex:1}
 .f.grow > .drop{align-content:center}
 .f > select.in,.f > input.in{min-height:41px}
+.r3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+@media (max-width:760px){.r3{grid-template-columns:minmax(0,1fr)}}
+@media (min-width:901px){dialog.drawer.docv3 .dr-b{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}}
+.docv3 .f.grow > .drop{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;row-gap:6px;min-height:150px}
+.docv3 .f.grow > .drop > *{grid-column:1;grid-row:auto}
+.docv3 .f.grow > .drop .dz-btn{margin-top:6px}
+/* mockup only: the bar that switches between layouts on offer */
+.looks{display:flex;gap:4px;align-items:center;margin-inline-end:auto;font-size:var(--t-sm);color:var(--m)}
+.looks button{border:1px solid var(--line);background:var(--card);border-radius:99px;min-width:30px;height:30px;font:inherit;cursor:pointer}
+.looks button[aria-pressed="true"]{background:var(--pri);color:var(--on-pri);border-color:var(--pri)}
+/* spacing scale inside windows (Mohamed 2026-11-25: «توزيع المسافات غلط»): 6 label to its field, 16 between fields both ways,
+   20 from a section title to its first field, 32 between columns; the same inline edge for header, body and footer */
+dialog.drawer .dr-b{padding:22px 24px 24px;gap:28px 32px}
+dialog.drawer .dr-h,dialog.drawer .dr-f{padding-inline:24px}
+dialog.drawer .fs{gap:16px}
+dialog.drawer .fs > h3{margin-bottom:4px}
+dialog.drawer .f{gap:6px}
+dialog.drawer .row2,dialog.drawer .r3{gap:16px}
+@media (max-width:760px){dialog.drawer .dr-b,dialog.drawer .dr-h,dialog.drawer .dr-f{padding-inline:16px}}
