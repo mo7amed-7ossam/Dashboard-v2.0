@@ -295,3 +295,7 @@ dialog.drawer .row2{gap:16px}
 /* 11: a field inside a small question window keeps its distance from the sentence above it */
 dialog.ask .f{margin-top:14px;gap:6px}
 dialog.ask .f > span{font-size:var(--t-sm);color:var(--ink)}
+/* two upload boxes side by side that share the height left in the column */
+.fs > .row2.grow2{flex:1;align-items:stretch}
+.sheet{position:relative;overflow:hidden;align-content:end}
+.sheet .shc{position:absolute;inset:0 0 auto 0;width:100%;height:58%;object-fit:cover}

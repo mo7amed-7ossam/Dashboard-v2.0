@@ -380,3 +380,7 @@ p.empty::before{content:"";width:44px;height:44px;border-radius:50%;background:v
 .pl > p.empty::before,.cl > p.empty::before,.rl > p.empty::before,.sys > p.empty::before{background-color:var(--sub)}
 /* phone: what comes after a person's name in the people window drops under the name instead of pushing it out */
 @media (max-width:760px){.pp{flex-wrap:wrap;gap:4px 10px}.pp .ppx{width:100%;padding-inline-start:46px;flex-wrap:wrap}}
+
+/* cover picture of a file or a video */
+.cvr{flex:none;width:38px;height:46px;border-radius:9px;object-fit:cover;background:var(--sub);display:block}
+.cvr.none{border:1.5px dashed var(--line)}

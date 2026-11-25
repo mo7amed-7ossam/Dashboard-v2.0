@@ -126,7 +126,8 @@ function docForm(d){
       '<p class="m" id="byL" style="font-size:var(--t-sm)">'+(isNew?'سيُسجَّل الكتاب باسم من رفعه: '+ME+'.':'رفعه: '+esc(d.by||ME)+' · '+ltr(d.up))+'</p></div>'+
     '<div class="fs"><h3>الإقرار والملف</h3>'+two(fld("إقرار القراءة",sel("ack",["مطلوب","غير مطلوب"],d.ack===false?"غير مطلوب":"مطلوب")),
         '<label class="f"><span id="dueL"></span><input class="in" type="date" name="due" value="'+esc(d.due||"")+'"></label>')+
-      '<div class="f grow"><span>الملف</span><label class="drop"><b>ملف PDF</b><small>'+(isNew?"سيكون هذا الملف الإصدار 1.":"الإصدار الحالي "+d.v+". إن لم تختر ملفًا فلن يُنشأ إصدار جديد.")+'</small><input type="file" name="file" accept="application/pdf"'+(isNew?' data-req="اختر ملف PDF للمستند"':'')+'></label></div></div>';
+      '<div class="row2 grow2"><div class="f grow"><span>صورة الغلاف</span><label class="drop"'+(d.cv?' data-cur="'+esc(d.cv)+'"':'')+'><b>صورة الغلاف</b><small>JPG أو PNG أو WEBP، أقل من 5 ميغابايت.</small><input type="file" name="cover" accept="image/jpeg,image/png,image/webp"'+(d.cv?'':' data-req="ارفع صورة الغلاف للمستند"')+'></label></div>'+
+      '<div class="f grow"><span>الملف</span><label class="drop"><b>ملف PDF</b><small>'+(isNew?"سيكون هذا الملف الإصدار 1.":"الإصدار الحالي "+d.v+". إن لم تختر ملفًا فلن يُنشأ إصدار جديد.")+'</small><input type="file" name="file" accept="application/pdf"'+(isNew?' data-req="اختر ملف PDF للمستند"':'')+'></label></div></div></div>';
   return {title:isNew?"مستند جديد":"تعديل مستند",saveLabel:isNew?"إضافة كمستند جديد":"حفظ",html:
     lay+
     '<div class="fs wide" data-step="2">'+A.html+'</div>',
@@ -138,9 +139,9 @@ function docForm(d){
       due();f.ack.addEventListener("change",due)},check:function(f){return A.check(f)},
     save:function(f){
       var r=A.calc(),ack=f.ack.value==="مطلوب",bk=f.c.value===BOOK,au=bk?f.author.value.trim():"",bx=f.bx.value.trim();
-      if(!isNew){d.n=f.n.value;d.c=f.c.value;d.ack=ack;d.due=ack?f.due.value:"";d.aud=A.value();d.author=au;d.bx=bx;if(bk&&!d.by)d.by=ME;
+      if(!isNew){d.n=f.n.value;d.c=f.c.value;d.ack=ack;d.due=ack?f.due.value:"";d.aud=A.value();d.author=au;d.bx=bx;if(bk&&!d.by)d.by=ME;if(f.cover.files[0])d.cv=URL.createObjectURL(f.cover.files[0]);
         if(f.file.value){d.hist=(d.hist||[]).concat([{v:d.v,up:d.up,note:d.note||"",file:d.file,size:d.size,pages:d.pages}]);d.v++;d.note="";d.up="2026-11-22";var um=pdfMeta(DOCS.indexOf(d),d.v);d.file=um.file;d.size=um.size;d.pages=um.pages}}
-      else{var nm=pdfMeta(DOCS.length,1);DOCS.unshift({due:ack?f.due.value:"",n:f.n.value,c:f.c.value,v:1,ack:ack,read:0,all:r.see.length,up:"2026-11-22",note:"",file:nm.file,size:nm.size,pages:nm.pages,hist:[],aud:A.value(),author:au,bx:bx,by:bk?ME:""})}
+      else{var nm=pdfMeta(DOCS.length,1);DOCS.unshift({cv:URL.createObjectURL(f.cover.files[0]),due:ack?f.due.value:"",n:f.n.value,c:f.c.value,v:1,ack:ack,read:0,all:r.see.length,up:"2026-11-22",note:"",file:nm.file,size:nm.size,pages:nm.pages,hist:[],aud:A.value(),author:au,bx:bx,by:bk?ME:""})}
       return "تم الحفظ — المستند ظاهر الآن لـ "+r.see.length+" موظفين"+(r.exc.length?" (مستثنى "+r.exc.length+")":"")+".";
     }};
 }
@@ -187,7 +188,7 @@ function openDoc(doc,ver){var d=dlg("drawer md fv"),V=[{v:doc.v,up:doc.up,note:d
   function draw(){var m=V[cur];
     d.innerHTML='<div class="dr-h"><h2>'+esc(doc.n)+'</h2><button type="button" class="xbtn" data-close aria-label="إغلاق" title="إغلاق">×</button></div><div class="dr-b">'+
       '<div class="fvl" role="group" aria-label="إصدارات المستند">'+V.map(function(x,i){return '<button type="button" data-fi="'+i+'"'+(i===cur?' aria-current="true"':'')+'><span>الإصدار <span class="n">'+x.v+'</span><small style="display:block;color:var(--m)">'+dmy(x.up)+'</small></span>'+(i?'':'<span class="chip s">الحالي</span>')+'</button>'}).join("")+'</div>'+
-      '<div class="fvp"><div class="sheet"><div><b>'+esc(doc.n)+'</b><br>الإصدار <span class="n">'+m.v+'</span><br>معاينة الصفحة 1 من <span class="n">'+m.pages+'</span></div></div>'+
+      '<div class="fvp"><div class="sheet">'+(doc.cv?'<img class="shc" src="'+esc(doc.cv)+'" alt="">':'')+'<div><b>'+esc(doc.n)+'</b><br>الإصدار <span class="n">'+m.v+'</span><br>معاينة الصفحة 1 من <span class="n">'+m.pages+'</span></div></div>'+
         '<p class="m"><bdi dir="ltr">'+esc(m.file)+'</bdi> · '+String(m.size).replace(" MB"," ميغابايت")+' · '+m.pages+' صفحة · '+dmy(m.up)+'</p>'+(m.note?'<p>'+esc(m.note)+'</p>':'')+'</div></div>'+
       '<div class="dr-f"><span class="m" style="margin-inline-end:auto">'+(cur?'إصدار سابق — يراه الموظفون الإصدار '+doc.v+' فقط':'الإصدار الذي يراه الموظفون الآن')+'</span>'+
       '<button type="button" class="btn" data-mock="تنزيل «'+esc(m.file)+'»">تنزيل</button><button type="button" class="btn k" data-close>إغلاق</button></div>';

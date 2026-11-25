@@ -131,18 +131,18 @@ var SLIDES=[
 var TRAIN=[
   {tab:"تدريبات السندباد",st:"منشور",n:"تهيئة الموظفين الجدد",x:"ما يحتاجه الموظف الجديد في أسبوعه الأول: الشركة، اللوائح، وأنظمة العمل.",due:"2026-12-15",done:6,
    cats:["اللوائح والأدلة","أنظمة العمل"],
-   mats:[{g:0,k:"ملف من المكتبة",t:"دليل الموظف العام",f:"دليل الموظف العام"},{g:1,k:"فيديو يوتيوب",t:"جولة في أنظمة العمل: Sindflow و Odoo",src:"https://youtu.be/aqz-KE-bpKQ"},{g:1,k:"ملف من المكتبة",t:"دليل استخدام البوابة",f:"دليل استخدام البوابة"}],
+   mats:[{g:0,k:"ملف من المكتبة",t:"دليل الموظف العام",f:"دليل الموظف العام"},{cv:"assets/news/workspace.webp",g:1,k:"فيديو يوتيوب",t:"جولة في أنظمة العمل: Sindflow و Odoo",src:"https://youtu.be/aqz-KE-bpKQ"},{g:1,k:"ملف من المكتبة",t:"دليل استخدام البوابة",f:"دليل استخدام البوابة"}],
    qs:[{g:0,q:"ما الوسيلة المعتمدة لإثبات الحضور والانصراف؟",opts:["التوقيع الورقي","البصمة أو تطبيق السندباد","إبلاغ المدير شفهيًا"],ok:1},
        {g:0,q:"كم مدة فترة السماح في الحضور؟",opts:["5 دقائق","15 دقيقة","30 دقيقة","ساعة"],ok:1},
        {g:1,q:"متى يُقدَّم طلب الإجازة السنوية؟",opts:["قبل أسبوع","قبل شهر","قبل شهرين"],ok:2}]},
   {tab:"تدريب OPPEIN",st:"منشور",n:"منتجات مطابخ OPPEIN 2026",x:"الخامات والتشطيبات والملحقات الجديدة قبل وصولها إلى المعارض.",due:"2026-11-26",done:3,aud:{on:["dept:التسويق","dept:العمليات"],plus:[],minus:[]},
    cats:["التصميم","المبيعات"],
-   mats:[{g:0,k:"فيديو مرفوع",t:"خامات الأبواب والأسطح",vf:"oppein-materials.mp4"},{g:0,k:"فيديو مرفوع",t:"الألوان والتشطيبات",vf:"oppein-finishes.mp4"},{g:1,k:"ملف من المكتبة",t:"دليل إجراءات المبيعات والتصميم",f:"دليل إجراءات المبيعات والتصميم"}],
+   mats:[{cv:"assets/news/kitchen.jpg",g:0,k:"فيديو مرفوع",t:"خامات الأبواب والأسطح",vf:"oppein-materials.mp4"},{cv:"assets/news/living.jpg",g:0,k:"فيديو مرفوع",t:"الألوان والتشطيبات",vf:"oppein-finishes.mp4"},{g:1,k:"ملف من المكتبة",t:"دليل إجراءات المبيعات والتصميم",f:"دليل إجراءات المبيعات والتصميم"}],
    qs:[{g:0,q:"أي خامة تُستخدم لأسطح المطابخ المقاومة للحرارة؟",opts:["الكوارتز","الخشب المضغوط","البلاستيك"],ok:0},
        {g:1,q:"ما أول خطوة في بناء عرض السعر؟",opts:["تحديد الخصم","أخذ قياسات المطبخ","اختيار الإكسسوارات"],ok:1}]},
   {tab:"تدريبات خارجية",st:"مسودة",n:"مهارات خدمة العملاء",x:"دورة خارجية لفريق المبيعات وخدمة العملاء.",due:"",done:0,
    cats:["خدمة العملاء"],
-   mats:[{g:0,k:"فيديو يوتيوب",t:"الاستماع والتعامل مع الاعتراض",src:"https://www.youtube.com/watch?v=aqz-KE-bpKQ"}],qs:[]}
+   mats:[{cv:"assets/news/team.webp",g:0,k:"فيديو يوتيوب",t:"الاستماع والتعامل مع الاعتراض",src:"https://www.youtube.com/watch?v=aqz-KE-bpKQ"}],qs:[]}
 ];
 var SYS=[
   {n:"Sindflow",x:"تنظيم مهام موظفي الشركة وتوزيعها ومتابعة تنفيذها.",u:"https://oracleapex.com/ords/r/sindbad_sal",icon:"قائمة",color:"#0A8BA0",st:"ظاهر"},
@@ -300,3 +300,9 @@ var HOME={img:"kitchen.jpg",
 var MON=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 function dmy(s){var p=String(s).slice(0,10).split("-");return (+p[2])+" "+MON[p[1]-1]+" "+p[0]}
 console.assert(dmy("2026-11-06")==="6 نوفمبر 2026");
+
+/* every file and every video carries a cover picture (Mohamed 2026-11-25: «cover صوره لكل ملف عندنا او فيديو لازم يترفع»).
+   shortcut: sample covers come from the news pictures; a picked file is shown through an object URL, nothing is uploaded */
+var COVERS=["onboarding.webp","kitchen.jpg","workspace.webp","team.webp","leadership.webp","living.jpg"].map(function(n){return "assets/news/"+n});
+DOCS.forEach(function(d,i){d.cv=d.cv||COVERS[i%COVERS.length]});
+function cover(src,cls){return src?'<img class="cvr'+(cls?' '+cls:'')+'" src="'+esc(src)+'" alt="" loading="lazy">':'<span class="cvr none'+(cls?' '+cls:'')+'" aria-hidden="true"></span>'}

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>المكتبة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125140853">
-<link rel="stylesheet" href="forms.css?v=1125140853">
+<link rel="stylesheet" href="ui.css?v=1125141515">
+<link rel="stylesheet" href="forms.css?v=1125141515">
 <style>.showm{display:none}@media (max-width:760px){.showm{display:inline-flex}}.vbtn{gap:6px}
 .vr{display:grid;grid-template-columns:auto 96px 1fr auto auto;gap:6px 18px;align-items:center;padding:10px 0;font-size:var(--t-ui)}
 .va{display:flex;gap:6px}
@@ -47,8 +47,8 @@ tr.wait td{background:var(--sub)}
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125140853"></script>
-<script src="forms.js?v=1125140853"></script>
+<script src="ui.js?v=1125141515"></script>
+<script src="forms.js?v=1125141515"></script>
 <script>
 var tab="الكل",openV={},PEND="بانتظار المراجعة";
 function waiting(){return DOCS.filter(function(d){return d.st===PEND})}
@@ -85,7 +85,7 @@ function render(){
   function over(d){var R=docRead(d);return d.ack&&d.due&&d.due<TODAY&&R.done<R.all}
   var list=DOCS.filter(function(d){return (tab==="الكل"||d.c===tab)&&(!ao||d.ack)&&(!lo||over(d))&&(!q||d.n.indexOf(q)>-1)});
   $("rows").innerHTML=list.length?list.map(function(d){var k=DOCS.indexOf(d),R=docRead(d),op=!!openV[k],open='data-doc="'+k+'"';
-    return '<tr'+(d.st===PEND?' class="wait"':'')+'><td class="full"><div class="who"><span class="pdf" aria-hidden="true">PDF</span><div><button class="lnk" '+open+' title="فتح PDF">'+esc(d.n)+'</button>'+(d.author?'<small>تأليف '+esc(d.author)+' · رفعه '+esc(d.by||"—")+'</small>':'')+(d.bx?'<small class="bx">'+esc(d.bx)+'</small>':'')+'<small>'+ltr(d.file)+' · '+d.size.replace(" MB"," ميغابايت")+' · '+d.pages+' صفحة</small></div></div></td>'+
+    return '<tr'+(d.st===PEND?' class="wait"':'')+'><td class="full"><div class="who">'+cover(d.cv)+'<div><button class="lnk" '+open+' title="فتح PDF">'+esc(d.n)+'</button>'+(d.author?'<small>تأليف '+esc(d.author)+' · رفعه '+esc(d.by||"—")+'</small>':'')+(d.bx?'<small class="bx">'+esc(d.bx)+'</small>':'')+'<small>'+ltr(d.file)+' · '+d.size.replace(" MB"," ميغابايت")+' · '+d.pages+' صفحة</small></div></div></td>'+
       '<td><span class="chip s">'+esc(d.c)+'</span>'+(d.st===PEND?' <span class="st">'+PEND+'</span>':'')+'</td>'+
       '<td class="hide"><button class="btn sm vbtn" data-vrow="'+k+'" aria-expanded="'+op+'">'+(op?'إخفاء الإصدارات':vtxt(d.v))+'</button><small class="up">آخر تحديث '+dmy(d.up)+'</small></td>'+
       '<td class="full">'+(d.ack?prog(R.done,R.all,"قرأوا وأقرّوا"):'<span class="m">غير مطلوب</span>')+'</td>'+

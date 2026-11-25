@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التدريب — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125140853">
-<link rel="stylesheet" href="forms.css?v=1125140853">
+<link rel="stylesheet" href="ui.css?v=1125141515">
+<link rel="stylesheet" href="forms.css?v=1125141515">
 <style>
 /* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
    multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
@@ -36,7 +36,15 @@
 .pgh em{font-style:normal;color:var(--m);font-size:var(--t-sm);margin-inline-start:8px}
 .pgr{display:grid;grid-template-columns:22px 170px minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:6px}
 .pgr.hd{font-size:var(--t-cap);color:var(--m);margin-bottom:2px}
-.rb{display:flex;gap:4px}
+.rb{display:flex;gap:4px;align-items:center}
+/* cover of a material: a video gets its own picture, a library file shows the cover it already has */
+.cvb{position:relative;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;overflow:hidden;cursor:pointer;flex:none;border:1.5px dashed #AEB9B9;color:var(--m)}
+.cvb.has{border:0}
+.cvb input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.cvb img{width:100%;height:100%;object-fit:cover}
+.cvb[aria-invalid="true"]{border-color:#B3261E;outline:2px solid #B3261E}
+.cvb.ro{cursor:default}
+.tree li .cvr{width:22px;height:22px;border-radius:6px}
 /* a category = a folder of the training: its name, its place among the categories, then its materials in order */
 .cat{border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px}
 .cath{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:10px}
@@ -143,8 +151,8 @@
   <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار المدير المباشر</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1125140853"></script>
-<script src="forms.js?v=1125140853"></script>
+<script src="ui.js?v=1125141515"></script>
+<script src="forms.js?v=1125141515"></script>
 <script>
 var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
     MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
@@ -170,7 +178,7 @@ function letter(c){var o="";for(c++;c>0;c=Math.floor((c-1)/26))o=String.fromChar
 console.assert(letter(0)==="A"&&letter(25)==="Z"&&letter(26)==="AA");
 /* the folders of a training as the employee meets them: categories in order, each with its materials in order */
 function tree(p){var C=p.cats||[];return '<div class="tree">'+(C.length?C.map(function(cn,c){var L=p.mats.filter(function(m){return m.g===c});
-  return '<div><h4><b class="lt">'+letter(c)+'</b>'+esc(cn)+'</h4>'+(L.length?'<ol>'+L.map(function(m){return '<li>'+ic(kindOf(m)===MK[0]?"doc":"image",14)+'<span>'+esc(m.t)+'</span></li>'}).join("")+'</ol>':'<span class="m" style="font-size:var(--t-sm)">لا مواد في هذه الفئة بعد.</span>')+
+  return '<div><h4><b class="lt">'+letter(c)+'</b>'+esc(cn)+'</h4>'+(L.length?'<ol>'+L.map(function(m){return '<li>'+cover(cvOf(m))+'<span>'+esc(m.t)+'</span></li>'}).join("")+'</ol>':'<span class="m" style="font-size:var(--t-sm)">لا مواد في هذه الفئة بعد.</span>')+
     '<small class="m" style="display:block;margin-top:4px">'+pl(p.qs.filter(function(q){return q.g===c}).length,"سؤال واحد","سؤالان","أسئلة","سؤالًا")+'</small></div>'}).join(""):'<span class="m">لا توجد فئات بعد.</span>')+'</div>'}
 function nfile(p){return p.mats.filter(function(m){return kindOf(m)===MK[0]}).length}
 function nvid(p){return p.mats.length-nfile(p)}
@@ -181,6 +189,8 @@ console.assert(pl(1,"فئة واحدة","فئتان","فئات","فئة")==="ف�
 document.addEventListener("click",function(e){document.querySelectorAll("details.mn[open]").forEach(function(m){if(!m.contains(e.target)||e.target.closest(".mn > div button"))m.open=false})});
 /* shortcut: 200 MB is a placeholder limit until the video storage is decided */
 var VMAX=200;
+/* the cover of a material: a library file takes the cover it has in the library, a video carries its own */
+function cvOf(m){if(kindOf(m)!==MK[0])return m.cv||"";var d=DOCS.filter(function(x){return x.n===m.f})[0];return d?d.cv:""}
 function srcFld(m){var k=kindOf(m),up=k===MK[2];
   return up?'<label class="in vup"><input type="file" accept="video/mp4,video/webm" data-vf aria-label="'+k+'"><span>'+(m.vf?'<bdi dir="ltr">'+esc(m.vf)+'</bdi>'+(m.vs?' · '+m.vs+' ميغابايت':''):'اختيار ملف فيديو (حتى '+VMAX+' ميغابايت)')+'</span></label>':
     k===MK[0]?'<select class="in" data-k="f" aria-label="الملف"><option value="">— اختر من المكتبة —</option>'+DOCS.map(function(d){return '<option'+(d.n===m.f?' selected':'')+'>'+esc(d.n)+'</option>'}).join("")+'</select>':
@@ -209,6 +219,9 @@ FORMS.prog=function(src){
           q.q=c.querySelector("[data-qt]").value.trim();q.opts=[].map.call(c.querySelectorAll("[data-o]"),function(i){return i.value.trim()});q.ok=ck?+ck.value:-1})};
       function head(t,n,c,add){return '<div class="pgh"><h3>'+t+(n?'<em>'+n+'</em>':'')+'</h3>'+(add?'<button type="button" class="btn sm" data-add="'+c+'">'+add+'</button>':'')+'</div>'}
       function x(attr,label){return '<button type="button" class="ib" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
+      function cvBtn(m){var lib=kindOf(m)===MK[0],src=cvOf(m);
+        return lib?'<span class="cvb ro'+(src?' has':'')+'" title="غلاف الملف من المكتبة">'+(src?'<img src="'+esc(src)+'" alt="">':ic("image",14))+'</span>':
+          '<label class="cvb'+(src?' has':'')+'" title="'+(src?'تغيير صورة الغلاف':'رفع صورة الغلاف (مطلوبة)')+'"><input type="file" accept="image/jpeg,image/png,image/webp" data-cv aria-label="صورة غلاف الفيديو">'+(src?'<img src="'+esc(src)+'" alt="">':ic("image",14))+'</label>'}
       function mv(attr,label,svg,off){return '<button type="button" class="ib" '+attr+(off?' disabled':'')+' aria-label="'+label+'" title="'+label+'">'+svg+'</button>'}
       function inCat(c){var o=[];P.mats.forEach(function(m,i){if(m.g===c)o.push(i)});return o}
       function drawM(){var C=P.cats;
@@ -218,7 +231,7 @@ FORMS.prog=function(src){
                 mv('data-cm="'+c+':-1"',"تقديم الفئة",UP,c===0)+mv('data-cm="'+c+':1"',"تأخير الفئة",DOWN,c===C.length-1)+x('data-cx="'+c+'"',"حذف الفئة")+'</span></div>'+
               (I.length?'<div class="pgr hd"><span></span><span>النوع</span><span>العنوان الظاهر للموظف</span><span>الملف أو الرابط</span><span></span></div>':'')+
               I.map(function(i,n){var m=P.mats[i];return '<div class="pgr" data-r="'+i+'"><b>'+(n+1)+'</b><select class="in" data-k="k" aria-label="النوع">'+MK.map(function(k){return '<option'+(k===kindOf(m)?' selected':'')+'>'+k+'</option>'}).join("")+'</select>'+
-                '<input class="in" data-k="t" value="'+esc(m.t)+'" '+at("عنوان الملف أو الفيديو")+'>'+srcFld(m)+'<span class="rb">'+mv('data-mm="'+i+':-1"',"تقديم في الترتيب",UP,n===0)+mv('data-mm="'+i+':1"',"تأخير في الترتيب",DOWN,n===I.length-1)+x('data-rm="'+i+'"',"حذف الصف")+'</span></div>'}).join("")+
+                '<input class="in" data-k="t" value="'+esc(m.t)+'" '+at("عنوان الملف أو الفيديو")+'>'+srcFld(m)+'<span class="rb">'+cvBtn(m)+mv('data-mm="'+i+':-1"',"تقديم في الترتيب",UP,n===0)+mv('data-mm="'+i+':1"',"تأخير في الترتيب",DOWN,n===I.length-1)+x('data-rm="'+i+'"',"حذف الصف")+'</span></div>'}).join("")+
               '<button type="button" class="qadd" data-add="mat" data-c="'+c+'">+ إضافة ملف أو فيديو</button></div>'}).join("")+
             (C.length?'<p class="pge">يرى الموظف الفئات بهذا الترتيب، وداخل كل فئة موادها بترتيبها. الملف يُختار من المكتبة، ورابط يوتيوب يتحوّل إلى مشغّل داخل صفحة التدريب، والفيديو المرفوع MP4 أو WEBM.</p>':'')||
             '<p class="pge">لا توجد فئات بعد. أضف فئة (مثل «التصميم») ثم ضع فيها ملفاتها وفيديوهاتها بالترتيب.</p>')};
@@ -253,6 +266,7 @@ FORMS.prog=function(src){
       bm.addEventListener("change",function(e){var r=e.target.closest("[data-r]");if(!r)return;
         if(e.target.dataset.k==="k"){read();drawM()}
         if(e.target.dataset.k==="f"){read();var mf=P.mats[+r.dataset.r];if(mf.f&&!mf.t){mf.t=mf.f;drawM()}}
+        if(e.target.dataset.cv!=null){read();var cf=e.target.files[0];if(cf)P.mats[+r.dataset.r].cv=URL.createObjectURL(cf);f.querySelector("#dirty").hidden=false;drawM();return}
         if(e.target.dataset.vf!=null){read();var fl=e.target.files[0],m=P.mats[+r.dataset.r];
           if(fl&&fl.size>VMAX*1048576){toast("حجم الفيديو "+Math.round(fl.size/1048576)+" ميغابايت، والحد الأقصى "+VMAX+". اختر ملفًا أصغر أو استخدم رابط يوتيوب.");drawM();return}
           m.vf=fl?fl.name:"";m.vs=fl?(fl.size/1048576).toFixed(1):"";if(fl&&!m.t)m.t=fl.name.replace(/\.[^.]+$/,"");drawM()}});
@@ -276,7 +290,8 @@ FORMS.prog=function(src){
         var R='#pgm [data-r="'+i+'"] ';
         if(!m.t){mark(R+'[data-k=t]');return "اكتب عنوان المادة "+at2(P.mats,i)+"."}
         if(k===MK[1]&&m.src&&!ytId(m.src)){mark(R+'[data-k=src]');return "رابط المادة "+at2(P.mats,i)+" ليس رابط يوتيوب صحيحًا."}
-        if(!has){mark(R+(k===MK[1]?'[data-k=src]':k===MK[0]?'[data-k=f]':'.vup'));return (k===MK[1]?"اكتب رابط يوتيوب":k===MK[0]?"اختر الملف من المكتبة":"اختر ملف الفيديو")+" للمادة "+at2(P.mats,i)+"."}}
+        if(!has){mark(R+(k===MK[1]?'[data-k=src]':k===MK[0]?'[data-k=f]':'.vup'));return (k===MK[1]?"اكتب رابط يوتيوب":k===MK[0]?"اختر الملف من المكتبة":"اختر ملف الفيديو")+" للمادة "+at2(P.mats,i)+"."}
+        if(k!==MK[0]&&!m.cv){mark(R+'.cvb');return "ارفع صورة الغلاف للفيديو "+at2(P.mats,i)+"."}}
       this.checkStep=3;
       for(var n=0;n<P.qs.length;n++){var q=P.qs[n],right=q.ok>-1?q.opts[q.ok]:"";
         var Q='#pgq [data-q="'+n+'"] ';
