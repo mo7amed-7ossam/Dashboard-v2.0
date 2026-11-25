@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الأقسام — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1125161536">
+<link rel="stylesheet" href="forms.css?v=1125161536">
+<style>
+#rows td.end{white-space:nowrap}
+.warn{display:flex;gap:8px;align-items:center;background:var(--sub);border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:var(--t-sm)}
+@media (max-width:760px){#rows td.end{white-space:normal;display:grid;grid-template-columns:1fr 1fr;gap:6px}#rows td.end .btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">الأقسام</h1><p>أقسام الشركة. من القسم يتحدد فرع الموظف ومديره المباشر، ونوعه يحدد الوظائف المتاحة لموظفيه.</p></div><button class="btn k" id="add">قسم جديد</button></div>
+  <section class="card">
+    <div class="bar"><span class="sp"></span><input class="field" id="q" type="search" placeholder="ابحث باسم القسم" aria-label="بحث"></div>
+    <div id="warn"></div>
+    <div class="tb"><table><thead id="head"></thead><tbody id="rows"></tbody></table></div>
+    <p class="note" id="count"></p>
+  </section>
+</div>
+<script>var ONLY="odept";</script>
+<script src="ui.js?v=1125161536"></script>
+<script src="forms.js?v=1125161536"></script>
+<script src="org.js?v=1125161536"></script>
+</body>
+</html>
