@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>المكتبة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125141803">
-<link rel="stylesheet" href="forms.css?v=1125141803">
+<link rel="stylesheet" href="ui.css?v=1125143422">
+<link rel="stylesheet" href="forms.css?v=1125143422">
 <style>.showm{display:none}@media (max-width:760px){.showm{display:inline-flex}}.vbtn{gap:6px}
 .vr{display:grid;grid-template-columns:auto 96px 1fr auto auto;gap:6px 18px;align-items:center;padding:10px 0;font-size:var(--t-ui)}
 .va{display:flex;gap:6px}
 .vr + .vr{border-top:1px solid var(--line)}
 .vr b{font-weight:500;display:flex;align-items:center;gap:8px;min-width:118px}
 .vhead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:6px}
-tr.det .btn{background:var(--card)!important}
+tr.det .btn:not(.k){background:var(--card)!important}
 @media (max-width:760px){.vr{grid-template-columns:1fr auto}.vr .vn,.vr .vf{grid-column:1/-1}}
 #rows td.end,#rows td.m{white-space:nowrap}
 @media (max-width:760px){#rows td.end,#rows td.m{white-space:normal}#rows td.end{display:grid;grid-template-columns:1fr 1fr;gap:6px}#rows td.end .btn{width:100%}.who .bx{white-space:normal;max-width:100%}#rows .who > div{min-width:0}#rows .who small{white-space:normal;overflow-wrap:anywhere}}
@@ -47,8 +47,8 @@ tr.wait td{background:var(--sub)}
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125141803"></script>
-<script src="forms.js?v=1125141803"></script>
+<script src="ui.js?v=1125143422"></script>
+<script src="forms.js?v=1125143422"></script>
 <script>
 var tab="الكل",openV={},PEND="بانتظار المراجعة";
 function waiting(){return DOCS.filter(function(d){return d.st===PEND})}
