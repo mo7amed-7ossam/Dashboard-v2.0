@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التدريب — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125124121">
-<link rel="stylesheet" href="forms.css?v=1125124121">
+<link rel="stylesheet" href="ui.css?v=1125124724">
+<link rel="stylesheet" href="forms.css?v=1125124724">
 <style>
 /* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
    multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
@@ -44,6 +44,28 @@
 .cath > b{font-weight:600}
 .cat .qg .qc{background:var(--sub)}
 .cat .qadd{width:100%}
+/* contrast pass (Mohamed 2026-11-25: «كونتراست يساعد العين»): the category is a dark-lettered band, the question a white card
+   with a clear edge and a blue number, the answers grey fields with an edge, the right one in solid blue outline */
+.cat{border-color:#CBD3D3;padding:0;overflow:hidden}
+.cath{background:var(--sub);padding:10px 12px;margin:0;border-bottom:1px solid #CBD3D3}
+.cath .qn{background:var(--pri);color:var(--on-pri);font-weight:600}
+.cath > b,.cath .in{font-size:var(--t-h3)}
+.cath .in{background:var(--card);border:1px solid #CBD3D3}
+.cath .ib{background:var(--card)}
+.cat > .pgr,.cat > .qadd,.cat > .qg{margin-inline:12px}
+.cat > .pgr.hd{margin-top:10px}
+.cat > .qadd,.cat > .qg{margin-block:10px 12px}
+.cat > .qg{width:auto}
+.cat .qg .qc{background:var(--card);border:1px solid #CBD3D3}
+.cat .qc .qn{background:var(--sea);color:#fff}
+.cat .qc header .in{background:var(--sub);font-weight:600;color:var(--ink)}
+.cat .qo{background:var(--sub);border-color:#CBD3D3}
+.cat .qo.ok{border-color:var(--sea);border-width:2px;background:#DDF2F6}
+.cat .qo em{font-weight:600;font-size:var(--t-sm)}
+.cat .qadd{border-color:#AEB9B9;color:var(--ink)}
+[data-theme="dark"] .cat,[data-theme="dark"] .cath,[data-theme="dark"] .cat .qg .qc,[data-theme="dark"] .cat .qo{border-color:#5A5A58}
+[data-theme="dark"] .cat .qo.ok{background:rgba(10,139,160,.28);border-color:#3FB3C6}
+[data-theme="dark"] .cat .qadd{border-color:#6A6A68}
 /* the same folders, read-only, under a training in the list */
 .tree{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding-top:10px;border-top:1px solid var(--line)}
 .tree > div{background:var(--sub);border-radius:14px;padding:10px 12px}
@@ -108,8 +130,8 @@
   <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار المدير المباشر</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1125124121"></script>
-<script src="forms.js?v=1125124121"></script>
+<script src="ui.js?v=1125124724"></script>
+<script src="forms.js?v=1125124724"></script>
 <script>
 var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
     MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
