@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التدريب — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125120341">
-<link rel="stylesheet" href="forms.css?v=1125120341">
+<link rel="stylesheet" href="ui.css?v=1125122828">
+<link rel="stylesheet" href="forms.css?v=1125122828">
 <style>
 /* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
    multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
@@ -34,8 +34,23 @@
 .pgh{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
 .pgh h3{margin:0}
 .pgh em{font-style:normal;color:var(--m);font-size:var(--t-sm);margin-inline-start:8px}
-.pgr{display:grid;grid-template-columns:22px 170px minmax(0,1fr) minmax(0,1fr) 30px;gap:8px;align-items:center;margin-bottom:6px}
+.pgr{display:grid;grid-template-columns:22px 170px minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:6px}
 .pgr.hd{font-size:var(--t-cap);color:var(--m);margin-bottom:2px}
+.rb{display:flex;gap:4px}
+/* a category = a folder of the training: its name, its place among the categories, then its materials in order */
+.cat{border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px}
+.cath{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:10px}
+.cath .in{font-weight:600}
+.cat .qadd{width:100%}
+/* the same folders, read-only, under a training in the list */
+.tree{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding-top:10px;border-top:1px solid var(--line)}
+.tree > div{background:var(--sub);border-radius:14px;padding:10px 12px}
+.tree h4{font-family:"Alexandria",sans-serif;font-size:var(--t-ui);font-weight:500;margin-bottom:4px;display:flex;gap:6px;align-items:center}
+.tree ol{margin:0;padding:0;list-style:none;display:grid;gap:2px;counter-reset:m}
+.tree li{display:flex;gap:8px;align-items:center;font-size:var(--t-sm);counter-increment:m;min-width:0}
+.tree li::before{content:counter(m);color:var(--m);width:14px;text-align:center;flex:none}
+.tree li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree li svg{flex:none;color:var(--teal)}
 .pgr > b{font-family:"Alexandria",sans-serif;font-weight:500;color:var(--m);text-align:center}
 .vup{position:relative;display:flex;align-items:center;cursor:pointer;overflow:hidden;white-space:nowrap;color:var(--m)}
 .vup input{position:absolute;inset:0;opacity:0;cursor:pointer}
@@ -77,7 +92,7 @@
 .qadd.big{min-height:44px;text-align:center;border-radius:16px}
 @media (max-width:760px){.qos{grid-template-columns:minmax(0,1fr);padding-inline:0}}
 @media (max-width:900px){.rs .sm4{grid-template-columns:1fr 1fr}.row3{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:760px){.pr{grid-template-columns:auto minmax(0,1fr)}.pr .pgx,.pr .ac{grid-column:1/-1}.pr .ac{flex-wrap:wrap}.pgr{grid-template-columns:1fr 30px}.pgr > b,.pgr.hd{display:none}.pgr > :not(.ib):not(b){grid-column:1}.pgr > .ib{grid-row:1;grid-column:2}}
+@media (max-width:760px){.pr{grid-template-columns:auto minmax(0,1fr)}.pr .pgx,.pr .ac{grid-column:1/-1}.pr .ac{flex-wrap:wrap}.pgr{grid-template-columns:1fr 30px}.pgr > b,.pgr.hd{display:none}.pgr > :not(.rb):not(b){grid-column:1}.pgr > .rb{grid-row:1;grid-column:2}}
 </style>
 </head>
 <body>
@@ -90,8 +105,8 @@
   <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار المدير المباشر</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1125120341"></script>
-<script src="forms.js?v=1125120341"></script>
+<script src="ui.js?v=1125122828"></script>
+<script src="forms.js?v=1125122828"></script>
 <script>
 var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
     MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
@@ -111,6 +126,10 @@ function ytPreview(m){var id=ytId(m.src),d=dlg("drawer md ytw");
     '<div class="dr-f"><button type="button" class="btn" data-close>إغلاق</button></div>';
   d.addEventListener("close",function(){var f=d.querySelector("iframe");if(f)f.remove()},{once:true});
   d.showModal()}
+var openT={};
+/* the folders of a training as the employee meets them: categories in order, each with its materials in order */
+function tree(p){var C=p.cats||[];return '<div class="tree">'+(C.length?C.map(function(cn,c){var L=p.mats.filter(function(m){return m.g===c});
+  return '<div><h4>'+ic("folder",16)+esc(cn)+'</h4>'+(L.length?'<ol>'+L.map(function(m){return '<li>'+ic(kindOf(m)===MK[0]?"doc":"image",14)+'<span>'+esc(m.t)+'</span></li>'}).join("")+'</ol>':'<span class="m" style="font-size:var(--t-sm)">لا مواد في هذه الفئة بعد.</span>')+'</div>'}).join(""):'<span class="m">لا توجد فئات بعد.</span>')+'</div>'}
 function nfile(p){return p.mats.filter(function(m){return kindOf(m)===MK[0]}).length}
 function nvid(p){return p.mats.length-nfile(p)}
 function left(due){return Math.round((new Date(due)-new Date(TODAY))/864e5)}
@@ -119,8 +138,9 @@ function srcFld(m){var k=kindOf(m),up=k===MK[2];
     k===MK[0]?'<select class="in" data-k="f" aria-label="الملف"><option value="">— اختر من المكتبة —</option>'+DOCS.map(function(d){return '<option'+(d.n===m.f?' selected':'')+'>'+esc(d.n)+'</option>'}).join("")+'</select>':
     '<span class="yt"><input class="in" data-k="src" value="'+esc(m.src)+'" dir="ltr" inputmode="url" '+at("رابط يوتيوب")+'><button type="button" class="ib" data-yt aria-label="معاينة المشغّل" title="معاينة المشغّل"'+(ytId(m.src)?'':' disabled')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg></button></span>'}
 FORMS.prog=function(src){
-  var isNew=!src,P=JSON.parse(JSON.stringify(src||{tab:KINDS[0],st:"مسودة",mats:[],qs:[]})),read=function(){},A=mkAudience(P.aud);
-  return {title:isNew?"تدريب جديد":"تعديل تدريب",saveLabel:"حفظ التدريب",isNew:isNew,steps:["التدريب","الملفات والفيديوهات","الأسئلة","لمن يُوجَّه"],html:
+  var isNew=!src,P=JSON.parse(JSON.stringify(src||{tab:KINDS[0],st:"مسودة",cats:[],mats:[],qs:[]})),read=function(){},A=mkAudience(P.aud);
+  if(!P.cats){P.cats=P.mats.length?["عام"]:[];P.mats.forEach(function(m){m.g=0})}
+  return {title:isNew?"تدريب جديد":"تعديل تدريب",saveLabel:"حفظ التدريب",isNew:isNew,steps:["التدريب","الفئات والمواد","الأسئلة","لمن يُوجَّه"],html:
     '<div class="fs wide"><h3>التدريب</h3>'+two(fld("اسم التدريب بالعربي",inp("n",P.n,req("اكتب اسم التدريب"))),fld("اسم التدريب بالإنجليزي",inp("en",P.en,'dir="ltr"')))+
       two(fld("الوصف بالعربي",txt("x",P.x,'rows="3"')),fld("الوصف بالإنجليزي",txt("xen",P.xen,'dir="ltr" rows="3"')))+
       '<div class="row3">'+fld("آخر موعد لإتمام التدريب",'<input class="in" type="date" name="due" value="'+esc(P.due||"")+'" min="'+TODAY+'">',"من لم يُتمّه بعد هذا التاريخ يُعدّ متأخرًا.")+fld("يظهر في",sel("tab",KINDS,P.tab))+fld("الحالة",sel("st",["مسودة","منشور"],P.st),"المسودة لا تظهر للموظفين.")+'</div></div>'+
@@ -130,16 +150,25 @@ FORMS.prog=function(src){
     init:function(f){A.draw(f)},
     bind:function(f){A.bind(f);var bm=f.querySelector("#pgm"),bq=f.querySelector("#pgq");
       read=function(){
+        bm.querySelectorAll("[data-cn]").forEach(function(el){P.cats[+el.dataset.cn]=el.value.trim()});
         bm.querySelectorAll("[data-r]").forEach(function(r){var m=P.mats[+r.dataset.r];r.querySelectorAll("[data-k]").forEach(function(el){m[el.dataset.k]=el.value.trim()})});
         bq.querySelectorAll("[data-q]").forEach(function(c){var q=P.qs[+c.dataset.q],ck=c.querySelector("input[type=radio]:checked");
           q.q=c.querySelector("[data-qt]").value.trim();q.opts=[].map.call(c.querySelectorAll("[data-o]"),function(i){return i.value.trim()});q.ok=ck?+ck.value:-1})};
       function head(t,n,c,add){return '<div class="pgh"><h3>'+t+(n?'<em>'+n+'</em>':'')+'</h3><button type="button" class="btn sm" data-add="'+c+'">'+add+'</button></div>'}
       function x(attr,label){return '<button type="button" class="ib" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
-      function drawM(){var L=P.mats;
-        bm.innerHTML=head("الملفات والفيديوهات",L.length?nfile(P)+" ملف · "+nvid(P)+" فيديو":"","mat","إضافة ملف أو فيديو")+
-          (L.length?'<div class="pgr hd"><span></span><span>النوع</span><span>العنوان الظاهر للموظف</span><span>الملف أو الرابط</span><span></span></div>':'')+
-          (L.map(function(m,i){return '<div class="pgr" data-r="'+i+'"><b>'+(i+1)+'</b><select class="in" data-k="k" aria-label="النوع">'+MK.map(function(k){return '<option'+(k===kindOf(m)?' selected':'')+'>'+k+'</option>'}).join("")+'</select>'+
-            '<input class="in" data-k="t" value="'+esc(m.t)+'" '+at("عنوان الملف أو الفيديو")+'>'+srcFld(m)+x('data-rm="'+i+'"',"حذف الصف")+'</div>'}).join("")+(L.length?'<p class="pge">الملف يُختار من المكتبة، فارفعه فيها أولًا. رابط يوتيوب يتحوّل إلى مشغّل داخل صفحة التدريب، والفيديو المرفوع MP4 أو WEBM.</p>':'')||'<p class="pge">لا توجد مواد بعد. أضف ملفات التدريب من المكتبة، وفيديوهاته من يوتيوب أو مرفوعة.</p>')};
+      function mv(attr,label,svg,off){return '<button type="button" class="ib" '+attr+(off?' disabled':'')+' aria-label="'+label+'" title="'+label+'">'+svg+'</button>'}
+      function inCat(c){var o=[];P.mats.forEach(function(m,i){if(m.g===c)o.push(i)});return o}
+      function drawM(){var C=P.cats;
+        bm.innerHTML=head("الفئات والمواد",C.length?(C.length===1?"فئة واحدة":C.length===2?"فئتان":C.length+" فئات")+" · "+nfile(P)+" ملف · "+nvid(P)+" فيديو":"","cat","إضافة فئة")+
+          (C.map(function(cn,c){var I=inCat(c);
+            return '<div class="cat"><div class="cath"><span class="qn">'+(c+1)+'</span><input class="in" data-cn="'+c+'" value="'+esc(cn)+'" '+at("اسم الفئة، مثل: التصميم")+'><span class="rb">'+
+                mv('data-cm="'+c+':-1"',"تقديم الفئة",UP,c===0)+mv('data-cm="'+c+':1"',"تأخير الفئة",DOWN,c===C.length-1)+x('data-cx="'+c+'"',"حذف الفئة")+'</span></div>'+
+              (I.length?'<div class="pgr hd"><span></span><span>النوع</span><span>العنوان الظاهر للموظف</span><span>الملف أو الرابط</span><span></span></div>':'')+
+              I.map(function(i,n){var m=P.mats[i];return '<div class="pgr" data-r="'+i+'"><b>'+(n+1)+'</b><select class="in" data-k="k" aria-label="النوع">'+MK.map(function(k){return '<option'+(k===kindOf(m)?' selected':'')+'>'+k+'</option>'}).join("")+'</select>'+
+                '<input class="in" data-k="t" value="'+esc(m.t)+'" '+at("عنوان الملف أو الفيديو")+'>'+srcFld(m)+'<span class="rb">'+mv('data-mm="'+i+':-1"',"تقديم في الترتيب",UP,n===0)+mv('data-mm="'+i+':1"',"تأخير في الترتيب",DOWN,n===I.length-1)+x('data-rm="'+i+'"',"حذف الصف")+'</span></div>'}).join("")+
+              '<button type="button" class="qadd" data-add="mat" data-c="'+c+'">+ إضافة ملف أو فيديو</button></div>'}).join("")+
+            (C.length?'<p class="pge">يرى الموظف الفئات بهذا الترتيب، وداخل كل فئة موادها بترتيبها. الملف يُختار من المكتبة، ورابط يوتيوب يتحوّل إلى مشغّل داخل صفحة التدريب، والفيديو المرفوع MP4 أو WEBM.</p>':'')||
+            '<p class="pge">لا توجد فئات بعد. أضف فئة (مثل «التصميم») ثم ضع فيها ملفاتها وفيديوهاتها بالترتيب.</p>')};
       function xs(attr,label){return '<button type="button" class="xs" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
       function drawQ(){var L=P.qs;
         bq.innerHTML=head("الأسئلة",L.length?(L.length===1?"سؤال واحد":L.length===2?"سؤالان":L.length+" أسئلة")+" · علّم الدائرة بجوار الإجابة الصحيحة":"","q","إضافة سؤال")+
@@ -151,8 +180,14 @@ FORMS.prog=function(src){
           '<p class="pge">لا توجد أسئلة بعد. الأسئلة اختيار من متعدد، ولا حد لعددها: يجيب عنها الموظف بعد إتمام مواد التدريب.</p>')+
           '<p class="pge" style="padding-top:10px">تُحسب درجة الموظف بعدد إجاباته الصحيحة، ثم يراجعها مديره المباشر ويقرر اعتمادها أو إعادة الاختبار.</p>'}
       bm.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
-        if(b.dataset.add){read();var l=P.mats[P.mats.length-1];P.mats.push({k:l?kindOf(l):MK[0],t:""});drawM();var rs=bm.querySelectorAll("[data-r]");rs[rs.length-1].querySelector("[data-k=t]").focus()}
-        if(b.dataset.rm){read();P.mats.splice(+b.dataset.rm,1);drawM()}
+        var k=b.dataset,pr;
+        if(k.add==="cat"){read();P.cats.push("");drawM();var cn=bm.querySelectorAll("[data-cn]");cn[cn.length-1].focus()}
+        if(k.add==="mat"){read();var c=+k.c,I=inCat(c),l=P.mats[I[I.length-1]];P.mats.push({g:c,k:l?kindOf(l):MK[0],t:""});drawM();bm.querySelector('[data-r="'+(P.mats.length-1)+'"] [data-k=t]').focus()}
+        if(k.rm){read();P.mats.splice(+k.rm,1);drawM()}
+        /* deleting a category takes its materials with it; the later categories move up one place */
+        if(k.cx){read();var d=+k.cx;P.cats.splice(d,1);P.mats=P.mats.filter(function(m){return m.g!==d});P.mats.forEach(function(m){if(m.g>d)m.g--});drawM()}
+        if(k.cm){read();pr=k.cm.split(":");var a=+pr[0],z=a+(+pr[1]),t=P.cats[a];P.cats[a]=P.cats[z];P.cats[z]=t;P.mats.forEach(function(m){m.g=m.g===a?z:m.g===z?a:m.g});drawM()}
+        if(k.mm){read();pr=k.mm.split(":");var i=+pr[0],L=inCat(P.mats[i].g),j=L[L.indexOf(i)+(+pr[1])],tm=P.mats[i];P.mats[i]=P.mats[j];P.mats[j]=tm;drawM()}
         if(b.dataset.yt!=null){read();ytPreview(P.mats[+b.closest("[data-r]").dataset.r])}});
       bm.addEventListener("input",function(e){if(e.target.dataset.k==="src"){var y=e.target.parentNode.querySelector("[data-yt]");if(y)y.disabled=!ytId(e.target.value)}});
       bm.addEventListener("change",function(e){var r=e.target.closest("[data-r]");if(!r)return;
@@ -169,6 +204,7 @@ FORMS.prog=function(src){
       drawM();drawQ()},
     check:function(f){read();P.mats=P.mats.filter(function(m){return m.t||m.vf||m.f||m.src});
       this.checkStep=2;
+      for(var c=0;c<P.cats.length;c++)if(!P.cats[c])return "اكتب اسم الفئة رقم "+(c+1)+".";
       for(var i=0;i<P.mats.length;i++){var m=P.mats[i],k=kindOf(m),has=k===MK[0]?m.f:k===MK[1]?m.src:m.vf;
         if(!m.t)return "اكتب عنوان المادة رقم "+(i+1)+".";
         if(k===MK[1]&&m.src&&!ytId(m.src))return "رابط المادة رقم "+(i+1)+" ليس رابط يوتيوب صحيحًا.";
@@ -182,7 +218,7 @@ FORMS.prog=function(src){
         q.opts=q.opts.filter(Boolean);q.ok=q.opts.indexOf(right)}
       var am=A.check(f);if(am){this.checkStep=4;return am}},
     save:function(f){var o=src||{done:0},r=A.calc();if(isNew)TRAIN.push(o);
-      o.tab=f.tab.value;o.st=f.st.value;o.n=f.n.value;o.en=f.en.value;o.x=f.x.value;o.xen=f.xen.value;o.due=f.due.value;o.mats=P.mats;o.qs=P.qs;o.aud=A.value();o.done=Math.min(o.done,r.see.length);
+      o.tab=f.tab.value;o.st=f.st.value;o.n=f.n.value;o.en=f.en.value;o.x=f.x.value;o.xen=f.xen.value;o.due=f.due.value;o.cats=P.cats;o.mats=P.mats;o.qs=P.qs;o.aud=A.value();o.done=Math.min(o.done,r.see.length);
       return o.st==="منشور"?"تم الحفظ — «"+o.n+"» منشور في مركز التدريب لـ "+r.see.length+" موظفين"+(r.exc.length?" (مستثنى "+r.exc.length+")":"")+".":"تم الحفظ كمسودة — «"+o.n+"» غير ظاهر للموظفين."}}};
 function openResults(p){var R=results(p),by={};R.forEach(function(r){by[r.e.name]=r});
   peoplePanel({title:"من أجاب عن أسئلة التدريب",name:p.n,item:p,size:"lg",
@@ -214,6 +250,7 @@ document.addEventListener("click",function(e){var b=e.target.closest("button");i
   if(b.dataset.tab){tab=b.dataset.tab;render()}
   if(b.dataset.view){view=b.dataset.view;render()}
   if(b.dataset.res)openResults(TRAIN[b.dataset.res]);
+  if(b.dataset.tree){openT[b.dataset.tree]=!openT[b.dataset.tree];render()}
   if(b.dataset.copy){var c=JSON.parse(JSON.stringify(TRAIN[b.dataset.copy]));c.n+=" (نسخة)";c.st="مسودة";c.done=0;TRAIN.splice(+b.dataset.copy+1,0,c);render();toast("تم نسخ التدريب كمسودة: «"+c.n+"».")}});
 document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id==="rt"||e.target.id==="rd")render()});
 function render(){var res=view==="res";
@@ -226,14 +263,14 @@ function render(){var res=view==="res";
   var list=TRAIN.filter(function(p){return (tab==="الكل"||p.tab===tab)&&(!q||p.n.toLowerCase().indexOf(q)>-1)});
   $("list").innerHTML=list.length?list.map(function(p){var i=TRAIN.indexOf(p),a=' data-i="'+i+'"',dr=p.st!=="منشور",all=audCount(p.aud),done=Math.min(p.done,all),d=p.due?left(p.due):null;
     return '<article class="pr'+(dr?' draft':'')+'"><span class="pi'+(KCLS[p.tab]||'')+'">'+ic("cap",20)+'</span>'+
-      '<div class="tx"><b>'+esc(p.n)+'</b><div class="mt"><span class="chip s">'+esc(p.tab)+'</span><span class="st '+(dr?'off':'done')+'">'+esc(p.st)+'</span><span>'+nfile(p)+' ملف · '+nvid(p)+' فيديو · '+p.qs.length+' سؤال</span>'+
+      '<div class="tx"><b>'+esc(p.n)+'</b><div class="mt"><span class="chip s">'+esc(p.tab)+'</span><span class="st '+(dr?'off':'done')+'">'+esc(p.st)+'</span><span>'+(p.cats||[]).length+' فئة · '+nfile(p)+' ملف · '+nvid(p)+' فيديو · '+p.qs.length+' سؤال</span>'+
         (p.due?'<span>آخر موعد '+ltr(p.due)+'</span>'+(dr?'':d<0?'<span class="chip bad">انتهى الموعد</span>':'<span class="chip s">'+(d===0?'اليوم':d===1?'باقٍ يوم واحد':d===2?'باقٍ يومان':'باقٍ '+d+(d<=10?' أيام':' يومًا'))+'</span>'):'<span>بدون موعد</span>')+'</div></div>'+
       (dr?'<div class="pgx off"><div class="t">لم يُنشر بعد<small>موجَّه لـ '+all+' موظفين</small></div></div>':
         prog(done,all,"أجابوا عن الأسئلة"))+
-      '<div class="ac">'+(dr||!p.qs.length?'':'<button class="btn sm" data-res="'+i+'">من أجاب</button>')+'<button class="btn sm" data-form="prog"'+a+'>تعديل</button><button class="btn sm" data-copy="'+i+'" title="نسخ كتدريب جديد">نسخ</button>'+
+      '<div class="ac"><button class="btn sm" data-tree="'+i+'" aria-expanded="'+!!openT[i]+'">'+(openT[i]?'إخفاء المحتوى':'المحتوى')+'</button>'+(dr||!p.qs.length?'':'<button class="btn sm" data-res="'+i+'">من أجاب</button>')+'<button class="btn sm" data-form="prog"'+a+'>تعديل</button><button class="btn sm" data-copy="'+i+'" title="نسخ كتدريب جديد">نسخ</button>'+
       '<button class="ib" data-move="prog" data-by="-1"'+a+(i===0?' disabled title="هذا أول تدريب"':' title="تقديم في الترتيب"')+' aria-label="تقديم في الترتيب">'+UP+'</button>'+
       '<button class="ib" data-move="prog" data-by="1"'+a+(i===n-1?' disabled title="هذا آخر تدريب"':' title="تأخير في الترتيب"')+' aria-label="تأخير في الترتيب">'+DOWN+'</button>'+
-      '<button class="btn sm del" data-del="prog"'+a+'>حذف</button></div></article>'}).join(""):
+      '<button class="btn sm del" data-del="prog"'+a+'>حذف</button></div>'+(openT[i]?tree(p):'')+'</article>'}).join(""):
     '<p class="empty" style="padding:18px">'+(n?'لا توجد تدريبات بهذه الشروط. جرّب تغيير البحث أو النوع.':'لا توجد تدريبات بعد. أضف أول تدريب من «تدريب جديد».')+'</p>';
   $("count").textContent=list.length+" من "+n+" تدريبات · بيانات تجريبية";
 }
