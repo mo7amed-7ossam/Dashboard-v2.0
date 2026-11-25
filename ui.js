@@ -58,7 +58,6 @@ var COMPL=[
 /* Notifications for the person using the dashboard, newest first. tone: "" info, "ok" done, "bad" problem.
    Read state is kept per browser in localStorage "sb-read"; the first three start unread. */
 var NOTES=[
-  {id:"n9",ic:"folder",t:"رفع عمر صادق كتابًا إلى المكتبة",x:"«دليل القياسات القياسية للمطابخ». بانتظار مراجعتك.",at:"اليوم 09:12",go:"library.html"},
   {id:"n8",ic:"cap",tone:"bad",t:"ينتهي موعد تدريب «منتجات مطابخ OPPEIN 2026» بعد 4 أيام",x:"لم يُجب عن أسئلته نصف الموجَّه لهم.",at:"اليوم 08:50",go:"training.html"},
   {id:"n7",ic:"users",t:"سجّل سالم الحارثي حسابًا جديدًا",x:"العمليات، فرع صلالة. بانتظار اعتمادك.",at:"اليوم 08:41",go:"employees.html"},
   {id:"n6",ic:"doc",t:"وافق المدير المباشر على سلفة عمر صادق",x:"300 ر.ع على 3 أقساط. بانتظار قرارك.",at:"أمس 17:10",go:"requests.html"},
@@ -167,7 +166,7 @@ var DOCS=[
   {n:"سياسة الإجازات",c:"اللوائح",v:4,ack:false,read:0,all:0,up:"2026-10-20"},
   {n:"نموذج طلب عهدة",c:"النماذج",v:1,ack:false,read:0,all:0,up:"2026-09-14"},
   {n:"أساسيات تصميم المطابخ الحديثة",c:"كتب ومراجع",v:1,ack:false,read:0,all:24,up:"2026-11-18",author:"م. خالد الرواحي",bx:"مرجع عملي في توزيع المساحات واختيار الخامات، مع أمثلة مصوّرة لمطابخ منفّذة.",by:"أحمد صالح"},
-  {n:"دليل القياسات القياسية للمطابخ",c:"كتب ومراجع",v:1,ack:false,read:0,all:24,up:"2026-11-23",author:"فريق OPPEIN الفني",bx:"جداول الارتفاعات والأعماق المعتمدة للخزائن والأسطح والأجهزة.",by:"عمر صادق",st:"بانتظار المراجعة"}
+  {n:"دليل القياسات القياسية للمطابخ",c:"كتب ومراجع",v:1,ack:false,read:0,all:24,up:"2026-11-23",author:"فريق OPPEIN الفني",bx:"جداول الارتفاعات والأعماق المعتمدة للخزائن والأسطح والأجهزة.",by:"عمر صادق"}
 ];
 /* sample version history for the mockup */
 var VNOTES=["أول إصدار.","تحديث سياسة الحضور والانصراف.","إضافة قسم البوابة الداخلية وتعديل أرقام التواصل.","مراجعة سنوية."];
@@ -194,7 +193,7 @@ try{if(localStorage.getItem("sb-theme")==="dark")document.documentElement.setAtt
 function shell(){
   var here=location.pathname.split("/").pop()||"index.html",CHEV='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   /* what waits for the person using the dashboard, shown next to the page that holds it */
-  function count(f){return f==="library.html"?DOCS.filter(function(d){return d.st==="بانتظار المراجعة"}).length:f==="employees.html"?D.reqs.length:f==="requests.html"?hrQueue():f==="complaints.html"?COMPL.filter(function(c){return c.st==="جديدة"}).length:0}
+  function count(f){return f==="employees.html"?D.reqs.length:f==="requests.html"?hrQueue():f==="complaints.html"?COMPL.filter(function(c){return c.st==="جديدة"}).length:0}
   function link(p){return '<a class="navl" href="'+p[0]+'"'+(p[0]===here?' aria-current="page"':'')+'><span><b>'+p[1]+'</b>'+(p[2]?'<small>'+p[2]+'</small>':'')+'</span>'+(count(p[0])?'<i>'+count(p[0])+'</i>':'')+'</a>'}
   function sideLink(p){return '<a href="'+p[0]+'" title="'+p[1]+'"'+(p[0]===here?' aria-current="page"':'')+'><em>'+ic(p[3],18)+'</em><span>'+p[1]+'</span>'+(count(p[0])?'<i>'+count(p[0])+'</i>':'')+'</a>'}
   var all=NAV.reduce(function(a,g){return a.concat(g.items||[g])},[]),title=(all.filter(function(p){return p[0]===here})[0]||all[0])[1],total=all.reduce(function(t,p){return t+count(p[0])},0);

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>نظرة عامة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125151038">
-<link rel="stylesheet" href="forms.css?v=1125151038">
+<link rel="stylesheet" href="ui.css?v=1125152246">
+<link rel="stylesheet" href="forms.css?v=1125152246">
 <style>
 /* UI review 2026-11-23: every figure appears once. Row 1 = what waits and how big things are, row 2 = reading health
    (one headline, one bar) beside the per-department picture, row 3 = the work lists. */
@@ -92,8 +92,8 @@ a.tile.acc:hover{outline-color:transparent;filter:brightness(1.04)}
   </div>
   <p class="note">نموذج تصميم: الأرقام والأسماء للعرض فقط.</p>
 </div>
-<script src="ui.js?v=1125151038"></script>
-<script src="forms.js?v=1125151038"></script>
+<script src="ui.js?v=1125152246"></script>
+<script src="forms.js?v=1125152246"></script>
 <script>
 document.addEventListener("click",function(e){
   var b=e.target.closest("button");if(!b)return;
@@ -108,7 +108,7 @@ function render(){
   var live=TRAIN.filter(function(p){return p.st==="منشور"&&p.qs.length}),R=[];live.forEach(function(p){R=R.concat(results(p))});
   var ans=R.filter(function(r){return r.sc!=null}).length,waitM=R.filter(function(r){return r.ld===LEAD[1]}).length,
       remNames={},remN=0,
-      newC=COMPL.filter(function(c){return c.st==="جديدة"}).length,books=DOCS.filter(function(d){return d.st==="بانتظار المراجعة"}).length;
+      newC=COMPL.filter(function(c){return c.st==="جديدة"}).length,aSent=ALERTS.filter(function(x){return x.st==="أُرسل"}).length,aSch=ALERTS.filter(function(x){return x.st==="مجدول"}).length;
   var actN={};act.forEach(function(e){actN[e.name]=1;if(prof(e).miss.length)remNames[e.name]=1});
   ACKS.forEach(function(a){if(a.all>a.done)remNames[a.name]=1});
   NEWS.filter(function(x){return x.st!=="مسودة"&&x.ack}).forEach(function(x){var au=audCalc(audState(x.aud)).see.map(function(r){return r.e});au.slice(Math.min(seenOf(x),au.length)).forEach(function(e){if(actN[e.name])remNames[e.name]=1})});
@@ -117,7 +117,7 @@ function render(){
   var MORE=[
     ["cap","التدريب",live.length?pc(ans,R.length)+"% أجابوا":"لا تدريب منشور",live.length?(waitM?waitM+" نتائج بانتظار المدير المباشر":"لا نتائج معلّقة"):"أضف أول تدريب","training.html",0,live.length?pc(ans,R.length)+"%":"—","أجابوا عن أسئلة التدريب"],
     ["mail","الشكاوى والمقترحات",newC?(newC===1?"رسالة جديدة":newC===2?"رسالتان جديدتان":newC+" رسائل جديدة"):"لا رسائل جديدة","تنتظر المراجعة والرد","complaints.html",newC,newC,"شكاوى ومقترحات جديدة"],
-    ["folder","كتب ومراجع",books?(books===1?"كتاب بانتظار المراجعة":books===2?"كتابان بانتظار المراجعة":books+" كتب بانتظار المراجعة"):"لا كتب بانتظار المراجعة","رفعها الموظفون من البوابة","library.html",books,books,"كتب بانتظار المراجعة"],
+    ["send","التنبيهات","","","alerts.html",0,aSent,aSch?"أُرسلت هذا الشهر · "+aSch+" مجدولة":"تنبيهات أُرسلت هذا الشهر"],
     ["clock","تذكير الموظفين","كل ما ينتظر الموظفين","مستندات، أخبار، تدريب، وملفات ناقصة","reminders.html",0,remN,"موظفون ينتظرهم تذكير"]
   ];
   $("moreT").innerHTML=MORE.map(function(k){return '<a class="tile" href="'+k[4]+'"><header><span>'+k[1]+'</span><span class="ico">'+ic(k[0],18)+'</span></header><div class="big">'+k[6]+'</div><footer>'+k[7]+'</footer></a>'}).join("");
