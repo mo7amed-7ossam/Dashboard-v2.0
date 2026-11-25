@@ -272,3 +272,9 @@ dialog.drawer[data-step="2"] .audlist{max-height:min(46vh,420px)}
 .apn span,.apw span{color:var(--m);font-size:var(--t-sm);white-space:pre-wrap;overflow-wrap:anywhere}
 .apw{background:var(--limebg);color:var(--on-lime);border-radius:14px 14px 14px 4px;padding:10px 12px;max-width:92%}
 .apw span{color:inherit}
+
+/* a field that takes what is left of its column, so two columns end on the same line */
+.fs > .f.grow{flex:1}
+.f.grow > .drop,.f.grow > textarea{flex:1}
+.f.grow > .drop{align-content:center}
+.f > select.in,.f > input.in{min-height:41px}
