@@ -4,20 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>تذكير الموظفين — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125100651">
-<link rel="stylesheet" href="forms.css?v=1125100651">
+<link rel="stylesheet" href="ui.css?v=1125103722">
+<link rel="stylesheet" href="forms.css?v=1125103722">
 <style>
 /* Everything an employee should be reminded of, in one place (Mohamed 2026-11-24: «شاشة تذكرات عليها كل الحاجات اللى
    المفروض اذكر بيها الموظفين»). One row per employee, because one reminder goes to each employee with all of it:
    documents not read, news not confirmed, trainings not answered or to be retaken, and what is missing from the
    profile. The other pages keep their own detail; this one only gathers and sends. */
-.kinds{display:flex;gap:6px;flex-wrap:wrap}
+.kinds{color:var(--ink)}
+td.ov b{font-family:"Alexandria",sans-serif;font-weight:600}
+td.ov small{display:inline;color:var(--m)}
 .rd{display:grid;grid-template-columns:150px minmax(0,1fr);gap:6px 18px;font-size:var(--t-ui);align-items:baseline}
 .rd dt{color:var(--m);font-size:var(--t-sm)}
 .rd dd{margin:0}
 .rd .bad{color:#B3261E}
 #rows td.end{white-space:nowrap}
 @media (max-width:760px){#rows td.end{white-space:normal;display:grid;grid-template-columns:1fr 1fr;gap:6px}#rows td.end .btn{width:100%}}
+@media (max-width:760px){td.ov b::before{content:"متأخر: ";font-family:"IBM Plex Sans Arabic",sans-serif;font-weight:400;color:var(--m)}}
 @media (max-width:760px){.rd{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
@@ -25,7 +28,7 @@
 <div class="app">
   <header id="top"></header>
   <div class="hello"><div><h1 class="d">تذكير الموظفين</h1><p>كل ما ينتظر الموظفين في مكان واحد: مستندات لم تُقرأ، أخبار لم يؤكَّد الاطلاع عليها، تدريبات لم تُنجز، وملفات شخصية ناقصة.</p></div></div>
-  <div class="card stats" id="stats" style="margin-bottom:12px"></div>
+  <div class="card sumbar" id="stats"></div>
   <section class="card">
     <div class="bar">
       <div class="seg" id="tabs" role="group" aria-label="نوع التذكير"></div>
@@ -35,12 +38,12 @@
       <label class="pick"><input type="checkbox" id="all"> تحديد الكل</label>
       <button class="btn k" id="send" disabled></button>
     </div>
-    <div class="tb"><table><thead><tr><th></th><th>الموظف</th><th>ما ينتظره</th><th>آخر تذكير</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="tb"><table><thead><tr><th></th><th>الموظف</th><th>متأخر</th><th>ما ينتظره</th><th>آخر تذكير</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125100651"></script>
-<script src="forms.js?v=1125100651"></script>
+<script src="ui.js?v=1125103722"></script>
+<script src="forms.js?v=1125103722"></script>
 <script>
 var KIND=[["docs","المستندات"],["news","الأخبار"],["tr","التدريب"],["prof","الملف الشخصي"]],tab="all",sel={},open={},SENT={};
 function plural(n,one,two,many){return n===1?one:n===2?two:n+" "+many}
@@ -67,18 +70,22 @@ document.addEventListener("click",function(e){var b=e.target.closest("button");i
   if(b.dataset.tab){tab=b.dataset.tab;sel={};render()}
   if(b.dataset.one)send([b.dataset.one]);
   if(b.dataset.open){open[b.dataset.open]=!open[b.dataset.open];render()}
+  if(b.id==="lateBtn"){$("late").checked=!$("late").checked;render()}
   if(b.id==="send")send(Object.keys(sel))});
 document.addEventListener("input",function(e){var t=e.target;
   if(t.id==="q"||t.id==="late")render();
   if(t.id==="all"){sel={};if(t.checked)vis(build()).filter(can).forEach(function(x){sel[x.name]=1});render()}
   if(t.dataset.pick){if(t.checked)sel[t.dataset.pick]=1;else delete sel[t.dataset.pick];render()}});
 function kinds(x){var o=[];
-  if(x.docs)o.push('<span class="chip s">'+plural(x.docs,"مستند لم يُقرأ","مستندان لم يُقرآ","مستندات لم تُقرأ")+'</span>'+(x.late?'<span class="chip bad">'+plural(x.late,"متأخر","متأخران","متأخرة")+'</span>':''));
-  if(x.news.length)o.push('<span class="chip s">'+plural(x.news.length,"خبر لم يؤكَّد","خبران لم يؤكَّدا","أخبار لم تؤكَّد")+'</span>');
-  if(x.tr.length)o.push('<span class="chip s">'+plural(x.tr.length,"تدريب لم يُنجز","تدريبان لم يُنجزا","تدريبات لم تُنجز")+'</span>'+(x.tr.some(function(t){return t.over})?'<span class="chip bad">انتهى الموعد</span>':''));
-  if(x.redo.length)o.push('<span class="chip">إعادة اختبار مطلوبة</span>');
-  if(x.prof.length)o.push('<span class="chip s">ملف شخصي ينقصه '+plural(x.prof.length,"بند","بندان","بنود")+'</span>');
-  return '<div class="kinds">'+o.join("")+'</div>'}
+  if(x.docs)o.push(plural(x.docs,"مستند لم يُقرأ","مستندان لم يُقرآ","مستندات لم تُقرأ"));
+  if(x.news.length)o.push(plural(x.news.length,"خبر لم يؤكَّد","خبران لم يؤكَّدا","أخبار لم تؤكَّد"));
+  if(x.tr.length)o.push(plural(x.tr.length,"تدريب لم يُنجز","تدريبان لم يُنجزا","تدريبات لم تُنجز"));
+  if(x.redo.length)o.push("إعادة اختبار مطلوبة");
+  if(x.prof.length)o.push("ملف شخصي ينقصه "+plural(x.prof.length,"بند","بندان","بنود"));
+  return '<div class="kinds">'+o.join(" · ")+'</div>'}
+function overTxt(x){var tr=x.tr.filter(function(t){return t.over}).length,o=[];
+  if(x.late)o.push(x.late===1?"مستند":"مستندات");if(tr)o.push(tr===1?"تدريب":"تدريبات");
+  return x.over?'<b class="n">'+x.over+'</b> <small>'+o.join(" و")+'</small>':'<span class="m">لا يوجد</span>'}
 function detail(x){var r=[];
   if(x.docs)r.push(['مستندات لم يقرأها',x.docs+' من المطلوب'+(x.late?' · <span class="bad">'+x.late+' تجاوزت 14 يومًا</span>':'')+' · <a href="acks.html">التفاصيل في إقرارات القراءة</a>']);
   if(x.news.length)r.push(['أخبار لم يؤكِّد الاطلاع عليها',x.news.map(esc).join("، ")]);
@@ -88,11 +95,8 @@ function detail(x){var r=[];
   return '<dl class="rd">'+r.map(function(k){return '<dt>'+k[0]+'</dt><dd>'+k[1]+'</dd>'}).join("")+'</dl>'}
 function render(){
   var L=build(),n=function(k){return L.filter(function(x){return has(x,k)}).length},over=L.filter(function(x){return x.over}).length;
-  $("stats").innerHTML=[["acc","users","موظفون ينتظرهم شيء",L.length,"لكل واحد منهم تذكير واحد يضم كل ما ينتظره"],
-    [over?"bad":"","clock","لديهم متأخرات",over,"مستند تجاوز 14 يومًا أو تدريب انتهى موعده"],
-    ["","cap","تدريبات لم تُنجز",L.reduce(function(a,x){return a+x.tr.length+x.redo.length},0),"لدى "+n("tr")+" موظفين"],
-    ["","doc","ملفات شخصية ناقصة",n("prof"),"موظفون ينقص ملفهم بنود"]].map(function(k){
-    return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
+  $("stats").innerHTML='<div><b class="n">'+L.length+'</b><span>موظفين ينتظرهم تذكير · رسالة واحدة لكل موظف تضم كل ما ينتظره</span></div><span class="sp"></span>'+
+    (over?'<div><b class="n">'+over+'</b><span>لديهم متأخرات</span><button class="btn sm'+($("late").checked?' k':'')+'" id="lateBtn" aria-pressed="'+$("late").checked+'">'+($("late").checked?"عرض الجميع":"عرض المتأخرين فقط")+'</button></div>':'<div><span>لا متأخرات</span></div>');
   $("tabs").innerHTML='<button data-tab="all" aria-pressed="'+(tab==="all")+'">الكل<b>'+L.length+'</b></button>'+KIND.map(function(k){return '<button data-tab="'+k[0]+'" aria-pressed="'+(tab===k[0])+'">'+k[1]+'<b>'+n(k[0])+'</b></button>'}).join("");
   var list=vis(L),ns=Object.keys(sel).length,cn=list.filter(can).length;
   $("all").checked=cn>0&&ns===cn;$("all").disabled=!cn;
@@ -100,10 +104,10 @@ function render(){
   $("rows").innerHTML=list.length?list.map(function(x){var rm=remOf(x),nm=esc(x.name);
     return '<tr><td><label class="ck"><input type="checkbox" data-pick="'+nm+'" aria-label="تحديد '+nm+'"'+(sel[x.name]?' checked':'')+(can(x)?'':' disabled')+'></label></td>'+
       '<td><div class="who">'+av(x.name)+'<div><b>'+nm+'</b><small>'+esc(x.dept)+'</small></div></div></td>'+
-      '<td class="full">'+kinds(x)+'</td><td class="hide m">'+(rm||'—')+'</td>'+
-      '<td class="end full"><button class="btn sm" data-open="'+nm+'" aria-expanded="'+!!open[x.name]+'">'+(open[x.name]?'إخفاء التفاصيل':'التفاصيل')+'</button> '+(rm?'<button class="btn sm" disabled>أُرسل '+esc(rm)+'</button>':'<button class="btn sm" data-one="'+nm+'">إرسال تذكير</button>')+'</td></tr>'+
-      (open[x.name]?'<tr class="det"><td colspan="5" class="full">'+detail(x)+'</td></tr>':'')}).join(""):
-    '<tr><td colspan="5" class="empty">'+(L.length?'لا يوجد موظفون بهذه الشروط. جرّب تغيير النوع أو البحث.':'لا يوجد ما يُذكَّر به أحد الآن.')+'</td></tr>';
+      '<td class="ov">'+overTxt(x)+'</td><td class="full">'+kinds(x)+'</td><td class="hide m">'+(rm||'لم يُرسل')+'</td>'+
+      '<td class="end full"><button class="btn sm" data-open="'+nm+'" aria-expanded="'+!!open[x.name]+'">'+(open[x.name]?'إخفاء التفاصيل':'التفاصيل')+'</button> '+(rm?'<button class="btn sm" disabled>تم الإرسال</button>':'<button class="btn sm k" data-one="'+nm+'">إرسال تذكير</button>')+'</td></tr>'+
+      (open[x.name]?'<tr class="det"><td colspan="6" class="full">'+detail(x)+'</td></tr>':'')}).join(""):
+    '<tr><td colspan="6" class="empty">'+(L.length?'لا يوجد موظفون بهذه الشروط. جرّب تغيير النوع أو البحث.':'لا يوجد ما يُذكَّر به أحد الآن.')+'</td></tr>';
   $("count").textContent=list.length+" من "+L.length+" موظفين · يستلم كل موظف رسالة واتساب واحدة تضم جميع ما ينتظره · «تحديد الكل» يحدّد الظاهرين الذين لم يُرسل لهم بعد · بيانات تجريبية";
 }
 </script>

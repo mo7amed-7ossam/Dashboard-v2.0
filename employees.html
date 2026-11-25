@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>الموظفون — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125100651">
-<link rel="stylesheet" href="forms.css?v=1125100651">
+<link rel="stylesheet" href="ui.css?v=1125103722">
+<link rel="stylesheet" href="forms.css?v=1125103722">
 </head>
 <body>
 <div class="app">
   <header id="top"></header>
   <div class="hello"><div><h1 class="d">الموظفون</h1><p>فعّل التسجيلات الجديدة وعدّل البيانات والصلاحيات.</p></div><button class="btn" id="csv">تصدير</button></div>
-  <div class="card stats" id="stats" style="margin-bottom:16px"></div>
+  <div class="card sumbar" id="stats"></div>
   <section class="card">
     <div class="bar">
       <div class="seg" id="tabs" role="group" aria-label="الحالة"></div>
@@ -24,8 +24,8 @@
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125100651"></script>
-<script src="forms.js?v=1125100651"></script>
+<script src="ui.js?v=1125103722"></script>
+<script src="forms.js?v=1125103722"></script>
 <script>
 var shown=[];
 /* no "بدون حساب" state (Mohamed 2026-11-23: not workable): an employee either has an account or is deleted from the list */
@@ -45,18 +45,18 @@ document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id=
 function render(){
   if(!$("dept").options.length){var ds=EMPS.map(function(e){return e.dept}).filter(function(d,i,a){return a.indexOf(d)===i});
     $("dept").innerHTML='<option value="">كل الأقسام</option>'+ds.map(function(d){return '<option>'+esc(d)+'</option>'}).join("")}
-  $("stats").innerHTML=[["","users","اكتمال الملفات الشخصية",pc(EMPS.reduce(function(a,e){return a+prof(e).done},0),EMPS.reduce(function(a,e){return a+prof(e).all},0))+"%",EMPS.filter(function(e){return !prof(e).miss.length}).length+" من "+EMPS.length+" ملفهم مكتمل"],["","check","نشط",cnt("نشط"),"يستطيعون الدخول إلى البوابة"],["acc","clock","بانتظار التفعيل",cnt("بانتظار التفعيل"),"بانتظار اعتمادك"],["bad","clock","موقوف",cnt("موقوف"),"حسابات مقفلة مؤقتًا"]].map(function(k){
-    return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
+  var full=EMPS.filter(function(e){return !prof(e).miss.length}).length,wt=cnt("بانتظار التفعيل");
+  /* the states are counted once, in the tabs; the strip says what the tabs cannot: the average, and what waits */
+  $("stats").innerHTML=(wt?'<div><b class="n">'+wt+'</b><span>'+(wt===1?"حساب ينتظر":wt===2?"حسابان ينتظران":"حسابات تنتظر")+' اعتمادك</span><button class="btn sm k" data-tab="بانتظار التفعيل">مراجعة الحسابات</button></div>':'<div><span>لا حسابات تنتظر اعتمادك</span></div>')+'<span class="sp"></span>'+
+    '<div><span>متوسط اكتمال الملفات الشخصية <span class="n">'+pc(EMPS.reduce(function(a,e){return a+prof(e).done},0),EMPS.reduce(function(a,e){return a+prof(e).all},0))+'%</span> · '+(full===1?"ملف واحد مكتمل":full===2?"ملفان مكتملان":full+" ملفات مكتملة")+' من أصل '+EMPS.length+'</span></div>';
   $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'<b>'+cnt(s)+'</b></button>'}).join("");
   var q=$("q").value.trim(),dp=$("dept").value;
   var list=EMPS.map(function(e,i){e.i=i;return e}).filter(function(e){
     return (tab==="الكل"||e.st===tab)&&(!dp||e.dept===dp)&&(!$("inc").checked||prof(e).miss.length)&&(!q||(e.name+e.mail).indexOf(q)>-1)});
   shown=list;
   $("rows").innerHTML=list.length?list.map(function(e){
-    var view='<button class="btn sm" data-form="emp" data-i="'+e.i+'">عرض</button>';
-    var act=e.st==="بانتظار التفعيل"?'<button class="btn sm k" data-ok="'+e.i+'">اعتماد</button> '+view:
-      view;
-    return '<tr><td class="full"><div class="who">'+av(e.name)+'<div><b>'+esc(e.name)+'</b><small>'+ltr(e.mail)+'</small></div></div></td>'+
+    var act=e.st==="بانتظار التفعيل"?'<button class="btn sm k" data-ok="'+e.i+'">اعتماد الحساب</button>':'';
+    return '<tr><td class="full"><div class="who">'+av(e.name)+'<div><button class="lnk" data-form="emp" data-i="'+e.i+'">'+esc(e.name)+'</button><small>'+ltr(e.mail)+'</small></div></div></td>'+
       '<td>'+esc(e.dept)+'<small>'+esc(e.job)+'</small></td><td class="hide">'+esc(e.branch)+'</td>'+
       '<td class="hide">'+(e.role==="—"?'<span class="m">بدون دور</span>':'<span class="chip '+(e.role==="مدير النظام"?'k':'s')+'">'+esc(e.role)+'</span>')+(e.lead?' <span class="chip">مدير مباشر</span>':'')+'</td>'+
       '<td class="full">'+prog(prof(e).done,prof(e).all,"بنود مكتملة")+'</td><td><span class="st '+(CLS[e.st]||'')+'">'+esc(e.st)+'</span></td><td class="hide m">'+ltr(e.last)+'</td><td class="end full">'+act+'</td></tr>'}).join(""):

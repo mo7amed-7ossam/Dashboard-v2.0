@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التدريب — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125100651">
-<link rel="stylesheet" href="forms.css?v=1125100651">
+<link rel="stylesheet" href="ui.css?v=1125103722">
+<link rel="stylesheet" href="forms.css?v=1125103722">
 <style>
 /* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
    multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
    page-linked modules and the weighted evaluation of the old design are gone. */
 .pl{display:grid;gap:8px;margin-top:12px}
-.pr{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:16px;align-items:center;padding:12px 16px;background:var(--card);border-radius:16px}
+.pr{display:grid;grid-template-columns:auto minmax(0,1fr) 150px 190px auto;gap:16px;align-items:center;padding:12px 16px;background:var(--card);border-radius:16px}
 .pr.draft .pi,.pr.draft .tx{opacity:.6}
 .pi{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#DFF1F5;color:#08707F}
 .pi.op{background:#FDE9DD;color:#B4480F}
@@ -20,15 +20,27 @@
 [data-theme="dark"] .pi.op{background:rgba(242,107,33,.2);color:#FFB68A}
 [data-theme="dark"] .pi.ex{background:rgba(255,255,255,.08);color:#E5E5E2}
 .pr .tx{min-width:0;display:grid;gap:2px}
-.pr b{font-weight:500}
+.pr b{font-weight:600;font-size:var(--t-h3)}
+/* GPT review 2026-11-24: the deadline has its own column, what is left of it is the strong line */
+.due{display:grid;gap:1px;line-height:1.5}
+.due strong{font-family:"Alexandria",sans-serif;font-weight:600}
+.due strong.bad{color:var(--bad)}
+.due small{color:var(--m)}
+/* the rare actions of a row (copy, order, delete) sit in one menu */
+.mn{position:relative}
+.mn summary{list-style:none;cursor:pointer}
+.mn summary::-webkit-details-marker{display:none}
+.mn > div{position:absolute;inset-inline-end:0;top:calc(100% + 6px);z-index:6;min-width:170px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px;display:grid;gap:2px;box-shadow:0 14px 34px rgba(0,0,0,.14)}
+.mn > div button{border:0;background:none;font:inherit;color:var(--ink);text-align:start;padding:7px 10px;border-radius:9px;cursor:pointer}
+.mn > div button:hover:not(:disabled){background:var(--sub)}
+.mn > div button:disabled{opacity:.4;cursor:default}
+.mn > div button.del:hover{color:#B3261E}
 .pr .mt{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:var(--t-sm);color:var(--m)}
 .pr .pgx{min-width:170px}
 .pr .ac{display:flex;gap:6px;align-items:center}
 .pr .btn:not(.k){background:var(--sub)}
 .ib{width:30px;height:30px;border-radius:50%;border:0;background:var(--sub);color:var(--ink);display:grid;place-items:center;flex:none}
 .ib:hover{background:var(--hover)}.ib:disabled{opacity:.35}
-.pr .del{background:none!important;color:var(--m)}
-.pr .del:hover{color:#B3261E}
 /* window */
 .row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
 .pgh{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
@@ -57,16 +69,16 @@
    cards of different height; answers sit two per row as white fields; the right one is outlined in green and says so;
    the remove marks are small and quiet; a dashed slot adds an answer, a dashed bar at the end adds a question. */
 .qg{display:grid;gap:10px}
-.qc{background:var(--sub);border-radius:16px;padding:10px 12px 12px;display:grid;gap:8px}
+.qc{border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:8px}
 .qc header{display:grid;grid-template-columns:28px minmax(0,1fr) 24px;gap:8px;align-items:center}
-.qn{width:28px;height:28px;border-radius:50%;background:var(--card);color:var(--teal);display:grid;place-items:center;font-family:"Alexandria",sans-serif;font-size:var(--t-sm);font-weight:500}
-.qc header .in{background:var(--card);font-weight:500}
-.qos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 10px;padding-inline:36px 32px}
-.qo{display:grid;grid-template-columns:20px minmax(0,1fr) auto 24px;gap:6px;align-items:center;background:var(--card);border-radius:12px;padding:0 6px 0 10px;border:1.5px solid transparent;min-height:38px}
+.qn{width:28px;height:28px;border-radius:50%;background:var(--soft);color:var(--teal);display:grid;place-items:center;font-family:"Alexandria",sans-serif;font-size:var(--t-sm);font-weight:500}
+.qc header .in{font-weight:600;font-size:var(--t-h3)}
+.qos{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;padding-inline:36px 32px}
+.qo{display:grid;grid-template-columns:20px minmax(0,1fr) 110px 24px;gap:6px;align-items:center;background:var(--sub);border-radius:12px;padding:0 6px 0 10px;border:1.5px solid transparent;min-height:38px}
 .qo:focus-within{border-color:var(--sea)}
 .qo .in{background:transparent!important;border:0!important;border-radius:0;padding:6px 0;box-shadow:none!important;outline:0;min-width:0}
 .qo input[type=radio]{width:17px;height:17px;accent-color:var(--sea);margin:0;justify-self:center;cursor:pointer}
-.qo em{font-style:normal;font-size:var(--t-cap);color:#08707F;white-space:nowrap}
+.qo em{font-style:normal;font-size:var(--t-sm);font-weight:600;color:#08707F;white-space:nowrap;text-align:end}
 .qo.ok{border-color:var(--sea);background:#EEF8FA}
 [data-theme="dark"] .qo.ok{background:rgba(10,139,160,.18);border-color:#3FB3C6}
 [data-theme="dark"] .qo em{color:#7FD6E4}
@@ -77,7 +89,8 @@
 .qadd.big{min-height:44px;text-align:center;border-radius:16px}
 @media (max-width:760px){.qos{grid-template-columns:minmax(0,1fr);padding-inline:0}}
 @media (max-width:900px){.rs .sm4{grid-template-columns:1fr 1fr}.row3{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:760px){.pr{grid-template-columns:auto minmax(0,1fr)}.pr .pgx,.pr .ac{grid-column:1/-1}.pr .ac{flex-wrap:wrap}.pgr{grid-template-columns:1fr 30px}.pgr > b,.pgr.hd{display:none}.pgr > :not(.ib):not(b){grid-column:1}.pgr > .ib{grid-row:1;grid-column:2}}
+@media (max-width:1250px){.pr{grid-template-columns:auto minmax(0,1fr) 130px auto}.pr .pgx{grid-column:2/4}.pr .ac{grid-row:1;grid-column:4}}
+@media (max-width:760px){.pr{grid-template-columns:auto minmax(0,1fr)}.pr .due,.pr .pgx,.pr .ac{grid-column:1/-1;grid-row:auto}.pr .ac{flex-wrap:wrap}.pgr{grid-template-columns:1fr 30px}.pgr > b,.pgr.hd{display:none}.pgr > :not(.ib):not(b){grid-column:1}.pgr > .ib{grid-row:1;grid-column:2}}
 </style>
 </head>
 <body>
@@ -90,8 +103,8 @@
   <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار المدير المباشر</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1125100651"></script>
-<script src="forms.js?v=1125100651"></script>
+<script src="ui.js?v=1125103722"></script>
+<script src="forms.js?v=1125103722"></script>
 <script>
 var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
     MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
@@ -113,6 +126,10 @@ function ytPreview(m){var id=ytId(m.src),d=dlg("drawer md ytw");
   d.showModal()}
 function nfile(p){return p.mats.filter(function(m){return kindOf(m)===MK[0]}).length}
 function nvid(p){return p.mats.length-nfile(p)}
+var MON=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+function dmy(s){var p=s.split("-");return (+p[2])+" "+MON[p[1]-1]+" "+p[0]}
+console.assert(dmy("2026-11-06")==="6 نوفمبر 2026");
+document.addEventListener("click",function(e){document.querySelectorAll("details.mn[open]").forEach(function(m){if(!m.contains(e.target)||e.target.closest(".mn > div button"))m.open=false})});
 function left(due){return Math.round((new Date(due)-new Date(TODAY))/864e5)}
 function srcFld(m){var k=kindOf(m),up=k===MK[2];
   return up?'<label class="in vup"><input type="file" accept="video/mp4,video/webm" data-vf aria-label="'+k+'"><span>'+(m.vf?'<bdi dir="ltr">'+esc(m.vf)+'</bdi>':'اختيار ملف فيديو')+'</span></label>':
@@ -133,7 +150,7 @@ FORMS.prog=function(src){
         bm.querySelectorAll("[data-r]").forEach(function(r){var m=P.mats[+r.dataset.r];r.querySelectorAll("[data-k]").forEach(function(el){m[el.dataset.k]=el.value.trim()})});
         bq.querySelectorAll("[data-q]").forEach(function(c){var q=P.qs[+c.dataset.q],ck=c.querySelector("input[type=radio]:checked");
           q.q=c.querySelector("[data-qt]").value.trim();q.opts=[].map.call(c.querySelectorAll("[data-o]"),function(i){return i.value.trim()});q.ok=ck?+ck.value:-1})};
-      function head(t,n,c,add){return '<div class="pgh"><h3>'+t+(n?'<em>'+n+'</em>':'')+'</h3><button type="button" class="btn sm" data-add="'+c+'">'+add+'</button></div>'}
+      function head(t,n,c,add){return '<div class="pgh"><h3>'+t+(n?'<em>'+n+'</em>':'')+'</h3>'+(add?'<button type="button" class="btn sm" data-add="'+c+'">'+add+'</button>':'')+'</div>'}
       function x(attr,label){return '<button type="button" class="ib" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
       function drawM(){var L=P.mats;
         bm.innerHTML=head("الملفات والفيديوهات",L.length?nfile(P)+" ملف · "+nvid(P)+" فيديو":"","mat","إضافة ملف أو فيديو")+
@@ -142,7 +159,7 @@ FORMS.prog=function(src){
             '<input class="in" data-k="t" value="'+esc(m.t)+'" '+at("عنوان الملف أو الفيديو")+'>'+srcFld(m)+x('data-rm="'+i+'"',"حذف الصف")+'</div>'}).join("")+(L.length?'<p class="pge">الملف يُختار من المكتبة، فارفعه فيها أولًا. رابط يوتيوب يتحوّل إلى مشغّل داخل صفحة التدريب، والفيديو المرفوع MP4 أو WEBM.</p>':'')||'<p class="pge">لا توجد مواد بعد. أضف ملفات التدريب من المكتبة، وفيديوهاته من يوتيوب أو مرفوعة.</p>')};
       function xs(attr,label){return '<button type="button" class="xs" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
       function drawQ(){var L=P.qs;
-        bq.innerHTML=head("الأسئلة",L.length?(L.length===1?"سؤال واحد":L.length===2?"سؤالان":L.length+" أسئلة")+" · علّم الدائرة بجوار الإجابة الصحيحة":"","q","إضافة سؤال")+
+        bq.innerHTML=head("الأسئلة",L.length?(L.length===1?"سؤال واحد":L.length===2?"سؤالان":L.length+" أسئلة")+" · حدِّد الإجابة الصحيحة لكل سؤال":"","q",L.length?"":"إضافة سؤال")+
           (L.length?'<div class="qg">'+L.map(function(q,i){return '<div class="qc" data-q="'+i+'"><header><span class="qn">'+(i+1)+'</span><input class="in" data-qt value="'+esc(q.q)+'" '+at("نص السؤال "+(i+1))+'>'+xs('data-rq="'+i+'"',"حذف السؤال")+'</header>'+
             '<div class="qos">'+q.opts.map(function(o,j){var ok=q.ok===j;return '<div class="qo'+(ok?' ok':'')+'"><input type="radio" name="ok'+i+'" value="'+j+'"'+(ok?' checked':'')+' aria-label="الاختيار '+(j+1)+' هو الإجابة الصحيحة" title="اجعلها الإجابة الصحيحة"><input class="in" data-o value="'+esc(o)+'" '+at("الاختيار "+(j+1))+'>'+
               (ok?'<em>الإجابة الصحيحة</em>':'<span></span>')+(q.opts.length>2?xs('data-ro="'+i+':'+j+'"',"حذف الاختيار"):'<span></span>')+'</div>'}).join("")+
@@ -226,14 +243,15 @@ function render(){var res=view==="res";
   var list=TRAIN.filter(function(p){return (tab==="الكل"||p.tab===tab)&&(!q||p.n.toLowerCase().indexOf(q)>-1)});
   $("list").innerHTML=list.length?list.map(function(p){var i=TRAIN.indexOf(p),a=' data-i="'+i+'"',dr=p.st!=="منشور",all=audCount(p.aud),done=Math.min(p.done,all),d=p.due?left(p.due):null;
     return '<article class="pr'+(dr?' draft':'')+'"><span class="pi'+(KCLS[p.tab]||'')+'">'+ic("cap",20)+'</span>'+
-      '<div class="tx"><b>'+esc(p.n)+'</b><div class="mt"><span class="chip s">'+esc(p.tab)+'</span><span class="st '+(dr?'off':'done')+'">'+esc(p.st)+'</span><span>'+nfile(p)+' ملف · '+nvid(p)+' فيديو · '+p.qs.length+' سؤال</span>'+
-        (p.due?'<span>آخر موعد '+ltr(p.due)+'</span>'+(dr?'':d<0?'<span class="chip bad">انتهى الموعد</span>':'<span class="chip s">'+(d===0?'اليوم':d===1?'باقٍ يوم واحد':d===2?'باقٍ يومان':'باقٍ '+d+(d<=10?' أيام':' يومًا'))+'</span>'):'<span>بدون موعد</span>')+'</div></div>'+
+      '<div class="tx"><b>'+esc(p.n)+'</b><div class="mt"><span class="chip s">'+esc(p.tab)+'</span><span class="st '+(dr?'off':'done')+'">'+esc(p.st)+'</span><span>الملفات <span class="n">'+nfile(p)+'</span> · الفيديوهات <span class="n">'+nvid(p)+'</span> · الأسئلة <span class="n">'+p.qs.length+'</span></span></div></div>'+
+      '<div class="due">'+(p.due?(dr?'<strong>'+dmy(p.due)+'</strong><small>آخر موعد</small>':(d<0?'<strong class="bad">انتهى الموعد</strong>':'<strong>'+(d===0?'ينتهي اليوم':d===1?'باقٍ يوم واحد':d===2?'باقٍ يومان':'باقٍ '+d+(d<=10?' أيام':' يومًا'))+'</strong>')+'<small>آخر موعد '+dmy(p.due)+'</small>'):'<small>بدون موعد</small>')+'</div>'+
       (dr?'<div class="pgx off"><div class="t">لم يُنشر بعد<small>موجَّه لـ '+all+' موظفين</small></div></div>':
         prog(done,all,"أجابوا عن الأسئلة"))+
-      '<div class="ac">'+(dr||!p.qs.length?'':'<button class="btn sm" data-res="'+i+'">من أجاب</button>')+'<button class="btn sm" data-form="prog"'+a+'>تعديل</button><button class="btn sm" data-copy="'+i+'" title="نسخ كتدريب جديد">نسخ</button>'+
-      '<button class="ib" data-move="prog" data-by="-1"'+a+(i===0?' disabled title="هذا أول تدريب"':' title="تقديم في الترتيب"')+' aria-label="تقديم في الترتيب">'+UP+'</button>'+
-      '<button class="ib" data-move="prog" data-by="1"'+a+(i===n-1?' disabled title="هذا آخر تدريب"':' title="تأخير في الترتيب"')+' aria-label="تأخير في الترتيب">'+DOWN+'</button>'+
-      '<button class="btn sm del" data-del="prog"'+a+'>حذف</button></div></article>'}).join(""):
+      '<div class="ac">'+(dr||!p.qs.length?'':'<button class="btn sm k" data-res="'+i+'">عرض الإجابات</button>')+'<button class="btn sm'+(dr?' k':'')+'" data-form="prog"'+a+'>تعديل</button>'+
+      '<details class="mn"><summary class="btn sm" aria-label="إجراءات أخرى">المزيد</summary><div><button data-copy="'+i+'">نسخ كتدريب جديد</button>'+
+      '<button data-move="prog" data-by="-1"'+a+(i===0?' disabled':'')+'>تقديم في الترتيب</button>'+
+      '<button data-move="prog" data-by="1"'+a+(i===n-1?' disabled':'')+'>تأخير في الترتيب</button>'+
+      '<button class="del" data-del="prog"'+a+'>حذف</button></div></details></div></article>'}).join(""):
     '<p class="empty" style="padding:18px">'+(n?'لا توجد تدريبات بهذه الشروط. جرّب تغيير البحث أو النوع.':'لا توجد تدريبات بعد. أضف أول تدريب من «تدريب جديد».')+'</p>';
   $("count").textContent=list.length+" من "+n+" تدريبات · بيانات تجريبية";
 }
