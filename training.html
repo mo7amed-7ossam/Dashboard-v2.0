@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التدريب — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125123754">
-<link rel="stylesheet" href="forms.css?v=1125123754">
+<link rel="stylesheet" href="ui.css?v=1125124121">
+<link rel="stylesheet" href="forms.css?v=1125124121">
 <style>
 /* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
    multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
@@ -41,6 +41,8 @@
 .cat{border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px}
 .cath{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:10px}
 .cath .in{font-weight:600}
+.cath > b{font-weight:600}
+.cat .qg .qc{background:var(--sub)}
 .cat .qadd{width:100%}
 /* the same folders, read-only, under a training in the list */
 .tree{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding-top:10px;border-top:1px solid var(--line)}
@@ -106,8 +108,8 @@
   <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار المدير المباشر</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1125123754"></script>
-<script src="forms.js?v=1125123754"></script>
+<script src="ui.js?v=1125124121"></script>
+<script src="forms.js?v=1125124121"></script>
 <script>
 var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
     MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
@@ -133,7 +135,8 @@ function letter(c){var o="";for(c++;c>0;c=Math.floor((c-1)/26))o=String.fromChar
 console.assert(letter(0)==="A"&&letter(25)==="Z"&&letter(26)==="AA");
 /* the folders of a training as the employee meets them: categories in order, each with its materials in order */
 function tree(p){var C=p.cats||[];return '<div class="tree">'+(C.length?C.map(function(cn,c){var L=p.mats.filter(function(m){return m.g===c});
-  return '<div><h4><b class="lt">'+letter(c)+'</b>'+esc(cn)+'</h4>'+(L.length?'<ol>'+L.map(function(m){return '<li>'+ic(kindOf(m)===MK[0]?"doc":"image",14)+'<span>'+esc(m.t)+'</span></li>'}).join("")+'</ol>':'<span class="m" style="font-size:var(--t-sm)">لا مواد في هذه الفئة بعد.</span>')+'</div>'}).join(""):'<span class="m">لا توجد فئات بعد.</span>')+'</div>'}
+  return '<div><h4><b class="lt">'+letter(c)+'</b>'+esc(cn)+'</h4>'+(L.length?'<ol>'+L.map(function(m){return '<li>'+ic(kindOf(m)===MK[0]?"doc":"image",14)+'<span>'+esc(m.t)+'</span></li>'}).join("")+'</ol>':'<span class="m" style="font-size:var(--t-sm)">لا مواد في هذه الفئة بعد.</span>')+
+    '<small class="m" style="display:block;margin-top:4px">'+(function(n){return n?n+(n===1?" سؤال":n===2?" سؤالان":" أسئلة"):"لا أسئلة"})(p.qs.filter(function(q){return q.g===c}).length)+'</small></div>'}).join(""):'<span class="m">لا توجد فئات بعد.</span>')+'</div>'}
 function nfile(p){return p.mats.filter(function(m){return kindOf(m)===MK[0]}).length}
 function nvid(p){return p.mats.length-nfile(p)}
 function left(due){return Math.round((new Date(due)-new Date(TODAY))/864e5)}
@@ -143,7 +146,8 @@ function srcFld(m){var k=kindOf(m),up=k===MK[2];
     '<span class="yt"><input class="in" data-k="src" value="'+esc(m.src)+'" dir="ltr" inputmode="url" '+at("رابط يوتيوب")+'><button type="button" class="ib" data-yt aria-label="معاينة المشغّل" title="معاينة المشغّل"'+(ytId(m.src)?'':' disabled')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg></button></span>'}
 FORMS.prog=function(src){
   var isNew=!src,P=JSON.parse(JSON.stringify(src||{tab:KINDS[0],st:"مسودة",cats:[],mats:[],qs:[]})),read=function(){},A=mkAudience(P.aud);
-  if(!P.cats){P.cats=P.mats.length?["عام"]:[];P.mats.forEach(function(m){m.g=0})}
+  if(!P.cats){P.cats=P.mats.length||P.qs.length?["عام"]:[];P.mats.forEach(function(m){m.g=0})}
+  P.qs.forEach(function(q){if(q.g==null)q.g=0});
   return {title:isNew?"تدريب جديد":"تعديل تدريب",saveLabel:"حفظ التدريب",isNew:isNew,steps:["التدريب","الفئات والمواد","الأسئلة","لمن يُوجَّه"],html:
     '<div class="fs wide"><h3>التدريب</h3>'+two(fld("اسم التدريب بالعربي",inp("n",P.n,req("اكتب اسم التدريب"))),fld("اسم التدريب بالإنجليزي",inp("en",P.en,'dir="ltr"')))+
       two(fld("الوصف بالعربي",txt("x",P.x,'rows="3"')),fld("الوصف بالإنجليزي",txt("xen",P.xen,'dir="ltr" rows="3"')))+
@@ -158,7 +162,7 @@ FORMS.prog=function(src){
         bm.querySelectorAll("[data-r]").forEach(function(r){var m=P.mats[+r.dataset.r];r.querySelectorAll("[data-k]").forEach(function(el){m[el.dataset.k]=el.value.trim()})});
         bq.querySelectorAll("[data-q]").forEach(function(c){var q=P.qs[+c.dataset.q],ck=c.querySelector("input[type=radio]:checked");
           q.q=c.querySelector("[data-qt]").value.trim();q.opts=[].map.call(c.querySelectorAll("[data-o]"),function(i){return i.value.trim()});q.ok=ck?+ck.value:-1})};
-      function head(t,n,c,add){return '<div class="pgh"><h3>'+t+(n?'<em>'+n+'</em>':'')+'</h3><button type="button" class="btn sm" data-add="'+c+'">'+add+'</button></div>'}
+      function head(t,n,c,add){return '<div class="pgh"><h3>'+t+(n?'<em>'+n+'</em>':'')+'</h3>'+(add?'<button type="button" class="btn sm" data-add="'+c+'">'+add+'</button>':'')+'</div>'}
       function x(attr,label){return '<button type="button" class="ib" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
       function mv(attr,label,svg,off){return '<button type="button" class="ib" '+attr+(off?' disabled':'')+' aria-label="'+label+'" title="'+label+'">'+svg+'</button>'}
       function inCat(c){var o=[];P.mats.forEach(function(m,i){if(m.g===c)o.push(i)});return o}
@@ -174,32 +178,35 @@ FORMS.prog=function(src){
             (C.length?'<p class="pge">يرى الموظف الفئات بهذا الترتيب، وداخل كل فئة موادها بترتيبها. الملف يُختار من المكتبة، ورابط يوتيوب يتحوّل إلى مشغّل داخل صفحة التدريب، والفيديو المرفوع MP4 أو WEBM.</p>':'')||
             '<p class="pge">لا توجد فئات بعد. أضف فئة (مثل «التصميم») ثم ضع فيها ملفاتها وفيديوهاتها بالترتيب.</p>')};
       function xs(attr,label){return '<button type="button" class="xs" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
-      function drawQ(){var L=P.qs;
-        bq.innerHTML=head("الأسئلة",L.length?(L.length===1?"سؤال واحد":L.length===2?"سؤالان":L.length+" أسئلة")+" · علّم الدائرة بجوار الإجابة الصحيحة":"","q","إضافة سؤال")+
-          (L.length?'<div class="qg">'+L.map(function(q,i){return '<div class="qc" data-q="'+i+'"><header><span class="qn">'+(i+1)+'</span><input class="in" data-qt value="'+esc(q.q)+'" '+at("نص السؤال "+(i+1))+'>'+xs('data-rq="'+i+'"',"حذف السؤال")+'</header>'+
+      /* questions follow the same folders as the materials (Mohamed 2026-11-25: «على نفس التوزيعه»): each category, then its own questions in order */
+      function qcard(i,n){var q=P.qs[i];return '<div class="qc" data-q="'+i+'"><header><span class="qn">'+(n+1)+'</span><input class="in" data-qt value="'+esc(q.q)+'" '+at("نص السؤال "+(n+1))+'>'+xs('data-rq="'+i+'"',"حذف السؤال")+'</header>'+
             '<div class="qos">'+q.opts.map(function(o,j){var ok=q.ok===j;return '<div class="qo'+(ok?' ok':'')+'"><input type="radio" name="ok'+i+'" value="'+j+'"'+(ok?' checked':'')+' aria-label="الاختيار '+(j+1)+' هو الإجابة الصحيحة" title="اجعلها الإجابة الصحيحة"><input class="in" data-o value="'+esc(o)+'" '+at("الاختيار "+(j+1))+'>'+
               (ok?'<em>الإجابة الصحيحة</em>':'<span></span>')+(q.opts.length>2?xs('data-ro="'+i+':'+j+'"',"حذف الاختيار"):'<span></span>')+'</div>'}).join("")+
-            (q.opts.length<MAXO?'<button type="button" class="qadd" data-ao="'+i+'">+ إضافة اختيار</button>':'')+'</div></div>'}).join("")+
-            '<button type="button" class="qadd big" data-add="q">+ إضافة سؤال</button></div>':
-          '<p class="pge">لا توجد أسئلة بعد. الأسئلة اختيار من متعدد، ولا حد لعددها: يجيب عنها الموظف بعد إتمام مواد التدريب.</p>')+
-          '<p class="pge" style="padding-top:10px">تُحسب درجة الموظف بعدد إجاباته الصحيحة، ثم يراجعها مديره المباشر ويقرر اعتمادها أو إعادة الاختبار.</p>'}
+            (q.opts.length<MAXO?'<button type="button" class="qadd" data-ao="'+i+'">+ إضافة اختيار</button>':'')+'</div></div>'}
+      function drawQ(){var L=P.qs,C=P.cats;
+        bq.innerHTML=head("الأسئلة",L.length?(L.length===1?"سؤال واحد":L.length===2?"سؤالان":L.length+" أسئلة")+" · علّم الدائرة بجوار الإجابة الصحيحة":"")+
+          (C.length?C.map(function(cn,c){var I=[];L.forEach(function(q,i){if(q.g===c)I.push(i)});
+            return '<div class="cat"><div class="cath"><span class="qn">'+letter(c)+'</span><b>'+(esc(cn)||'<span class="m">فئة بلا اسم</span>')+'</b><span class="m" style="font-size:var(--t-sm)">'+(I.length?I.length+" سؤال":"لا أسئلة")+'</span></div>'+
+              '<div class="qg">'+I.map(qcard).join("")+'<button type="button" class="qadd" data-add="q" data-c="'+c+'">+ إضافة سؤال في «'+(esc(cn)||letter(c))+'»</button></div></div>'}).join(""):
+          '<p class="pge">أضف فئة في خطوة «الفئات والمواد» أولًا، ثم ضع أسئلتها هنا. الأسئلة اختيار من متعدد، ولا حد لعددها.</p>')+
+          '<p class="pge" style="padding-top:10px">يجيب الموظف عن أسئلة كل فئة بعد إتمام موادها. تُحسب درجته بعدد إجاباته الصحيحة في التدريب كله، ثم يراجعها مديره المباشر ويقرر اعتمادها أو إعادة الاختبار.</p>'}
       bm.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
         var k=b.dataset,pr;
-        if(k.add==="cat"){read();P.cats.push("");drawM();var cn=bm.querySelectorAll("[data-cn]");cn[cn.length-1].focus()}
+        if(k.add==="cat"){read();P.cats.push("");drawM();drawQ();var cn=bm.querySelectorAll("[data-cn]");cn[cn.length-1].focus()}
         if(k.add==="mat"){read();var c=+k.c,I=inCat(c),l=P.mats[I[I.length-1]];P.mats.push({g:c,k:l?kindOf(l):MK[0],t:""});drawM();bm.querySelector('[data-r="'+(P.mats.length-1)+'"] [data-k=t]').focus()}
         if(k.rm){read();P.mats.splice(+k.rm,1);drawM()}
         /* deleting a category takes its materials with it; the later categories move up one place */
-        if(k.cx){read();var d=+k.cx;P.cats.splice(d,1);P.mats=P.mats.filter(function(m){return m.g!==d});P.mats.forEach(function(m){if(m.g>d)m.g--});drawM()}
-        if(k.cm){read();pr=k.cm.split(":");var a=+pr[0],z=a+(+pr[1]),t=P.cats[a];P.cats[a]=P.cats[z];P.cats[z]=t;P.mats.forEach(function(m){m.g=m.g===a?z:m.g===z?a:m.g});drawM()}
+        if(k.cx){read();var d=+k.cx;P.cats.splice(d,1);[P.mats,P.qs].forEach(function(A){for(var n=A.length;n--;){if(A[n].g===d)A.splice(n,1);else if(A[n].g>d)A[n].g--}});drawM();drawQ()}
+        if(k.cm){read();pr=k.cm.split(":");var a=+pr[0],z=a+(+pr[1]),t=P.cats[a];P.cats[a]=P.cats[z];P.cats[z]=t;P.mats.concat(P.qs).forEach(function(m){m.g=m.g===a?z:m.g===z?a:m.g});drawM();drawQ()}
         if(k.mm){read();pr=k.mm.split(":");var i=+pr[0],L=inCat(P.mats[i].g),j=L[L.indexOf(i)+(+pr[1])],tm=P.mats[i];P.mats[i]=P.mats[j];P.mats[j]=tm;drawM()}
         if(b.dataset.yt!=null){read();ytPreview(P.mats[+b.closest("[data-r]").dataset.r])}});
-      bm.addEventListener("input",function(e){if(e.target.dataset.k==="src"){var y=e.target.parentNode.querySelector("[data-yt]");if(y)y.disabled=!ytId(e.target.value)}});
+      bm.addEventListener("input",function(e){if(e.target.dataset.cn!=null){read();drawQ()}if(e.target.dataset.k==="src"){var y=e.target.parentNode.querySelector("[data-yt]");if(y)y.disabled=!ytId(e.target.value)}});
       bm.addEventListener("change",function(e){var r=e.target.closest("[data-r]");if(!r)return;
         if(e.target.dataset.k==="k"){read();drawM()}
         if(e.target.dataset.k==="f"){read();var mf=P.mats[+r.dataset.r];if(mf.f&&!mf.t){mf.t=mf.f;drawM()}}
         if(e.target.dataset.vf!=null){read();var fl=e.target.files[0],m=P.mats[+r.dataset.r];m.vf=fl?fl.name:"";if(fl&&!m.t)m.t=fl.name.replace(/\.[^.]+$/,"");drawM()}});
       bq.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var k=b.dataset,a=(k.ro||"").split(":");
-        if(k.add){read();P.qs.push({q:"",opts:["",""],ok:-1});drawQ();var cs=bq.querySelectorAll("[data-q]"),c=cs[cs.length-1];c.querySelector("[data-qt]").focus();c.scrollIntoView({block:"nearest"})}
+        if(k.add){read();P.qs.push({g:+k.c,q:"",opts:["",""],ok:-1});drawQ();var c=bq.querySelector('[data-q="'+(P.qs.length-1)+'"]');c.querySelector("[data-qt]").focus();c.scrollIntoView({block:"nearest"})}
         if(k.rq){read();P.qs.splice(+k.rq,1);drawQ()}
         if(k.ao){read();P.qs[+k.ao].opts.push("");drawQ();var os=bq.querySelectorAll('[data-q="'+k.ao+'"] [data-o]');os[os.length-1].focus()}
         if(k.ro){read();var q=P.qs[+a[0]],j=+a[1];q.opts.splice(j,1);q.ok=q.ok===j?-1:q.ok>j?q.ok-1:q.ok;drawQ()}});
