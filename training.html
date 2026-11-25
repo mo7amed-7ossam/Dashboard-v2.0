@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التدريب — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125143913">
-<link rel="stylesheet" href="forms.css?v=1125143913">
+<link rel="stylesheet" href="ui.css?v=1125144203">
+<link rel="stylesheet" href="forms.css?v=1125144203">
 <style>
 /* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
    multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
@@ -151,11 +151,11 @@
   <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار المدير المباشر</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1125143913"></script>
-<script src="forms.js?v=1125143913"></script>
+<script src="ui.js?v=1125144203"></script>
+<script src="forms.js?v=1125144203"></script>
 <script>
 var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
-    MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
+    MK=["ملف PDF","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
     UP='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
     DOWN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
 SETS.prog=function(){return TRAIN};DEL.prog=["التدريب","سيُزال من «مركز التدريب» بالبوابة."];
@@ -188,12 +188,13 @@ function pl(n,one,two,many,sing){return n===0?"لا "+many:n===1?one:n===2?two:n
 console.assert(pl(1,"فئة واحدة","فئتان","فئات","فئة")==="فئة واحدة"&&pl(3,"","","فئات","فئة")==="3 فئات"&&pl(12,"","","فئات","فئة")==="12 فئة");
 document.addEventListener("click",function(e){document.querySelectorAll("details.mn[open]").forEach(function(m){if(!m.contains(e.target)||e.target.closest(".mn > div button"))m.open=false})});
 /* shortcut: 200 MB is a placeholder limit until the video storage is decided */
-var VMAX=200;
+var VMAX=200,FMAX=20;
 /* the cover of a material: a library file takes the cover it has in the library, a video carries its own */
-function cvOf(m){if(kindOf(m)!==MK[0])return m.cv||"";var d=DOCS.filter(function(x){return x.n===m.f})[0];return d?d.cv:""}
+function cvOf(m){return m.cv||""}
 function srcFld(m){var k=kindOf(m),up=k===MK[2];
   return up?'<label class="in vup"><input type="file" accept="video/mp4,video/webm" data-vf aria-label="'+k+'"><span>'+(m.vf?'<bdi dir="ltr">'+esc(m.vf)+'</bdi>'+(m.vs?' · '+m.vs+' ميغابايت':''):'اختيار ملف فيديو (حتى '+VMAX+' ميغابايت)')+'</span></label>':
-    k===MK[0]?'<select class="in" data-k="f" aria-label="الملف"><option value="">— اختر من المكتبة —</option>'+DOCS.map(function(d){return '<option'+(d.n===m.f?' selected':'')+'>'+esc(d.n)+'</option>'}).join("")+'</select>':
+    /* the file is uploaded here, for this training only (Mohamed 2026-11-25): it follows the training's audience, not the library's */
+    k===MK[0]?'<label class="in vup"><input type="file" accept="application/pdf" data-pf aria-label="'+k+'"><span>'+(m.pf?'<bdi dir="ltr">'+esc(m.pf)+'</bdi>'+(m.ps?' · '+m.ps+' ميغابايت':''):'اختيار ملف PDF (حتى '+FMAX+' ميغابايت)')+'</span></label>':
     '<span class="yt"><input class="in" data-k="src" value="'+esc(m.src)+'" dir="ltr" inputmode="url" '+at("رابط يوتيوب")+'><button type="button" class="ib" data-yt aria-label="معاينة المشغّل" title="معاينة المشغّل"'+(ytId(m.src)?'':' disabled')+'><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg></button></span>'}
 FORMS.prog=function(src){
   var isNew=!src,P=JSON.parse(JSON.stringify(src||{tab:KINDS[0],st:"مسودة",cats:[],mats:[],qs:[]})),read=function(){},A=mkAudience(P.aud);
@@ -219,9 +220,8 @@ FORMS.prog=function(src){
           q.q=c.querySelector("[data-qt]").value.trim();q.opts=[].map.call(c.querySelectorAll("[data-o]"),function(i){return i.value.trim()});q.ok=ck?+ck.value:-1})};
       function head(t,n,c,add){return '<div class="pgh"><h3>'+t+(n?'<em>'+n+'</em>':'')+'</h3>'+(add?'<button type="button" class="btn sm" data-add="'+c+'">'+add+'</button>':'')+'</div>'}
       function x(attr,label){return '<button type="button" class="ib" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
-      function cvBtn(m){var lib=kindOf(m)===MK[0],src=cvOf(m);
-        return lib?'<span class="cvb ro'+(src?' has':'')+'" title="غلاف الملف من المكتبة">'+(src?'<img src="'+esc(src)+'" alt="">':ic("image",14))+'</span>':
-          '<label class="cvb'+(src?' has':'')+'" title="'+(src?'تغيير صورة الغلاف':'رفع صورة الغلاف (مطلوبة)')+'"><input type="file" accept="image/jpeg,image/png,image/webp" data-cv aria-label="صورة غلاف الفيديو">'+(src?'<img src="'+esc(src)+'" alt="">':ic("image",14))+'</label>'}
+      function cvBtn(m){var src=cvOf(m);
+        return '<label class="cvb'+(src?' has':'')+'" title="'+(src?'تغيير صورة الغلاف':'رفع صورة الغلاف (مطلوبة)')+'"><input type="file" accept="image/jpeg,image/png,image/webp" data-cv aria-label="صورة غلاف المادة">'+(src?'<img src="'+esc(src)+'" alt="">':ic("image",14))+'</label>'}
       function mv(attr,label,svg,off){return '<button type="button" class="ib" '+attr+(off?' disabled':'')+' aria-label="'+label+'" title="'+label+'">'+svg+'</button>'}
       function inCat(c){var o=[];P.mats.forEach(function(m,i){if(m.g===c)o.push(i)});return o}
       function drawM(){var C=P.cats;
@@ -233,7 +233,7 @@ FORMS.prog=function(src){
               I.map(function(i,n){var m=P.mats[i];return '<div class="pgr" data-r="'+i+'"><b>'+(n+1)+'</b><select class="in" data-k="k" aria-label="النوع">'+MK.map(function(k){return '<option'+(k===kindOf(m)?' selected':'')+'>'+k+'</option>'}).join("")+'</select>'+
                 '<input class="in" data-k="t" value="'+esc(m.t)+'" '+at("عنوان الملف أو الفيديو")+'>'+srcFld(m)+'<span class="rb">'+cvBtn(m)+mv('data-mm="'+i+':-1"',"تقديم في الترتيب",UP,n===0)+mv('data-mm="'+i+':1"',"تأخير في الترتيب",DOWN,n===I.length-1)+x('data-rm="'+i+'"',"حذف الصف")+'</span></div>'}).join("")+
               '<button type="button" class="qadd" data-add="mat" data-c="'+c+'">+ إضافة ملف أو فيديو</button></div>'}).join("")+
-            (C.length?'<p class="pge">يرى الموظف الفئات بهذا الترتيب، وداخل كل فئة موادها بترتيبها. الملف يُختار من المكتبة، ورابط يوتيوب يتحوّل إلى مشغّل داخل صفحة التدريب، والفيديو المرفوع MP4 أو WEBM.</p>':'')||
+            (C.length?'<p class="pge">يرى الموظف الفئات بهذا الترتيب، وداخل كل فئة موادها بترتيبها. الملف PDF يُرفع هنا ويخص هذا التدريب وحده، ورابط يوتيوب يتحوّل إلى مشغّل داخل صفحة التدريب، والفيديو المرفوع MP4 أو WEBM.</p>':'')||
             '<p class="pge">لا توجد فئات بعد. أضف فئة (مثل «التصميم») ثم ضع فيها ملفاتها وفيديوهاتها بالترتيب.</p>')};
       function xs(attr,label){return '<button type="button" class="xs" '+attr+' aria-label="'+label+'" title="'+label+'">×</button>'}
       /* questions follow the same folders as the materials (Mohamed 2026-11-25: «على نفس التوزيعه»): each category, then its own questions in order */
@@ -265,7 +265,9 @@ FORMS.prog=function(src){
       bm.addEventListener("input",function(e){if(e.target.dataset.cn!=null){read();drawQ()}if(e.target.dataset.k==="src"){var y=e.target.parentNode.querySelector("[data-yt]");if(y)y.disabled=!ytId(e.target.value)}});
       bm.addEventListener("change",function(e){var r=e.target.closest("[data-r]");if(!r)return;
         if(e.target.dataset.k==="k"){read();drawM()}
-        if(e.target.dataset.k==="f"){read();var mf=P.mats[+r.dataset.r];if(mf.f&&!mf.t){mf.t=mf.f;drawM()}}
+        if(e.target.dataset.pf!=null){read();var pf=e.target.files[0],pm=P.mats[+r.dataset.r];
+          if(pf&&pf.size>FMAX*1048576){toast("حجم الملف "+Math.round(pf.size/1048576)+" ميغابايت، والحد الأقصى "+FMAX+".");drawM();return}
+          pm.pf=pf?pf.name:"";pm.ps=pf?(pf.size/1048576).toFixed(1):"";if(pf&&!pm.t)pm.t=pf.name.replace(/\.[^.]+$/,"");drawM();return}
         if(e.target.dataset.cv!=null){read();var cf=e.target.files[0];if(cf)P.mats[+r.dataset.r].cv=URL.createObjectURL(cf);f.querySelector("#dirty").hidden=false;drawM();return}
         if(e.target.dataset.vf!=null){read();var fl=e.target.files[0],m=P.mats[+r.dataset.r];
           if(fl&&fl.size>VMAX*1048576){toast("حجم الفيديو "+Math.round(fl.size/1048576)+" ميغابايت، والحد الأقصى "+VMAX+". اختر ملفًا أصغر أو استخدم رابط يوتيوب.");drawM();return}
@@ -280,18 +282,18 @@ FORMS.prog=function(src){
       bq.addEventListener("change",function(e){if(e.target.type==="radio"){read();drawQ()}
         if(e.target.dataset.qg!=null){read();var qc=+e.target.closest("[data-q]").dataset.q,mq=P.qs.splice(qc,1)[0];mq.g=+e.target.value;P.qs.push(mq);drawQ();toast("نُقل السؤال إلى الفئة "+letter(mq.g)+" في آخرها.")}});
       drawM();drawQ()},
-    check:function(f){read();P.mats=P.mats.filter(function(m){return m.t||m.vf||m.f||m.src});
+    check:function(f){read();P.mats=P.mats.filter(function(m){return m.t||m.vf||m.pf||m.src});
       P.qs=P.qs.filter(function(q){return q.q||q.opts.some(Boolean)});this.redraw();
       function at2(L,i){return L.slice(0,i+1).filter(function(x){return x.g===L[i].g}).length+" في الفئة "+letter(L[i].g)}
       function mark(sel){setTimeout(function(){var e=f.querySelector(sel);if(e){e.setAttribute("aria-invalid","true");e.focus();e.scrollIntoView({block:"center"})}},0)}
       this.checkStep=2;
       for(var c=0;c<P.cats.length;c++)if(!P.cats[c]){mark('#pgm [data-cn="'+c+'"]');return "اكتب اسم الفئة "+letter(c)+"."}
-      for(var i=0;i<P.mats.length;i++){var m=P.mats[i],k=kindOf(m),has=k===MK[0]?m.f:k===MK[1]?m.src:m.vf;
+      for(var i=0;i<P.mats.length;i++){var m=P.mats[i],k=kindOf(m),has=k===MK[0]?m.pf:k===MK[1]?m.src:m.vf;
         var R='#pgm [data-r="'+i+'"] ';
         if(!m.t){mark(R+'[data-k=t]');return "اكتب عنوان المادة "+at2(P.mats,i)+"."}
         if(k===MK[1]&&m.src&&!ytId(m.src)){mark(R+'[data-k=src]');return "رابط المادة "+at2(P.mats,i)+" ليس رابط يوتيوب صحيحًا."}
-        if(!has){mark(R+(k===MK[1]?'[data-k=src]':k===MK[0]?'[data-k=f]':'.vup'));return (k===MK[1]?"اكتب رابط يوتيوب":k===MK[0]?"اختر الملف من المكتبة":"اختر ملف الفيديو")+" للمادة "+at2(P.mats,i)+"."}
-        if(k!==MK[0]&&!m.cv){mark(R+'.cvb');return "ارفع صورة الغلاف للفيديو "+at2(P.mats,i)+"."}}
+        if(!has){mark(R+(k===MK[1]?'[data-k=src]':'.vup'));return (k===MK[1]?"اكتب رابط يوتيوب":k===MK[0]?"اختر ملف PDF":"اختر ملف الفيديو")+" للمادة "+at2(P.mats,i)+"."}
+        if(!m.cv){mark(R+'.cvb');return "ارفع صورة الغلاف للمادة "+at2(P.mats,i)+"."}}
       this.checkStep=3;
       for(var n=0;n<P.qs.length;n++){var q=P.qs[n],right=q.ok>-1?q.opts[q.ok]:"";
         var Q='#pgq [data-q="'+n+'"] ';
