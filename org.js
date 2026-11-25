@@ -8,9 +8,10 @@ var ORGP={
     row:function(d){var n=inDept(d.name).length;return ['<span class="chip s">'+esc(d.type)+'</span>',esc(d.branch),
       d.lead?'<div class="who">'+av(d.lead)+'<b style="font-weight:500">'+esc(d.lead)+'</b></div>':'<span class="st late">بلا مدير مباشر</span>',emps(n),
       n?"لا يُحذف: فيه "+cnt(n)+". انقلهم إلى قسم آخر أولًا.":""]}},
-  obr:{kind:"الفرع",cols:["الفرع","المدينة والعنوان","الهاتف","الأقسام","الموظفون",""],none:"فروع",
+  obr:{kind:"الفرع",cols:["الفرع","العنوان","الموقع","الهاتف","الأقسام","الموظفون",""],none:"فروع",
     row:function(b){var ds=D.depts.filter(function(d){return d.branch===b.n}),n=EMPS.filter(function(e){return e.branch===b.n}).length;
-      return [esc(b.city)+(b.addr?'<small>'+esc(b.addr)+'</small>':''),b.phone?ltr(b.phone):'<span class="m">—</span>',
+      return [esc(b.city)+(b.addr?' · '+esc(b.addr):'')+(b.addrEn?'<small dir="ltr" style="text-align:right">'+esc(b.addrEn)+'</small>':''),
+        b.map?'<a class="btn sm" href="'+esc(b.map)+'" target="_blank" rel="noopener">فتح الموقع</a>':'<span class="st late">بلا موقع</span>',b.phone?ltr(b.phone):'<span class="m">—</span>',
         ds.length?ds.map(function(d){return '<span class="chip d">'+esc(d.name)+'</span>'}).join(" "):'<span class="m">لا أقسام</span>',emps(n),
         ds.length?"لا يُحذف: يتبعه "+pl(ds.length,"قسم واحد","قسمان","أقسام","قسمًا")+". انقلها إلى فرع آخر أولًا.":n?"لا يُحذف: فيه "+cnt(n)+".":""]}},
   ojob:{kind:"الوظيفة",cols:["الوظيفة","نوع القسم","الموظفون",""],none:"وظائف",

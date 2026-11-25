@@ -532,8 +532,8 @@ SETS.hsec=function(){return HOME.secs};
 var DTYPES=["الإدارة العامة","التسويق","العمليات","الموارد البشرية","فرع مبيعات"];
 (function(){var T={"العمليات":["العمليات","المكتب الرئيسي","Operations"],"العذيبة":["فرع مبيعات","العذيبة","Azaiba"],"صلالة":["فرع مبيعات","صلالة","Salalah"],"عبري":["فرع مبيعات","عبري","Ibri"],"التسويق":["التسويق","المكتب الرئيسي","Marketing"],"الموارد البشرية":["الموارد البشرية","المكتب الرئيسي","Human Resources"]};
   D.depts.forEach(function(d){var t=T[d.name]||[DTYPES[0],BRANCHES[0],""];d.type=t[0];d.branch=t[1];d.en=t[2]})})();
-var BRS=[{n:"المكتب الرئيسي",en:"Head Office",city:"مسقط",addr:"الخوير، شارع الوزارات",phone:"24480000"},{n:"العذيبة",en:"Azaiba",city:"مسقط",addr:"العذيبة، شارع 18 نوفمبر",phone:"24490011"},
-  {n:"صلالة",en:"Salalah",city:"صلالة",addr:"عوقد، شارع النهضة",phone:"23290022"},{n:"عبري",en:"Ibri",city:"عبري",addr:"وسط المدينة، الشارع العام",phone:"25690033"}];
+var BRS=[{n:"المكتب الرئيسي",en:"Head Office",city:"مسقط",addr:"الخوير، شارع الوزارات",addrEn:"Al Khuwair, Ministries Street",map:"https://maps.app.goo.gl/sindbad-head-office",phone:"24480000"},{n:"العذيبة",en:"Azaiba",city:"مسقط",addr:"العذيبة، شارع 18 نوفمبر",addrEn:"Azaiba, 18 November Street",map:"https://maps.app.goo.gl/sindbad-azaiba",phone:"24490011"},
+  {n:"صلالة",en:"Salalah",city:"صلالة",addr:"عوقد، شارع النهضة",addrEn:"Awqad, Al Nahdha Street",map:"https://maps.app.goo.gl/sindbad-salalah",phone:"23290022"},{n:"عبري",en:"Ibri",city:"عبري",addr:"وسط المدينة، الشارع العام",addrEn:"City Centre, Main Road",phone:"25690033"}];
 var JOBL=[["مدير التسويق",1],["مصمم",1],["مطور ويب",1],["أخصائي تسويق",1],["مدير العمليات",2],["فني تركيب",2],["مشرف توصيل",2],["مدير الموارد البشرية",3],["مدير الفرع",4],["مبيعات",4]].map(function(j){return {n:j[0],type:DTYPES[j[1]]}});
 /* the name lists other windows read (BRANCHES, JOBS) follow these lists */
 function syncOrg(){BRANCHES.length=0;BRS.forEach(function(b){BRANCHES.push(b.n)});JOBS.length=0;JOBL.forEach(function(j){JOBS.push(j.n)})}
@@ -554,11 +554,12 @@ FORMS.obr=function(b){var isNew=!b;b=b||{};
   return {title:isNew?"فرع جديد":"تعديل فرع",size:"sm",saveLabel:"حفظ الفرع",html:
   '<div class="fs">'+two(fld("اسم الفرع بالعربي",inp("n",b.n,req("اكتب اسم الفرع"))),fld("اسم الفرع بالإنجليزي",inp("en",b.en,'dir="ltr"')))+
     two(fld("المدينة",inp("city",b.city,req("اكتب المدينة"))),fld("هاتف الفرع",inp("phone",b.phone,'dir="ltr" inputmode="tel"')))+
-    fld("العنوان",inp("addr",b.addr))+fld("رابط الموقع على الخريطة (اختياري)",inp("map",b.map,'dir="ltr" inputmode="url" placeholder="https://maps.google.com/..."'))+'</div>',
-  check:function(f){var n=f.n.value.trim();return BRS.some(function(x){return x!==b&&x.n===n})?"يوجد فرع بهذا الاسم.":""},
+    two(fld("العنوان بالعربي",inp("addr",b.addr,req("اكتب عنوان الفرع"))),fld("العنوان بالإنجليزي",inp("addrEn",b.addrEn,'dir="ltr"')))+
+    fld("الموقع على الخريطة",inp("map",b.map,'dir="ltr" inputmode="url" placeholder="https://maps.app.goo.gl/..."'),"الصق رابط الموقع من خرائط Google. يفتحه الموظف من صفحة «الشركة» بزر «الموقع».")+'</div>',
+  check:function(f){var n=f.n.value.trim(),m=f.map.value.trim();return BRS.some(function(x){return x!==b&&x.n===n})?"يوجد فرع بهذا الاسم.":m&&!/^https?:\/\/\S+$/.test(m)?"رابط الموقع يجب أن يبدأ بـ https://":""},
   save:function(f){var n=f.n.value.trim(),old=b.n;if(isNew)BRS.push(b);
     if(old&&old!==n){D.depts.forEach(function(d){if(d.branch===old)d.branch=n});EMPS.forEach(function(e){if(e.branch===old)e.branch=n})}
-    b.n=n;b.en=f.en.value.trim();b.city=f.city.value.trim();b.phone=f.phone.value.trim();b.addr=f.addr.value.trim();b.map=f.map.value.trim();syncOrg();
+    b.n=n;b.en=f.en.value.trim();b.city=f.city.value.trim();b.phone=f.phone.value.trim();b.addr=f.addr.value.trim();b.addrEn=f.addrEn.value.trim();b.map=f.map.value.trim();syncOrg();
     return "تم الحفظ — فرع «"+n+"» ظاهر في صفحة الشركة بالبوابة."}}};
 FORMS.ojob=function(j){var isNew=!j;j=j||{};
   return {title:isNew?"وظيفة جديدة":"تعديل وظيفة",size:"sm",saveLabel:"حفظ الوظيفة",html:
