@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الأقسام والفروع — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1125161111">
+<link rel="stylesheet" href="forms.css?v=1125161111">
+<style>
+/* Departments, branches and jobs (Mohamed 2026-11-25: the next gap between the portal and the dashboard). These are the
+   lists the employee window and the portal sign-up choose from. One page, three tabs, the same table and the same row
+   actions in each. What is in use cannot be deleted, and the row says why. */
+#rows td.end{white-space:nowrap}
+.inuse{color:var(--m);font-size:var(--t-sm)}
+@media (max-width:760px){#rows td.end{white-space:normal;display:grid;grid-template-columns:1fr 1fr;gap:6px}#rows td.end .btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">الأقسام والفروع</h1><p>أقسام الشركة وفروعها ووظائفها. منها يختار الموظف عند التسجيل، ومنها يتحدد فرعه ومديره المباشر.</p></div><button class="btn k" id="add"></button></div>
+  <div class="card stats" id="stats" style="margin-bottom:12px"></div>
+  <section class="card">
+    <div class="bar">
+      <div class="seg" id="tabs" role="group" aria-label="القائمة"></div>
+      <span class="sp"></span>
+      <input class="field" id="q" type="search" placeholder="ابحث بالاسم" aria-label="بحث">
+    </div>
+    <div class="tb"><table><thead id="head"></thead><tbody id="rows"></tbody></table></div>
+    <p class="note" id="count"></p>
+  </section>
+</div>
+<script src="ui.js?v=1125161111"></script>
+<script src="forms.js?v=1125161111"></script>
+<script>
+var TABS=[["odept","الأقسام","قسم جديد"],["obr","الفروع","فرع جديد"],["ojob","الوظائف","وظيفة جديدة"]],tab="odept";
+function pl(n,one,two,many,sing){return n===0?"لا "+many:n===1?one:n===2?two:n+" "+(n<=10?many:sing)}
+function emps(n){return pl(n,"موظف واحد","موظفان","موظفين","موظفًا")}
+function inBranch(n){return EMPS.filter(function(e){return e.branch===n}).length}
+function inJob(n){return EMPS.filter(function(e){return e.job===n}).length}
+function deptsOf(b){return D.depts.filter(function(d){return d.branch===b})}
+/* row actions shared by the three lists: edit always; delete only when nothing depends on the row, otherwise the reason */
+function acts(i,why){return '<button class="btn sm" data-form="'+tab+'" data-i="'+i+'">تعديل</button> '+
+  (why?'<button class="btn sm" disabled title="'+why+'">حذف</button>':'<button class="btn sm" data-odel="'+i+'">حذف</button>')}
+document.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.tab){tab=b.dataset.tab;$("q").value="";render()}
+  if(b.id==="add")openForm(tab);
+  if(b.dataset.odel){var L=SETS[tab](),x=L[b.dataset.odel],kind=tab==="odept"?"القسم":tab==="obr"?"الفرع":"الوظيفة";
+    confirmDel(kind,x.name||x.n,"يُزال من قوائم الاختيار في البوابة ولوحة التحكم.",function(){L.splice(L.indexOf(x),1);syncOrg()})}});
+document.addEventListener("input",function(e){if(e.target.id==="q")render()});
+function render(){
+  var noLead=D.depts.filter(function(d){return !d.lead}).length,q=$("q").value.trim().toLowerCase(),T=TABS.filter(function(t){return t[0]===tab})[0];
+  $("add").textContent=T[2];
+  $("stats").innerHTML=[["acc","build","الأقسام",D.depts.length,"في "+pl(BRS.length,"فرع واحد","فرعين","فروع","فرعًا")],["","pin","الفروع",BRS.length,"تظهر في صفحة الشركة بالبوابة"],
+    ["","users","الوظائف",JOBL.length,"موزّعة على "+DTYPES.length+" أنواع أقسام"],[noLead?"bad":"","clock","أقسام بلا مدير مباشر",noLead,noLead?"طلبات موظفيها لا تصل إلى أحد":"لكل قسم مدير مباشر"]].map(function(k){
+    return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
+  $("tabs").innerHTML=TABS.map(function(t){return '<button data-tab="'+t[0]+'" aria-pressed="'+(t[0]===tab)+'">'+t[1]+'<b>'+SETS[t[0]]().length+'</b></button>'}).join("");
+  var L=SETS[tab](),list=L.filter(function(x){return !q||((x.name||x.n)+" "+(x.en||"")).toLowerCase().indexOf(q)>-1}),cols;
+  function name(x){return '<td class="full"><b>'+esc(x.name||x.n)+'</b>'+(x.en?'<small dir="ltr" style="text-align:right">'+esc(x.en)+'</small>':'')+'</td>'}
+  if(tab==="odept"){cols=["القسم","النوع","الفرع","المدير المباشر","الموظفون",""];
+    $("rows").innerHTML=list.map(function(d){var n=inDept(d.name).length;
+      return '<tr>'+name(d)+'<td><span class="chip s">'+esc(d.type)+'</span></td><td>'+esc(d.branch)+'</td>'+
+        '<td class="full">'+(d.lead?'<div class="who">'+av(d.lead)+'<b style="font-weight:500">'+esc(d.lead)+'</b></div>':'<span class="st late">بلا مدير مباشر</span>')+'</td>'+
+        '<td class="hide0">'+(n?emps(n):'<span class="m">لا موظفين</span>')+'</td><td class="end full">'+acts(L.indexOf(d),n?"لا يُحذف: فيه "+emps(n)+". انقلهم إلى قسم آخر أولًا.":"")+'</td></tr>'}).join("")}
+  else if(tab==="obr"){cols=["الفرع","المدينة والعنوان","الهاتف","الأقسام","الموظفون",""];
+    $("rows").innerHTML=list.map(function(b){var ds=deptsOf(b.n),n=inBranch(b.n);
+      return '<tr>'+name(b)+'<td class="full">'+esc(b.city)+(b.addr?'<small>'+esc(b.addr)+'</small>':'')+'</td><td class="hide">'+(b.phone?ltr(b.phone):'<span class="m">—</span>')+'</td>'+
+        '<td class="full">'+(ds.length?ds.map(function(d){return '<span class="chip d">'+esc(d.name)+'</span>'}).join(" "):'<span class="m">لا أقسام</span>')+'</td>'+
+        '<td class="hide0">'+(n?emps(n):'<span class="m">لا موظفين</span>')+'</td><td class="end full">'+acts(L.indexOf(b),ds.length?"لا يُحذف: يتبعه "+pl(ds.length,"قسم واحد","قسمان","أقسام","قسمًا")+". انقلها إلى فرع آخر أولًا.":n?"لا يُحذف: فيه "+emps(n)+".":"")+'</td></tr>'}).join("")}
+  else{cols=["الوظيفة","نوع القسم","الموظفون",""];
+    $("rows").innerHTML=list.map(function(j){var n=inJob(j.n);
+      return '<tr>'+name(j)+'<td><span class="chip s">'+esc(j.type)+'</span></td><td class="hide0">'+(n?emps(n):'<span class="m">لا موظفين</span>')+'</td><td class="end full">'+acts(L.indexOf(j),n?"لا تُحذف: يشغلها "+emps(n)+".":"")+'</td></tr>'}).join("")}
+  $("head").innerHTML='<tr>'+cols.map(function(c){return '<th>'+c+'</th>'}).join("")+'</tr>';
+  if(!list.length)$("rows").innerHTML='<tr><td colspan="'+cols.length+'" class="empty">'+(L.length?'لا توجد نتائج بهذا الاسم. جرّب بحثًا آخر.':'لا يوجد شيء هنا بعد. أضف من «'+T[2]+'».')+'</td></tr>';
+  $("count").textContent=list.length+" من "+L.length+" · ما هو مستخدم لا يُحذف، وزر الحذف يوضّح السبب عند الوقوف عليه · بيانات تجريبية";
+}
+</script>
+</body>
+</html>

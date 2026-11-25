@@ -525,3 +525,48 @@ FORMS.most=function(){var L=SYS.filter(function(s){return s.st==="ظاهر"}).ma
   check:function(f){var n=f.querySelectorAll("[name=m]:checked").length;return f.mode.value===MMODE[0]?"":!n?"اختر نظامًا واحدًا على الأقل.":n>MOSTMAX?"اختر "+MOSTMAX+" أنظمة على الأكثر.":""},
   save:function(f){HOME.most.auto=f.mode.value===MMODE[0];if(!HOME.most.auto)HOME.most.list=[].map.call(f.querySelectorAll("[name=m]:checked"),function(c){return c.value});return "تم الحفظ — قسم «الأكثر استخدامًا» محدَّث في رئيسية البوابة."}}};
 SETS.hsec=function(){return HOME.secs};
+
+/* ---- organisation lists (org.html, Mohamed 2026-11-25): departments, branches, jobs ----
+   Rules kept from the portal: an employee's branch and direct manager come from the department; a job belongs to a
+   department type, and the employee window offers the jobs of the department's type. */
+var DTYPES=["الإدارة العامة","التسويق","العمليات","الموارد البشرية","فرع مبيعات"];
+(function(){var T={"العمليات":["العمليات","المكتب الرئيسي","Operations"],"العذيبة":["فرع مبيعات","العذيبة","Azaiba"],"صلالة":["فرع مبيعات","صلالة","Salalah"],"عبري":["فرع مبيعات","عبري","Ibri"],"التسويق":["التسويق","المكتب الرئيسي","Marketing"],"الموارد البشرية":["الموارد البشرية","المكتب الرئيسي","Human Resources"]};
+  D.depts.forEach(function(d){var t=T[d.name]||[DTYPES[0],BRANCHES[0],""];d.type=t[0];d.branch=t[1];d.en=t[2]})})();
+var BRS=[{n:"المكتب الرئيسي",en:"Head Office",city:"مسقط",addr:"الخوير، شارع الوزارات",phone:"24480000"},{n:"العذيبة",en:"Azaiba",city:"مسقط",addr:"العذيبة، شارع 18 نوفمبر",phone:"24490011"},
+  {n:"صلالة",en:"Salalah",city:"صلالة",addr:"عوقد، شارع النهضة",phone:"23290022"},{n:"عبري",en:"Ibri",city:"عبري",addr:"وسط المدينة، الشارع العام",phone:"25690033"}];
+var JOBL=[["مدير التسويق",1],["مصمم",1],["مطور ويب",1],["أخصائي تسويق",1],["مدير العمليات",2],["فني تركيب",2],["مشرف توصيل",2],["مدير الموارد البشرية",3],["مدير الفرع",4],["مبيعات",4]].map(function(j){return {n:j[0],type:DTYPES[j[1]]}});
+/* the name lists other windows read (BRANCHES, JOBS) follow these lists */
+function syncOrg(){BRANCHES.length=0;BRS.forEach(function(b){BRANCHES.push(b.n)});JOBS.length=0;JOBL.forEach(function(j){JOBS.push(j.n)})}
+syncOrg();
+function inDept(n){return EMPS.filter(function(e){return e.dept===n})}
+FORMS.odept=function(d){var isNew=!d;d=d||{};var team=isNew?[]:inDept(d.name),NONE="— بدون مدير مباشر —";
+  return {title:isNew?"قسم جديد":"تعديل قسم",size:"sm",saveLabel:"حفظ القسم",html:
+  '<div class="fs">'+two(fld("اسم القسم بالعربي",inp("name",d.name,req("اكتب اسم القسم"))),fld("اسم القسم بالإنجليزي",inp("en",d.en,'dir="ltr"')))+
+    two(fld("نوع القسم",sel("type",DTYPES,d.type||DTYPES[0]),"تُعرض لموظفي القسم وظائف هذا النوع."),fld("الفرع",sel("branch",BRANCHES,d.branch||BRANCHES[0]),"يتبع موظفو القسم هذا الفرع."))+
+    fld("المدير المباشر",sel("lead",[NONE].concat(team.filter(function(e){return e.st==="نشط"||e.name===d.lead}).map(function(e){return e.name})),d.lead||NONE),team.length?"يُختار من موظفي القسم، وتصله طلبات موظفيه في البوابة.":"أضف موظفين إلى القسم أولًا، ثم اختر مديرهم المباشر من بينهم.")+'</div>',
+  check:function(f){var n=f.name.value.trim();return D.depts.some(function(x){return x!==d&&x.name===n})?"يوجد قسم بهذا الاسم.":""},
+  save:function(f){var n=f.name.value.trim(),old=d.name;if(isNew){d={read:0,pend:0,late:0,people:0};D.depts.push(d)}
+    /* shortcut: a rename follows the employees here; saved audiences that name the department are re-pointed in APEX by id */
+    if(old&&old!==n)EMPS.forEach(function(e){if(e.dept===old)e.dept=n});
+    d.name=n;d.en=f.en.value.trim();d.type=f.type.value;d.branch=f.branch.value;d.lead=f.lead.value===NONE?"":f.lead.value;
+    return "تم الحفظ — قسم «"+n+"» يتبع فرع "+d.branch+(d.lead?"، ومديره المباشر "+d.lead+".":"، وبدون مدير مباشر.")}}};
+FORMS.obr=function(b){var isNew=!b;b=b||{};
+  return {title:isNew?"فرع جديد":"تعديل فرع",size:"sm",saveLabel:"حفظ الفرع",html:
+  '<div class="fs">'+two(fld("اسم الفرع بالعربي",inp("n",b.n,req("اكتب اسم الفرع"))),fld("اسم الفرع بالإنجليزي",inp("en",b.en,'dir="ltr"')))+
+    two(fld("المدينة",inp("city",b.city,req("اكتب المدينة"))),fld("هاتف الفرع",inp("phone",b.phone,'dir="ltr" inputmode="tel"')))+
+    fld("العنوان",inp("addr",b.addr))+fld("رابط الموقع على الخريطة (اختياري)",inp("map",b.map,'dir="ltr" inputmode="url" placeholder="https://maps.google.com/..."'))+'</div>',
+  check:function(f){var n=f.n.value.trim();return BRS.some(function(x){return x!==b&&x.n===n})?"يوجد فرع بهذا الاسم.":""},
+  save:function(f){var n=f.n.value.trim(),old=b.n;if(isNew)BRS.push(b);
+    if(old&&old!==n){D.depts.forEach(function(d){if(d.branch===old)d.branch=n});EMPS.forEach(function(e){if(e.branch===old)e.branch=n})}
+    b.n=n;b.en=f.en.value.trim();b.city=f.city.value.trim();b.phone=f.phone.value.trim();b.addr=f.addr.value.trim();b.map=f.map.value.trim();syncOrg();
+    return "تم الحفظ — فرع «"+n+"» ظاهر في صفحة الشركة بالبوابة."}}};
+FORMS.ojob=function(j){var isNew=!j;j=j||{};
+  return {title:isNew?"وظيفة جديدة":"تعديل وظيفة",size:"sm",saveLabel:"حفظ الوظيفة",html:
+  '<div class="fs">'+two(fld("اسم الوظيفة بالعربي",inp("n",j.n,req("اكتب اسم الوظيفة"))),fld("اسم الوظيفة بالإنجليزي",inp("en",j.en,'dir="ltr"')))+
+    fld("نوع القسم",sel("type",DTYPES,j.type||DTYPES[0]),"تظهر هذه الوظيفة لموظفي الأقسام من هذا النوع فقط.")+'</div>',
+  check:function(f){var n=f.n.value.trim();return JOBL.some(function(x){return x!==j&&x.n===n})?"توجد وظيفة بهذا الاسم.":""},
+  save:function(f){var n=f.n.value.trim(),old=j.n;if(isNew)JOBL.push(j);
+    if(old&&old!==n)EMPS.forEach(function(e){if(e.job===old)e.job=n});
+    j.n=n;j.en=f.en.value.trim();j.type=f.type.value;syncOrg();
+    return "تم الحفظ — وظيفة «"+n+"» متاحة لأقسام «"+j.type+"»."}}};
+SETS.odept=function(){return D.depts};SETS.obr=function(){return BRS};SETS.ojob=function(){return JOBL};
