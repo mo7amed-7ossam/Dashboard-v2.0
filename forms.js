@@ -35,7 +35,7 @@ function dressDrop(l){
   if(l.querySelector(".dz-pv"))return;
   var img=/image/.test(l.querySelector("input[type=file]").accept)&&l.dataset.fit!=="thumb",cur=l.dataset.cur;
   l.classList.add(img?"img":"doc");if(cur)l.classList.add("has");
-  l.insertAdjacentHTML("afterbegin",'<span class="dz-pv"'+(cur?' style="background-image:url(\''+cur+'\')"':'')+'>'+(img?DZ_IMG+'<i>اسحب الصورة إلى هنا أو اخترها</i>':DZ_DOC)+'</span>');
+  l.insertAdjacentHTML("afterbegin",'<span class="dz-pv"'+(cur?' style="background-image:url(\''+cur+'\')"':'')+'>'+(img?DZ_IMG+'<i>اسحب الصورة إلى هنا أو اخترها</i>':DZ_DOC+'<i>اسحب الملف إلى هنا أو اختره</i>')+'</span>');
   l.insertAdjacentHTML("beforeend",'<span class="dz-btn">'+(cur?'تغيير الصورة':/image/.test(l.querySelector("input[type=file]").accept)?'اختيار صورة':'اختيار ملف')+'</span>');
   l.dataset.hint=l.querySelector("small").textContent;
   ["dragenter","dragover"].forEach(function(t){l.addEventListener(t,function(){l.classList.add("over")})});
@@ -45,8 +45,8 @@ function pickedFile(l,file){
   var pv=l.querySelector(".dz-pv"),img=l.classList.contains("img"),sm=l.querySelector("small");
   if(l._url){URL.revokeObjectURL(l._url);l._url=null}
   if(!file){if(!l.dataset.cur){l.classList.remove("has");pv.style.backgroundImage=""}else pv.style.backgroundImage="url('"+l.dataset.cur+"')";
-    sm.textContent=l.dataset.hint;sm.removeAttribute("dir");l.querySelector(".dz-btn").textContent=l.dataset.cur?"تغيير الصورة":img?"اختيار صورة":"اختيار ملف";return}
-  l.classList.add("has");
+    if(!img&&pv.querySelector("i"))pv.querySelector("i").textContent="اسحب الملف إلى هنا أو اختره";sm.textContent=l.dataset.hint;sm.removeAttribute("dir");l.querySelector(".dz-btn").textContent=l.dataset.cur?"تغيير الصورة":img?"اختيار صورة":"اختيار ملف";return}
+  l.classList.add("has");if(!img){var st=pv.querySelector("i");if(st)st.textContent="تم اختيار الملف"}
   if(/^image\//.test(file.type)){l._url=URL.createObjectURL(file);pv.style.backgroundImage="url('"+l._url+"')"}
   var kb=file.size/1024;
   sm.innerHTML='<bdi dir="ltr">'+esc(file.name)+'</bdi> · '+(kb<1024?Math.max(1,Math.round(kb))+" كيلوبايت":(kb/1024).toFixed(1)+" ميغابايت");

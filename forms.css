@@ -303,3 +303,16 @@ dialog.ask .f > span{font-size:var(--t-sm);color:var(--ink)}
 .vnow{flex:1;background:var(--sub);border-radius:16px;padding:12px 14px;display:grid;gap:3px;align-content:center}
 .vnow b{font-weight:500}
 .vnow bdi{color:var(--m);font-size:var(--t-sm);overflow-wrap:anywhere}
+/* a tall upload box (Mohamed 2026-11-25: «حسن تصميم دى»): the same build for a file and for a picture: a dashed drop stage
+   that takes the height, then the name and hint with the button beside them */
+.f.grow > .drop{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:minmax(84px,1fr) auto auto;align-content:stretch;row-gap:2px}
+.f.grow > .drop .dz-pv{grid-column:1/-1;grid-row:1;width:auto;height:auto;align-self:stretch;margin-bottom:10px;border-radius:12px;background-color:var(--card);border:1.5px dashed #BFCACA;color:var(--sea)}
+.f.grow > .drop .dz-pv i{display:block}
+.f.grow > .drop b{grid-column:1;grid-row:2}
+.f.grow > .drop small{grid-column:1;grid-row:3;min-height:3.2em}
+.f.grow > .drop .dz-btn{grid-column:2;grid-row:2/span 2;align-self:center}
+.f.grow > .drop:hover .dz-pv,.f.grow > .drop.over .dz-pv{border-color:var(--sea)}
+.f.grow > .drop.doc.has .dz-pv{border-style:solid;border-color:#B9C66A;background-color:#F6F9E3;color:#5C6600}
+.f.grow > .drop.img.has .dz-pv{border:0}
+[data-theme="dark"] .f.grow > .drop .dz-pv{background-color:rgba(255,255,255,.05);border-color:#5A5A58}
+[data-theme="dark"] .f.grow > .drop.doc.has .dz-pv{background-color:rgba(207,221,40,.13);border-color:#7C8440;color:#DCE86A}
