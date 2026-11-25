@@ -180,6 +180,19 @@ function openFiles(e,start){var d=dlg("drawer md fv"),cur=start,have=EMP_FILES.m
     d.querySelectorAll("[data-fi]").forEach(function(b){b.onclick=function(){cur=+b.dataset.fi;draw()}});
     d.querySelectorAll("[data-step]").forEach(function(b){b.onclick=function(){cur=have[at+(+b.dataset.step)];draw()}})}
   draw();d.showModal()}
+/* a library document opened in place, with every version it ever had (Mohamed 2026-11-25: «الاصدارات السابقه و استعراض الملفات مش متاحه»).
+   Same window as the employee files: the list on one side, the sheet on the other. */
+function openDoc(doc,ver){var d=dlg("drawer md fv"),V=[{v:doc.v,up:doc.up,note:doc.note,file:doc.file,size:doc.size,pages:doc.pages}].concat((doc.hist||[]).slice().reverse()),
+    cur=Math.max(0,V.map(function(x){return String(x.v)}).indexOf(String(ver==null?doc.v:ver)));
+  function draw(){var m=V[cur];
+    d.innerHTML='<div class="dr-h"><h2>'+esc(doc.n)+'</h2><button type="button" class="xbtn" data-close aria-label="إغلاق" title="إغلاق">×</button></div><div class="dr-b">'+
+      '<div class="fvl" role="group" aria-label="إصدارات المستند">'+V.map(function(x,i){return '<button type="button" data-fi="'+i+'"'+(i===cur?' aria-current="true"':'')+'><span>الإصدار <span class="n">'+x.v+'</span><small style="display:block;color:var(--m)">'+dmy(x.up)+'</small></span>'+(i?'':'<span class="chip s">الحالي</span>')+'</button>'}).join("")+'</div>'+
+      '<div class="fvp"><div class="sheet"><div><b>'+esc(doc.n)+'</b><br>الإصدار <span class="n">'+m.v+'</span><br>معاينة الصفحة 1 من <span class="n">'+m.pages+'</span></div></div>'+
+        '<p class="m"><bdi dir="ltr">'+esc(m.file)+'</bdi> · '+String(m.size).replace(" MB"," ميغابايت")+' · '+m.pages+' صفحة · '+dmy(m.up)+'</p>'+(m.note?'<p>'+esc(m.note)+'</p>':'')+'</div></div>'+
+      '<div class="dr-f"><span class="m" style="margin-inline-end:auto">'+(cur?'إصدار سابق — يراه الموظفون الإصدار '+doc.v+' فقط':'الإصدار الذي يراه الموظفون الآن')+'</span>'+
+      '<button type="button" class="btn" data-mock="تنزيل «'+esc(m.file)+'»">تنزيل</button><button type="button" class="btn k" data-close>إغلاق</button></div>';
+    d.querySelectorAll("[data-fi]").forEach(function(b){b.onclick=function(){cur=+b.dataset.fi;draw()}})}
+  draw();d.showModal()}
 function mgrOf(e,dept){var d=D.depts.filter(function(x){return x.name===dept})[0],l=d&&d.lead;return !l?"لا يوجد مدير مباشر لهذا القسم بعد":l===e.name?"هو المدير المباشر للقسم":l}
 function linkForm(arr,kindNew,kindEdit,place){return function(s){s=s||{};return {title:s.n?kindEdit:kindNew,size:"sm",html:
   '<div class="fs"><h3>البيانات</h3>'+two(fld("الاسم بالعربي",inp("n",s.n,req("اكتب الاسم"))),fld("الاسم بالإنجليزي",inp("en",s.en,'dir="ltr"')))+
@@ -403,7 +416,7 @@ function confirmDel(what,name,after,yes){
   d.showModal();d.querySelector("[data-close]").focus();
 }
 var SETS={slide:function(){return SLIDES},doc:function(){return DOCS},news:function(){return NEWS},sys:function(){return SYS},emp:function(){return EMPS},app:function(){return APPS},link:function(){return LINKS}};
-var DEL={slide:["التذكير","سيُزال من رئيسية البوابة."],news:["الخبر","سيُزال من رئيسية البوابة."],sys:["النظام","سيُزال من صفحة «الأنظمة» بالبوابة."],app:["التطبيق","سيُزال من صفحة «الأنظمة» بالبوابة."],link:["الرابط","سيُزال من أسفل صفحة «الأنظمة» بالبوابة."]};
+var DEL={doc:["المستند","يُزال من مكتبة البوابة بكل إصداراته وإقرارات قراءته."],slide:["التذكير","سيُزال من رئيسية البوابة."],news:["الخبر","سيُزال من رئيسية البوابة."],sys:["النظام","سيُزال من صفحة «الأنظمة» بالبوابة."],app:["التطبيق","سيُزال من صفحة «الأنظمة» بالبوابة."],link:["الرابط","سيُزال من أسفل صفحة «الأنظمة» بالبوابة."]};
 /* buttons: data-form / data-del / data-hide / data-move = set name, data-i = index in that set; data-readers = index in DOCS, data-seen = index in NEWS */
 document.addEventListener("click",function(e){
   var b=e.target.closest("button");if(!b)return;
