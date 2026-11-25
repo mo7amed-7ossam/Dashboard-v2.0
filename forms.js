@@ -408,3 +408,48 @@ var LEAD=["اعتمد النتيجة","بانتظار المدير المباش�
 function results(p){var see=audCalc(audState(p.aud)).see,q=p.qs.length;
   return see.map(function(e,i){var fin=i<p.done,sc=fin?Math.max(0,q-[0,1,0,2,1,0][i%6]):null,ld=fin?(sc<q/2?LEAD[2]:LEAD[i%2]):"";
     return {e:e.e||e,sc:sc,ld:ld,tries:fin&&i%4===3?2:fin?1:0}})}
+
+/* ---- alerts (alerts.html): one window, two steps: what is sent and how, then who gets it ---- */
+var ATPL={"تذكير بمستند":["تذكير بقراءة مستند","نذكّركم بقراءة «#» والإقرار به من مكتبة البوابة."],"تذكير بخبر":["تذكير بالاطلاع على خبر","نذكّركم بالاطلاع على خبر «#» وتأكيد الاطلاع عليه."],
+  "تذكير بتدريب":["تذكير بإتمام تدريب","نذكّركم بإتمام تدريب «#» والإجابة عن أسئلته قبل موعده."],"تذكير باستكمال الملف الشخصي":["استكمال الملف الشخصي","نرجو استكمال بيانات ومستندات ملفكم الشخصي من صفحة «حسابي» في البوابة."]};
+function alertRefs(kind){return kind===AKINDS[1]?DOCS.filter(function(d){return !d.st}).map(function(d){return d.n}):kind===AKINDS[2]?NEWS.filter(function(n){return n.st!=="مسودة"}).map(function(n){return n.t}):kind===AKINDS[3]?TRAIN.filter(function(p){return p.st==="منشور"}).map(function(p){return p.n}):[]}
+var AWHEN=["الآن","في موعد محدد","حفظ كمسودة"];
+function alertForm(x){
+  var isNew=!x;x=x||{kind:AKINDS[0],ch:{push:true,wa:false}};var A=mkAudience(x.aud);
+  return {title:isNew?"تنبيه جديد":"تعديل تنبيه",saveLabel:"إرسال التنبيه",isNew:isNew,steps:["التنبيه","لمن يُرسل"],html:
+    '<div class="fs"><h3>التنبيه</h3>'+two(fld("النوع",sel("kind",AKINDS,x.kind),"الرسالة نص حر، والتذكير يرتبط بمستند أو خبر أو تدريب."),'<label class="f" id="refF"><span>المرتبط به</span><select class="in" name="ref"></select></label>')+
+      two(fld("العنوان بالعربي",inp("t",x.t,req("اكتب عنوان التنبيه"))),fld("العنوان بالإنجليزي",inp("ten",x.ten,'dir="ltr"')))+
+      fld("النص بالعربي",txt("x",x.x,req("اكتب نص التنبيه")))+fld("النص بالإنجليزي",txt("xen",x.xen,'dir="ltr"'),"في رسالة الواتساب يُكتب النص العربي أولًا ثم الإنجليزي تحته.")+'</div>'+
+    '<div class="stackc"><div class="fs"><h3>طريقة الإرسال</h3>'+sw("push","إشعار في البوابة",x.ch.push,"يظهر في جرس البوابة ويصل إشعارًا على الجوال.")+sw("wa","واتساب",x.ch.wa,"رسالة على رقم الموظف المسجَّل.")+
+      two(fld("موعد الإرسال",sel("when",AWHEN,x.st==="مجدول"?AWHEN[1]:x.st==="مسودة"?AWHEN[2]:AWHEN[0])),'<label class="f" id="atF"><span>التاريخ والوقت</span><input class="in" type="datetime-local" name="at" value="'+esc((x.st==="مجدول"&&x.at||"").replace(" ","T"))+'"></label>')+'</div>'+
+    '<div class="fs grow"><h3>المعاينة</h3><div class="apv" id="apv"></div></div></div>'+
+    '<div class="fs wide" data-step="2">'+A.html+'</div>',
+    init:function(f){A.draw(f)},
+    bind:function(f){A.bind(f);var sv=f.querySelector("[data-save]");
+      function refs(keep){var L=alertRefs(f.kind.value);f.querySelector("#refF").style.display=L.length?"":"none";
+        f.ref.innerHTML=L.map(function(n){return '<option'+(n===keep?' selected':'')+'>'+esc(n)+'</option>'}).join("")}
+      /* a reminder starts from ready wording; it is replaced only while the person has not typed their own */
+      function tpl(){var p=ATPL[f.kind.value];if(!p)return;
+        if(!f.t.value||f.t.dataset.auto){f.t.value=p[0];f.t.dataset.auto=1}
+        if(!f.x.value||f.x.dataset.auto){f.x.value=p[1].replace("#",f.ref.value||"");f.x.dataset.auto=1}}
+      function draw(){var w=f.when.value;f.querySelector("#atF").style.display=w===AWHEN[1]?"":"none";
+        sv.textContent=w===AWHEN[0]?"إرسال التنبيه":w===AWHEN[1]?"جدولة التنبيه":"حفظ كمسودة";
+        var t=esc(f.t.value||"عنوان التنبيه"),b=esc(f.x.value||"نص التنبيه يظهر هنا."),en=esc(f.xen.value);
+        f.querySelector("#apv").innerHTML=(f.push.checked?'<div class="apb"><small>إشعار في البوابة</small><div class="apn"><em>'+ic("bell",16)+'</em><div><b>'+t+'</b><span>'+b+'</span></div></div></div>':'')+
+          (f.wa.checked?'<div class="apb"><small>واتساب</small><div class="apw"><b>'+t+'</b><span>'+b+'</span>'+(en?'<span dir="ltr">'+en+'</span>':'')+'</div></div>':'')||'<p class="m">اختر طريقة إرسال واحدة على الأقل.</p>'}
+      refs(x.ref);draw();
+      f.addEventListener("input",function(e){var n=e.target.name;
+        if(n==="t"||n==="x")delete e.target.dataset.auto;
+        if(n==="kind"){refs();tpl()}
+        if(n==="ref")tpl();
+        draw()})},
+    check:function(f){
+      if(!f.push.checked&&!f.wa.checked){this.checkStep=1;return "اختر طريقة إرسال واحدة على الأقل: إشعار في البوابة أو واتساب."}
+      if(f.when.value===AWHEN[1]&&!f.at.value){this.checkStep=1;return "حدّد تاريخ ووقت الإرسال."}
+      this.checkStep=2;return A.check(f)},
+    save:function(f){var o=x,n=A.calc().see.length,w=f.when.value;if(isNew)ALERTS.unshift(o);
+      o.kind=f.kind.value;o.ref=alertRefs(o.kind).length?f.ref.value:"";o.t=f.t.value;o.ten=f.ten.value;o.x=f.x.value;o.xen=f.xen.value;o.ch={push:f.push.checked,wa:f.wa.checked};o.aud=A.value();
+      o.st=w===AWHEN[0]?"أُرسل":w===AWHEN[1]?"مجدول":"مسودة";o.at=w===AWHEN[0]?TODAY+" 09:00":w===AWHEN[1]?f.at.value.replace("T"," "):"";o.seen=0;
+      return w===AWHEN[0]?"تم إرسال التنبيه إلى "+n+" موظفين.":w===AWHEN[1]?"تمت جدولة التنبيه لـ "+n+" موظفين في "+o.at+".":"تم الحفظ كمسودة — لم يُرسل لأحد."}};
+}
+FORMS.alert=alertForm;SETS.alert=function(){return ALERTS};DEL.alert=["التنبيه","لن يُرسل، ويُزال من القائمة."];

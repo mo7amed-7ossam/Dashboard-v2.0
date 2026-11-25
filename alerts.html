@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>التنبيهات — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1125110613">
+<link rel="stylesheet" href="forms.css?v=1125110613">
+<style>
+/* Alerts (Mohamed 2026-11-25): «عايز ابعت تنبيه بخصوص اى حاجه سواء واتس او اشعار». A free message or a reminder tied to
+   a document, news item or training, sent now or scheduled, by portal notification and/or WhatsApp. «تذكير الموظفين»
+   gathers what already waits for each employee; this page sends whatever the admin writes. Rows look like the news rows. */
+.nl{border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.nr{display:flex;gap:14px;align-items:center;padding:12px 14px}
+.nr + .nr{border-top:1px solid var(--line)}
+.nr.draft{background:var(--sub)}
+.ai{width:44px;height:44px;border-radius:14px;flex:none;display:grid;place-items:center;background:var(--soft);color:var(--on-soft)}
+.nr.draft .ai{background:var(--card);color:var(--m)}
+.nb{flex:1;min-width:0;display:grid;gap:3px}
+.nb h3{font-family:"Alexandria",sans-serif;font-size:var(--t-h3);font-weight:500;line-height:1.5;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nb p{color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nm{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:var(--t-sm);color:var(--m)}
+.na{display:flex;gap:6px;flex:none}
+.nr .pgx{flex:none;width:170px}
+@media (max-width:760px){.nr .pgx{width:100%}.nr{flex-wrap:wrap}.nb{flex-basis:calc(100% - 60px)}.nb p{white-space:normal}.na{width:100%}.na .btn{flex:1}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">التنبيهات</h1><p>أرسل للموظفين رسالة أو تذكيرًا بمستند أو خبر أو تدريب، بإشعار في البوابة أو برسالة واتساب، الآن أو في موعد تحدده.</p></div><button class="btn k" data-form="alert">تنبيه جديد</button></div>
+  <div class="card stats" id="stats" style="margin-bottom:12px"></div>
+  <section class="card">
+    <div class="bar">
+      <div class="seg" id="tabs" role="group" aria-label="الحالة"></div>
+      <span class="sp"></span>
+      <select class="field" id="kind" aria-label="النوع"></select>
+      <select class="field" id="ch" aria-label="طريقة الإرسال"><option value="">كل الطرق</option><option value="push">إشعار في البوابة</option><option value="wa">واتساب</option></select>
+      <input class="field" id="q" type="search" placeholder="ابحث في العناوين والنصوص" aria-label="بحث">
+    </div>
+    <div class="nl" id="list"></div>
+    <p class="note" id="count"></p>
+  </section>
+</div>
+<script src="ui.js?v=1125110613"></script>
+<script src="forms.js?v=1125110613"></script>
+<script>
+var TABS=["الكل","أُرسل","مجدول","مسودة"],tab="الكل",KIC={"رسالة":"mail","تذكير بمستند":"folder","تذكير بخبر":"doc","تذكير بتدريب":"cap","تذكير باستكمال الملف الشخصي":"users"};
+function cnt(s){return ALERTS.filter(function(x){return s==="الكل"||x.st===s}).length}
+function people(x){return audCalc(audState(x.aud)).see.map(function(r){return r.e})}
+function chs(x){return (x.ch.push?'<span class="chip s">إشعار</span>':'')+(x.ch.wa?'<span class="chip">واتساب</span>':'')}
+/* same window as «من اطّلع» on news: who opened it, who has not, and one reminder for the rest */
+function openGot(x){var P=people(x),n=Math.min(x.seen||0,P.length);
+  peoplePanel({title:"من فتح التنبيه",name:x.t,item:x,done:P.slice(0,n),rest:P.slice(n),doneLabel:"فتحوا التنبيه",restLabel:"لم يفتحوه بعد",noRest:"الجميع فتح هذا التنبيه.",noDone:"لم يفتحه أحد بعد."})}
+document.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.tab){tab=b.dataset.tab;render()}
+  if(b.dataset.got)openGot(ALERTS[b.dataset.got]);
+  if(b.dataset.now){var s=ALERTS[b.dataset.now];s.st="أُرسل";s.at=TODAY+" 09:00";s.seen=0;render();toast("تم إرسال التنبيه إلى "+people(s).length+" موظفين.")}
+  if(b.dataset.copy){var c=JSON.parse(JSON.stringify(ALERTS[b.dataset.copy]));c.st="مسودة";c.at="";c.seen=0;delete c.sent;ALERTS.unshift(c);tab="مسودة";render();toast("تم نسخ التنبيه كمسودة: «"+c.t+"».")}});
+document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id==="kind"||e.target.id==="ch")render()});
+function render(){
+  if(!$("kind").options.length)$("kind").innerHTML='<option value="">كل الأنواع</option>'+AKINDS.map(function(k){return '<option>'+esc(k)+'</option>'}).join("");
+  var sent=ALERTS.filter(function(x){return x.st==="أُرسل"}),to=0,op=0,wa=0;
+  sent.forEach(function(x){var n=people(x).length;to+=n;op+=Math.min(x.seen||0,n);if(x.ch.wa)wa+=n});
+  $("stats").innerHTML=[["acc","send","تنبيهات أُرسلت",sent.length,"هذا الشهر"],["","clock","مجدولة",cnt("مجدول"),cnt("مجدول")?"تُرسل في موعدها تلقائيًا":"لا توجد تنبيهات مجدولة"],
+    ["","check","نسبة الفتح",pc(op,to)+"%","فتح "+op+" من "+to+" مستلمًا"],["","phone","رسائل واتساب",wa,"أُرسلت هذا الشهر"]].map(function(k){
+    return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
+  $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'<b>'+cnt(s)+'</b></button>'}).join("");
+  var q=$("q").value.trim().toLowerCase(),kd=$("kind").value,ch=$("ch").value;
+  var list=ALERTS.filter(function(x){return (tab==="الكل"||x.st===tab)&&(!kd||x.kind===kd)&&(!ch||x.ch[ch])&&(!q||(x.t+" "+x.x).toLowerCase().indexOf(q)>-1)});
+  $("list").innerHTML=list.length?list.map(function(x){var i=ALERTS.indexOf(x),n=people(x).length,dr=x.st==="مسودة",sc=x.st==="مجدول";
+    return '<article class="nr'+(dr?' draft':'')+'"><span class="ai">'+ic(KIC[x.kind]||"mail",20)+'</span>'+
+      '<div class="nb"><h3>'+esc(x.t)+(dr?'<span class="chip d">مسودة</span>':sc?'<span class="chip s">مجدول</span>':'')+'</h3><p>'+esc(x.x)+'</p>'+
+      '<div class="nm"><span class="chip s">'+esc(x.kind)+'</span>'+chs(x)+(x.at?'<span>'+(sc?'يُرسل ':'')+ltr(x.at)+'</span>':'')+'<span>إلى <span class="n">'+n+'</span> من <span class="n">'+EMPS.length+'</span></span></div></div>'+
+      (x.st==="أُرسل"?prog(Math.min(x.seen||0,n),n,"فتحوا التنبيه"):'')+
+      '<div class="na">'+(x.st==="أُرسل"?'<button class="btn sm" data-got="'+i+'">من فتحه</button><button class="btn sm" data-copy="'+i+'">نسخ</button>':
+        '<button class="btn sm k" data-now="'+i+'">إرسال الآن</button><button class="btn sm" data-form="alert" data-i="'+i+'">تعديل</button><button class="btn sm" data-del="alert" data-i="'+i+'">حذف</button>')+'</div></article>'}).join(""):
+    '<p class="empty" style="padding:18px">'+(ALERTS.length?'لا توجد تنبيهات بهذه الشروط. جرّب تغيير البحث أو الحالة.':'لا توجد تنبيهات بعد. أرسل أول تنبيه من «تنبيه جديد».')+'</p>';
+  $("count").textContent=list.length+" من "+ALERTS.length+" تنبيهات · بيانات تجريبية";
+}
+</script>
+</body>
+</html>

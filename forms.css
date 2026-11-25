@@ -261,3 +261,14 @@ dialog.drawer[data-step="2"] .audlist{max-height:min(46vh,420px)}
 @media (max-width:760px){.fv .dr-b{grid-template-columns:minmax(0,1fr)}}
 /* phone: a window's buttons wrap instead of squeezing into one line (four-step windows have four of them) */
 @media (max-width:600px){.dr-f{flex-wrap:wrap;gap:8px}.dr-f .btn{flex:1 1 auto}.dr-f .btn.k{flex-basis:100%}}
+
+/* alert preview: how it reads in the portal bell and in WhatsApp */
+.apv{display:grid;gap:12px}
+.apb{display:grid;gap:4px}
+.apb > small{color:var(--m)}
+.apn{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.apn em{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--on-soft);flex:none;font-style:normal}
+.apn div,.apw{display:grid;gap:2px;min-width:0}
+.apn span,.apw span{color:var(--m);font-size:var(--t-sm);white-space:pre-wrap;overflow-wrap:anywhere}
+.apw{background:var(--limebg);color:var(--on-lime);border-radius:14px 14px 14px 4px;padding:10px 12px;max-width:92%}
+.apw span{color:inherit}
