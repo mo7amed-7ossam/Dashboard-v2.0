@@ -4,25 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التنبيهات — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125110613">
-<link rel="stylesheet" href="forms.css?v=1125110613">
+<link rel="stylesheet" href="ui.css?v=1125111907">
+<link rel="stylesheet" href="forms.css?v=1125111907">
 <style>
 /* Alerts (Mohamed 2026-11-25): «عايز ابعت تنبيه بخصوص اى حاجه سواء واتس او اشعار». A free message or a reminder tied to
    a document, news item or training, sent now or scheduled, by portal notification and/or WhatsApp. «تذكير الموظفين»
    gathers what already waits for each employee; this page sends whatever the admin writes. Rows look like the news rows. */
 .nl{border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.nr{display:flex;gap:14px;align-items:center;padding:12px 14px}
+.nr{display:flex;gap:14px;align-items:center;padding:10px 14px}
 .nr + .nr{border-top:1px solid var(--line)}
 .nr.draft{background:var(--sub)}
 .ai{width:44px;height:44px;border-radius:14px;flex:none;display:grid;place-items:center;background:var(--soft);color:var(--on-soft)}
 .nr.draft .ai{background:var(--card);color:var(--m)}
 .nb{flex:1;min-width:0;display:grid;gap:3px}
-.nb h3{font-family:"Alexandria",sans-serif;font-size:var(--t-h3);font-weight:500;line-height:1.5;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.nb p{color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* same size as a training row (Mohamed 2026-11-25: the news-size row was too big with no picture): the title and its text share one line */
+.nb h3{font-size:var(--t-body);font-weight:500;display:flex;align-items:center;gap:8px;min-width:0}
+.nb h3 b{font-weight:500;white-space:nowrap}
+.nb h3 span.tx{flex:1;min-width:0;font-weight:400;color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nm{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:var(--t-sm);color:var(--m)}
 .na{display:flex;gap:6px;flex:none}
 .nr .pgx{flex:none;width:170px}
-@media (max-width:760px){.nr .pgx{width:100%}.nr{flex-wrap:wrap}.nb{flex-basis:calc(100% - 60px)}.nb p{white-space:normal}.na{width:100%}.na .btn{flex:1}}
+@media (max-width:760px){.nr .pgx{width:100%}.nr{flex-wrap:wrap}.nb{flex-basis:calc(100% - 60px)}.nb h3{flex-wrap:wrap}.nb h3 span.tx{flex-basis:100%;white-space:normal}.na{width:100%}.na .btn{flex:1}}
 </style>
 </head>
 <body>
@@ -42,8 +44,8 @@
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125110613"></script>
-<script src="forms.js?v=1125110613"></script>
+<script src="ui.js?v=1125111907"></script>
+<script src="forms.js?v=1125111907"></script>
 <script>
 var TABS=["الكل","أُرسل","مجدول","مسودة"],tab="الكل",KIC={"رسالة":"mail","تذكير بمستند":"folder","تذكير بخبر":"doc","تذكير بتدريب":"cap","تذكير باستكمال الملف الشخصي":"users"};
 function cnt(s){return ALERTS.filter(function(x){return s==="الكل"||x.st===s}).length}
@@ -70,7 +72,7 @@ function render(){
   var list=ALERTS.filter(function(x){return (tab==="الكل"||x.st===tab)&&(!kd||x.kind===kd)&&(!ch||x.ch[ch])&&(!q||(x.t+" "+x.x).toLowerCase().indexOf(q)>-1)});
   $("list").innerHTML=list.length?list.map(function(x){var i=ALERTS.indexOf(x),n=people(x).length,dr=x.st==="مسودة",sc=x.st==="مجدول";
     return '<article class="nr'+(dr?' draft':'')+'"><span class="ai">'+ic(KIC[x.kind]||"mail",20)+'</span>'+
-      '<div class="nb"><h3>'+esc(x.t)+(dr?'<span class="chip d">مسودة</span>':sc?'<span class="chip s">مجدول</span>':'')+'</h3><p>'+esc(x.x)+'</p>'+
+      '<div class="nb"><h3><b>'+esc(x.t)+'</b>'+(dr?'<span class="chip d">مسودة</span>':sc?'<span class="chip s">مجدول</span>':'')+'<span class="tx">'+esc(x.x)+'</span></h3>'+
       '<div class="nm"><span class="chip s">'+esc(x.kind)+'</span>'+chs(x)+(x.at?'<span>'+(sc?'يُرسل ':'')+ltr(x.at)+'</span>':'')+'<span>إلى <span class="n">'+n+'</span> من <span class="n">'+EMPS.length+'</span></span></div></div>'+
       (x.st==="أُرسل"?prog(Math.min(x.seen||0,n),n,"فتحوا التنبيه"):'')+
       '<div class="na">'+(x.st==="أُرسل"?'<button class="btn sm" data-got="'+i+'">من فتحه</button><button class="btn sm" data-copy="'+i+'">نسخ</button>':
