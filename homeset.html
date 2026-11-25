@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>إعدادات الرئيسية — لوحة تحكم السندباد</title>
+<link rel="stylesheet" href="ui.css?v=1125120341">
+<link rel="stylesheet" href="forms.css?v=1125120341">
+<style>
+/* Portal home settings (Mohamed 2026-11-25). The home had parts nobody could change from the dashboard: which sections show
+   and in which order, the cover picture, today's working hours, the most-used apps. Sections whose content has its own
+   page only link to it, so nothing is edited in two places. Rows reuse the look of the reminders rows. */
+.hs{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:12px;align-items:start}
+.side3{display:grid;gap:12px}
+.rl{display:grid;gap:8px;margin-top:12px}
+.rr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:9px 14px;background:var(--sub);border-radius:16px}
+.rr.off .tx,.rr.off .no{opacity:.5}
+.rr .no{font-family:"Alexandria",sans-serif;font-size:20px;font-weight:300;color:var(--sea);width:26px;text-align:center}
+.rr .tx{min-width:0;display:grid;gap:1px}
+.rr b{font-weight:500}
+.rr p{color:var(--m);font-size:var(--t-sm);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rr .ac{display:flex;gap:6px;align-items:center}
+.rr .btn{background:var(--card)}
+.ib{width:30px;height:30px;border-radius:50%;border:0;background:var(--card);color:var(--ink);display:grid;place-items:center;flex:none}
+.ib:hover{background:var(--hover)}.ib:disabled{opacity:.35}
+.cov{position:relative;border-radius:16px;overflow:hidden;color:#fff;aspect-ratio:16/6;margin-top:12px;background:#08343B center 30%/cover;display:flex;flex-direction:column;justify-content:flex-end;padding:14px 16px}
+.cov::before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,28,32,.9) 15%,rgba(6,28,32,.35))}
+.cov > *{position:relative}
+.cov b{font-family:"Alexandria",sans-serif;font-size:var(--t-h3);font-weight:500}
+.cov small{opacity:.8}
+.today{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:10px}
+.today b{font-family:"Alexandria",sans-serif;font-size:var(--t-num);font-weight:600;line-height:1.3}
+.today span{color:var(--m)}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:10px}
+.days div{background:var(--sub);border-radius:12px;padding:6px 4px;text-align:center;display:grid;gap:1px;font-size:var(--t-cap);color:var(--m)}
+.days div b{font-weight:500;color:var(--ink);font-size:var(--t-sm)}
+.days bdi{white-space:nowrap}
+.days div.now{outline:1.5px solid var(--sea)}
+.days div.off b{color:var(--m)}
+.mostl{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.card h2 small{font-family:"IBM Plex Sans Arabic",sans-serif;font-weight:400;font-size:var(--t-sm);color:var(--m)}
+@media (max-width:1100px){.hs{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){.rr{grid-template-columns:auto minmax(0,1fr)}.rr .ac{grid-column:1/-1;flex-wrap:wrap}.days{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="top"></header>
+  <div class="hello"><div><h1 class="d">إعدادات الرئيسية</h1><p>ما يظهر في رئيسية البوابة وبأي ترتيب، وصورة الواجهة، ودوام اليوم، والأنظمة الأكثر استخدامًا.</p></div><a class="btn" href="https://sindbadportal.com/" target="_blank" rel="noopener">عرض الرئيسية</a></div>
+  <div class="hs">
+    <section class="card"><h2>أقسام الرئيسية <small id="secN"></small></h2><div class="rl" id="secs"></div><p class="note">الترتيب هنا هو ترتيب الأقسام في رئيسية البوابة من الأعلى إلى الأسفل. القسم المخفي لا يظهر لأي موظف.</p></section>
+    <div class="side3">
+      <section class="card"><h2>صورة الواجهة <button class="btn sm" data-form="hero">تغيير الصورة</button></h2><div class="cov" id="cov"><b>صباح الخير، محمد</b><small id="covD"></small></div></section>
+      <section class="card"><h2>دوام اليوم <button class="btn sm" data-form="hours">تعديل الدوام</button></h2><div class="today" id="today"></div><div class="days" id="days"></div></section>
+      <section class="card"><h2>الأكثر استخدامًا <button class="btn sm" data-form="most">تعديل</button></h2><div class="mostl" id="most"></div></section>
+    </div>
+  </div>
+  <p class="note">نموذج تصميم: البيانات للعرض فقط.</p>
+</div>
+<script src="ui.js?v=1125120341"></script>
+<script src="forms.js?v=1125120341"></script>
+<script>
+var UP='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
+    DOWN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
+/* 12-hour reading of a stored 24-hour time, the way the portal card shows it */
+function t12(t){var p=t.split(":"),h=+p[0];return ((h+11)%12+1)+":"+p[1]+(h<12?" ص":" م")}
+console.assert(t12("08:00")==="8:00 ص"&&t12("17:00")==="5:00 م"&&t12("12:30")==="12:30 م");
+function render(){
+  var S=HOME.secs,on=S.filter(function(s){return s.st!=="مخفي"}).length;
+  $("secN").textContent="· "+on+" ظاهرة من "+S.length;
+  $("secs").innerHTML=S.map(function(s,i){var off=s.st==="مخفي",a=' data-i="'+i+'"';
+    return '<article class="rr'+(off?' off':'')+'"><span class="no n">'+(i+1)+'</span><div class="tx"><b>'+esc(s.n)+'</b><p>'+esc(s.x)+'</p></div><div class="ac">'+
+      (s.go?'<a class="btn sm" href="'+s.go+'">'+esc(s.gl)+'</a>':'')+
+      (s.fix?'<button class="btn sm" disabled title="الواجهة تبقى أول الصفحة دائمًا">ثابت في الأعلى</button>':
+        '<button class="btn sm" data-hide="hsec"'+a+'>'+(off?'إظهار':'إخفاء')+'</button>'+
+        '<button class="ib" data-move="hsec" data-by="-1"'+a+(i<=1?' disabled':'')+' aria-label="تقديم '+esc(s.n)+'" title="تقديم في الترتيب">'+UP+'</button>'+
+        '<button class="ib" data-move="hsec" data-by="1"'+a+(i===S.length-1?' disabled':'')+' aria-label="تأخير '+esc(s.n)+'" title="تأخير في الترتيب">'+DOWN+'</button>')+'</div></article>'}).join("");
+  $("cov").style.backgroundImage="url(assets/news/"+HOME.img+")";$("covD").textContent="الأحد 22 نوفمبر 2026";
+  /* TODAY in the sample data is a Sunday */
+  var ti=1,h=HOME.hours[ti];
+  $("today").innerHTML=h.on?'<b>من <bdi class="n">'+t12(h.from)+'</bdi> إلى <bdi class="n">'+t12(h.to)+'</bdi></b><span>دوام اليوم ('+h.d+')</span>':'<b>عطلة</b><span>اليوم ('+h.d+')</span>';
+  $("days").innerHTML=HOME.hours.map(function(d,i){return '<div class="'+(i===ti?'now ':'')+(d.on?'':'off')+'"><b>'+d.d+'</b>'+(d.on?'<bdi class="n">'+t12(d.from)+'</bdi><bdi class="n">'+t12(d.to)+'</bdi>':'<span>عطلة</span>')+'</div>'}).join("");
+  $("most").innerHTML=HOME.most.auto?'<span class="chip s">تلقائي</span><span class="m">تُعرض الأنظمة التي فتحها الموظفون أكثر خلال آخر 30 يومًا.</span>':
+    HOME.most.list.map(function(n){return '<span class="chip d">'+esc(n)+'</span>'}).join("")+'<span class="m" style="font-size:var(--t-sm)">اختيار يدوي</span>';
+}
+</script>
+</body>
+</html>

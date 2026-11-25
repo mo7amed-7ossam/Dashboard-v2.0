@@ -459,3 +459,26 @@ function alertForm(x){
       return w===AWHEN[0]?"تم إرسال التنبيه إلى "+n+" موظفين.":w===AWHEN[1]?"تمت جدولة التنبيه لـ "+n+" موظفين في "+o.at+".":"تم الحفظ كمسودة — لم يُرسل لأحد."}};
 }
 FORMS.alert=alertForm;SETS.alert=function(){return ALERTS};DEL.alert=["التنبيه","لن يُرسل، ويُزال من القائمة."];
+
+/* ---- portal home settings (homeset.html): three small windows over HOME ---- */
+var HIMGS=["kitchen.jpg","team.webp","living.jpg","workspace.webp","leadership.webp","onboarding.webp"],MOSTMAX=6,MMODE=["تلقائي حسب الاستخدام","اختيار يدوي"];
+FORMS.hero=function(){return {title:"صورة الواجهة",size:"sm",saveLabel:"حفظ الصورة",html:
+  '<div class="fs"><label class="drop" data-cur="assets/news/'+HOME.img+'"><b>صورة الواجهة</b><small>JPG أو PNG أو WEBP، عرضية، أقل من 5 ميغابايت. تظهر خلف التحية والتذكيرات.</small><input type="file" name="img" accept="image/jpeg,image/png,image/webp"></label></div>',
+  /* shortcut: the mockup has no real upload, a picked file just moves to the next sample picture */
+  save:function(f){if(f.img.value)HOME.img=HIMGS[(HIMGS.indexOf(HOME.img)+1)%HIMGS.length];return f.img.value?"تم الحفظ — صورة الواجهة الجديدة ظاهرة في رئيسية البوابة.":"لم تتغيّر الصورة."}}};
+FORMS.hours=function(){return {title:"دوام اليوم",size:"sm",saveLabel:"حفظ الدوام",html:
+  '<div class="fs"><h3>ساعات العمل</h3><div class="hrs">'+HOME.hours.map(function(h,i){return '<label class="sw"><input type="checkbox" name="on'+i+'"'+(h.on?' checked':'')+'><i></i><span><b>'+h.d+'</b></span></label>'+
+    '<input class="in" type="time" name="from'+i+'" value="'+h.from+'" aria-label="بداية دوام '+h.d+'"><input class="in" type="time" name="to'+i+'" value="'+h.to+'" aria-label="نهاية دوام '+h.d+'">'}).join("")+'</div>'+
+    '<p class="m" style="font-size:var(--t-sm)">اليوم غير المفعَّل يظهر في البوابة «عطلة».</p></div>',
+  bind:function(f){function dis(){HOME.hours.forEach(function(h,i){f["from"+i].disabled=f["to"+i].disabled=!f["on"+i].checked})}dis();f.addEventListener("change",dis)},
+  check:function(f){var bad="";HOME.hours.forEach(function(h,i){if(f["on"+i].checked&&(!f["from"+i].value||!f["to"+i].value||f["from"+i].value>=f["to"+i].value))bad=bad||h.d});
+    return bad?"راجع ساعات يوم "+bad+": البداية يجب أن تسبق النهاية.":""},
+  save:function(f){HOME.hours.forEach(function(h,i){h.on=f["on"+i].checked;if(h.on){h.from=f["from"+i].value;h.to=f["to"+i].value}});return "تم الحفظ — ساعات الدوام محدَّثة في رئيسية البوابة."}}};
+FORMS.most=function(){var L=SYS.filter(function(s){return s.st==="ظاهر"}).map(function(s){return s.n});
+  return {title:"الأكثر استخدامًا",size:"sm",saveLabel:"حفظ",html:
+  '<div class="fs">'+fld("طريقة الاختيار",sel("mode",MMODE,MMODE[HOME.most.auto?0:1]),"التلقائي يعرض الأنظمة التي فتحها الموظفون أكثر خلال آخر 30 يومًا.")+
+    '<div id="mostP"><span style="font-size:var(--t-sm);color:var(--m)">الأنظمة المعروضة (حتى '+MOSTMAX+')</span><div class="picks" style="margin-top:6px">'+L.map(function(n){return '<label><input type="checkbox" name="m" value="'+esc(n)+'"'+(HOME.most.list.indexOf(n)>-1?' checked':'')+'><span>'+esc(n)+'</span></label>'}).join("")+'</div></div></div>',
+  bind:function(f){function d(){f.querySelector("#mostP").style.display=f.mode.value===MMODE[1]?"":"none"}d();f.mode.addEventListener("change",d)},
+  check:function(f){var n=f.querySelectorAll("[name=m]:checked").length;return f.mode.value===MMODE[0]?"":!n?"اختر نظامًا واحدًا على الأقل.":n>MOSTMAX?"اختر "+MOSTMAX+" أنظمة على الأكثر.":""},
+  save:function(f){HOME.most.auto=f.mode.value===MMODE[0];if(!HOME.most.auto)HOME.most.list=[].map.call(f.querySelectorAll("[name=m]:checked"),function(c){return c.value});return "تم الحفظ — قسم «الأكثر استخدامًا» محدَّث في رئيسية البوابة."}}};
+SETS.hsec=function(){return HOME.secs};
