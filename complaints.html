@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>الشكاوى والمقترحات — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1124180110">
-<link rel="stylesheet" href="forms.css?v=1124180110">
+<link rel="stylesheet" href="ui.css?v=1124174253">
+<link rel="stylesheet" href="forms.css?v=1124174253">
 <style>
 /* Complaints and suggestions. The sender chooses (Mohamed 2026-11-23): stay anonymous, or put their name on it (`by` in
    COMPL). Anonymous = nothing identifies them, no name, department or device. Either way the employee keeps a follow-up
@@ -23,7 +23,7 @@
 .gh:first-child{margin-top:0}
 .cr{display:flex;gap:20px;align-items:center;padding:14px 18px;background:var(--card);border-radius:16px}
 .cb{flex:1;min-width:0;display:grid;gap:3px}
-.cb p{font-size:15px;font-weight:500;line-height:1.75;color:var(--ink);max-width:90ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cb p{font-size:var(--t-body);line-height:1.75;color:var(--ink);max-width:90ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .cm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:var(--t-sm);color:var(--m)}
 .cm .chip{font-size:var(--t-cap);padding:1px 8px}
 .cs{flex:none;display:flex;gap:12px;align-items:center}
@@ -43,12 +43,12 @@
 <div class="app">
   <header id="top"></header>
   <div class="hello"><div><h1 class="d">الشكاوى والمقترحات</h1><p>شكاوى الموظفين ومقترحاتهم. يختار المرسل أن يذكر اسمه أو يبقى مجهولًا، ويتابع رسالته برمز خاص به.</p></div></div>
-  <div class="card sumbar" id="stats"></div>
+  <div class="card stats" id="stats" style="margin-bottom:12px"></div>
   <section class="card fb">
     <div class="bar">
       <div class="seg" id="tabs" role="group" aria-label="الحالة"></div>
       <span class="sp"></span>
-      <select class="field" id="kind" aria-label="النوع"><option value="">كل الأنواع</option><option>شكوى</option><option>مقترح</option></select>
+      <select class="field" id="kind" aria-label="النوع"><option value="">شكاوى ومقترحات</option><option>شكوى</option><option>مقترح</option></select>
       <select class="field" id="cat" aria-label="التصنيف"></select>
       <select class="field" id="who" aria-label="المرسل"><option value="">كل المرسلين</option><option value="1">ذكر اسمه</option><option value="0">مجهول</option></select>
       <input class="field" id="q" type="search" placeholder="ابحث في النص أو الاسم أو الرمز" aria-label="بحث">
@@ -57,10 +57,10 @@
   <div class="cl" id="list"></div>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1124180110"></script>
-<script src="forms.js?v=1124180110"></script>
+<script src="ui.js?v=1124174253"></script>
+<script src="forms.js?v=1124174253"></script>
 <script>
-var TABS=["جديدة","قيد المراجعة","مغلقة","الكل"],tab="جديدة",noRep=false,CLS={"قيد المراجعة":"","مغلقة":"done"};
+var TABS=["جديدة","قيد المراجعة","مغلقة","الكل"],tab="جديدة",CLS={"قيد المراجعة":"","مغلقة":"done"};
 function kindOf(c){return c.kind||"شكوى"}
 function sender(c){var e=c.by&&EMPS.filter(function(e){return e.name===c.by})[0];return c.by?'<span class="snd">'+ic("users",14)+esc(c.by)+(e?" · "+esc(e.dept):"")+'</span>':'<span class="snd anon">'+ic("users",14)+'مجهول</span>'}
 function when(a){var n=days(a);return n===0?"اليوم":n===1?"أمس":n===2?"منذ يومين":"منذ "+n+(n<=10?" أيام":" يومًا")}
@@ -81,23 +81,20 @@ function openC(c){
 }
 document.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
   if(b.dataset.tab){tab=b.dataset.tab;render()}
-  if(b.id==="noRep"){noRep=!noRep;if(noRep)tab="الكل";render()}
   if(b.dataset.view)openC(COMPL[b.dataset.view])});
 document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id==="cat"||e.target.id==="who"||e.target.id==="kind")render()});
 function render(){
   if(!$("cat").options.length){var cs=COMPL.map(function(c){return c.cat}).filter(function(v,i,a){return a.indexOf(v)===i});
     $("cat").innerHTML='<option value="">كل التصنيفات</option>'+cs.map(function(c){return '<option>'+esc(c)+'</option>'}).join("")}
   var fresh=COMPL.filter(function(c){return c.st==="جديدة"}),oldest=fresh.reduce(function(m,c){return Math.max(m,days(c.at))},0);
-  var nr=COMPL.filter(function(c){return c.st!=="جديدة"&&!c.reply}).length;
-  /* the states are counted in the tabs; the strip keeps what they do not say: how old the new ones are, and what was opened with no reply */
-  $("stats").innerHTML='<div><b class="n">'+fresh.length+'</b><span>'+(fresh.length?"رسائل جديدة · أقدمها "+when(fresh.reduce(function(m,c){return days(c.at)>days(m.at)?c:m}).at):"لا توجد رسائل جديدة")+'</span></div><span class="sp"></span>'+
-    '<div><b class="n">'+nr+'</b><span>فُتحت ولم يُكتب لها رد</span>'+(nr||noRep?'<button class="btn sm'+(noRep?' k':'')+'" id="noRep" aria-pressed="'+noRep+'">'+(noRep?"عرض الجميع":"عرض ما بدون رد")+'</button>':'')+'</div>';
+  $("stats").innerHTML=[[fresh.length?"acc":"","mail","رسائل جديدة",fresh.length,fresh.length?"أقدمها منذ "+oldest+" أيام":"لا توجد رسائل جديدة"],["","clock","قيد المراجعة",cnt("قيد المراجعة"),"تنتظر الإغلاق"],["","check","مغلقة",cnt("مغلقة"),"هذا الشهر"],["","doc","بدون رد",COMPL.filter(function(c){return c.st!=="جديدة"&&!c.reply}).length,"فُتحت ولم يُكتب لها رد"]].map(function(k){
+    return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
   $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'<b>'+cnt(s)+'</b></button>'}).join("");
   var q=$("q").value.trim().toLowerCase(),c=$("cat").value,kd=$("kind").value,wh=$("who").value;
-  var list=COMPL.filter(function(x){return (tab==="الكل"||x.st===tab)&&(!noRep||(x.st!=="جديدة"&&!x.reply))&&(!c||x.cat===c)&&(!kd||kindOf(x)===kd)&&(!wh||!!x.by===(wh==="1"))&&(!q||(x.x+" "+x.code+" "+(x.by||"")).toLowerCase().indexOf(q)>-1)});
+  var list=COMPL.filter(function(x){return (tab==="الكل"||x.st===tab)&&(!c||x.cat===c)&&(!kd||kindOf(x)===kd)&&(!wh||!!x.by===(wh==="1"))&&(!q||(x.x+" "+x.code+" "+(x.by||"")).toLowerCase().indexOf(q)>-1)});
   function chips(x){return '<span class="chip'+(x.kind?'':' bad')+'">'+kindOf(x)+'</span><span class="chip s">'+esc(x.cat)+'</span>'}
   function info(x){return sender(x)+'<span>'+when(x.at)+'</span><span class="ltr code">'+x.code+'</span>'+(x.reply?'<span class="st done">كُتب لها رد</span>':'')}
-  function card(x){return '<article class="cr"><div class="cb"><div class="cm">'+chips(x)+'</div><p>'+esc(x.x)+'</p><div class="cm">'+info(x)+'</div></div><div class="cs"><button class="btn sm'+(x.st==="جديدة"?' k':'')+'" data-view="'+COMPL.indexOf(x)+'">'+(x.st==="جديدة"?'مراجعة':'عرض')+'</button></div></article>'}
+  function card(x){return '<article class="cr"><div class="cb"><div class="cm">'+chips(x)+info(x)+'</div><p>'+esc(x.x)+'</p></div><div class="cs"><button class="btn sm'+(x.st==="جديدة"?' k':'')+'" data-view="'+COMPL.indexOf(x)+'">'+(x.st==="جديدة"?'مراجعة':'عرض')+'</button></div></article>'}
   $("list").innerHTML=!list.length?'<p class="empty" style="padding:18px">'+(tab==="جديدة"&&!q&&!c&&!kd&&!wh?'لا توجد رسائل جديدة.':'لا توجد رسائل بهذه الشروط. جرّب تغيير البحث أو الحالة.')+'</p>':
     ["جديدة","قيد المراجعة","مغلقة"].map(function(g){var l=list.filter(function(x){return x.st===g});
       return l.length?(tab==="الكل"?'<h3 class="gh">'+g+'<b>'+l.length+'</b></h3>':'')+l.map(card).join(""):""}).join("");

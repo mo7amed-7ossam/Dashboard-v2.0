@@ -300,7 +300,7 @@ function openForm(kind,data){
     f.querySelectorAll(".steps button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.go===String(n))});
     var bk=f.querySelector("[data-back]"),nx=f.querySelector("[data-next]"),sv=f.querySelector("[data-save]");
     bk.hidden=n===1;bk.dataset.go=n-1;
-    nx.hidden=n===last;nx.dataset.go=n+1;nx.textContent=F.steps[n]?"التالي: "+F.steps[n]:"";nx.className="btn"+(F.isNew?" k":"");sv.hidden=n<last&&F.isNew;
+    nx.hidden=n===last;nx.dataset.go=n+1;nx.textContent=F.steps[n]||"";nx.className="btn"+(F.isNew?" k":"");sv.hidden=n<last&&F.isNew;
     f.querySelector(".dr-b").scrollTop=0;d.dataset.step=n}
   f.querySelectorAll(".drop").forEach(dressDrop);
   if(F.init)F.init(f);
