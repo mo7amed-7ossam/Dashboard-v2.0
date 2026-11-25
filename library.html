@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>المكتبة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125141515">
-<link rel="stylesheet" href="forms.css?v=1125141515">
+<link rel="stylesheet" href="ui.css?v=1125141803">
+<link rel="stylesheet" href="forms.css?v=1125141803">
 <style>.showm{display:none}@media (max-width:760px){.showm{display:inline-flex}}.vbtn{gap:6px}
 .vr{display:grid;grid-template-columns:auto 96px 1fr auto auto;gap:6px 18px;align-items:center;padding:10px 0;font-size:var(--t-ui)}
 .va{display:flex;gap:6px}
@@ -47,8 +47,8 @@ tr.wait td{background:var(--sub)}
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125141515"></script>
-<script src="forms.js?v=1125141515"></script>
+<script src="ui.js?v=1125141803"></script>
+<script src="forms.js?v=1125141803"></script>
 <script>
 var tab="الكل",openV={},PEND="بانتظار المراجعة";
 function waiting(){return DOCS.filter(function(d){return d.st===PEND})}
@@ -71,7 +71,7 @@ document.addEventListener("click",function(e){var b=e.target.closest("button[dat
 function vline(v,up,note,m,cur,k){return '<div class="vr"><b>الإصدار <span class="n">'+v+'</span>'+(cur?'<span class="chip s">الحالي</span>':'')+'</b><span class="m">'+dmy(up)+'</span><span class="vn">'+esc(note||"بدون ملاحظات.")+'</span>'+
   '<span class="m vf">'+ltr(m.file)+' · '+m.size.replace(" MB"," ميغابايت")+'</span><span class="va"><button class="btn sm" data-doc="'+k+'" data-ver="'+v+'">فتح PDF</button>'+(cur?'':'<button class="btn sm" data-vdel="'+k+':'+v+'">حذف</button>')+'</span></div>'}
 function vrows(d,i){var h=(d.hist||[]).slice().reverse();
-  return '<tr class="det"><td colspan="6" class="full"><div class="vhead"><b>إصدارات «'+esc(d.n)+'»</b><button class="btn sm" data-form="doc" data-i="'+i+'">رفع إصدار جديد</button></div>'+
+  return '<tr class="det"><td colspan="6" class="full"><div class="vhead"><b>إصدارات «'+esc(d.n)+'»</b><button class="btn sm k" data-form="docv" data-i="'+i+'">رفع إصدار جديد</button></div>'+
     vline(d.v,d.up,d.note,d,true,i)+h.map(function(x){return vline(x.v,x.up,x.note,x,false,i)}).join("")+(h.length?'':'<p class="m" style="padding-top:6px">هذا أول إصدار، ولا توجد إصدارات قبله.</p>')+'</td></tr>'}
 document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id==="ackOnly"||e.target.id==="lateOnly")render()});
 function render(){

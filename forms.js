@@ -127,7 +127,8 @@ function docForm(d){
     '<div class="fs"><h3>الإقرار والملف</h3>'+two(fld("إقرار القراءة",sel("ack",["مطلوب","غير مطلوب"],d.ack===false?"غير مطلوب":"مطلوب")),
         '<label class="f"><span id="dueL"></span><input class="in" type="date" name="due" value="'+esc(d.due||"")+'"></label>')+
       '<div class="row2 grow2"><div class="f grow"><span>صورة الغلاف</span><label class="drop"'+(d.cv?' data-cur="'+esc(d.cv)+'"':'')+'><b>صورة الغلاف</b><small>JPG أو PNG أو WEBP، أقل من 5 ميغابايت.</small><input type="file" name="cover" accept="image/jpeg,image/png,image/webp"'+(d.cv?'':' data-req="ارفع صورة الغلاف للمستند"')+'></label></div>'+
-      '<div class="f grow"><span>الملف</span><label class="drop"><b>ملف PDF</b><small>'+(isNew?"سيكون هذا الملف الإصدار 1.":"الإصدار الحالي "+d.v+". إن لم تختر ملفًا فلن يُنشأ إصدار جديد.")+'</small><input type="file" name="file" accept="application/pdf"'+(isNew?' data-req="اختر ملف PDF للمستند"':'')+'></label></div></div></div>';
+      (isNew?'<div class="f grow"><span>الملف</span><label class="drop"><b>ملف PDF</b><small>سيكون هذا الملف الإصدار 1.</small><input type="file" name="file" accept="application/pdf" data-req="اختر ملف PDF للمستند"></label></div>':
+        '<div class="f grow"><span>الملف</span><div class="vnow"><b>الإصدار الحالي <span class="n">'+d.v+'</span></b><bdi dir="ltr">'+esc(d.file)+'</bdi><small>لتغيير الملف استخدم «رفع إصدار جديد» من قائمة الإصدارات.</small></div></div>')+'</div></div>';
   return {title:isNew?"مستند جديد":"تعديل مستند",saveLabel:isNew?"إضافة كمستند جديد":"حفظ",html:
     lay+
     '<div class="fs wide" data-step="2">'+A.html+'</div>',
@@ -139,8 +140,7 @@ function docForm(d){
       due();f.ack.addEventListener("change",due)},check:function(f){return A.check(f)},
     save:function(f){
       var r=A.calc(),ack=f.ack.value==="مطلوب",bk=f.c.value===BOOK,au=bk?f.author.value.trim():"",bx=f.bx.value.trim();
-      if(!isNew){d.n=f.n.value;d.c=f.c.value;d.ack=ack;d.due=ack?f.due.value:"";d.aud=A.value();d.author=au;d.bx=bx;if(bk&&!d.by)d.by=ME;if(f.cover.files[0])d.cv=URL.createObjectURL(f.cover.files[0]);
-        if(f.file.value){d.hist=(d.hist||[]).concat([{v:d.v,up:d.up,note:d.note||"",file:d.file,size:d.size,pages:d.pages}]);d.v++;d.note="";d.up="2026-11-22";var um=pdfMeta(DOCS.indexOf(d),d.v);d.file=um.file;d.size=um.size;d.pages=um.pages}}
+      if(!isNew){d.n=f.n.value;d.c=f.c.value;d.ack=ack;d.due=ack?f.due.value:"";d.aud=A.value();d.author=au;d.bx=bx;if(bk&&!d.by)d.by=ME;if(f.cover.files[0])d.cv=URL.createObjectURL(f.cover.files[0]);}
       else{var nm=pdfMeta(DOCS.length,1);DOCS.unshift({cv:URL.createObjectURL(f.cover.files[0]),due:ack?f.due.value:"",n:f.n.value,c:f.c.value,v:1,ack:ack,read:0,all:r.see.length,up:"2026-11-22",note:"",file:nm.file,size:nm.size,pages:nm.pages,hist:[],aud:A.value(),author:au,bx:bx,by:bk?ME:""})}
       return "تم الحفظ — المستند ظاهر الآن لـ "+r.see.length+" موظفين"+(r.exc.length?" (مستثنى "+r.exc.length+")":"")+".";
     }};
@@ -416,7 +416,16 @@ function confirmDel(what,name,after,yes){
   d.querySelector("[data-yes]").onclick=function(){d.close();yes();if(window.render)render();toast("تم حذف «"+name+"».")};
   d.showModal();d.querySelector("[data-close]").focus();
 }
-var SETS={slide:function(){return SLIDES},doc:function(){return DOCS},news:function(){return NEWS},sys:function(){return SYS},emp:function(){return EMPS},app:function(){return APPS},link:function(){return LINKS}};
+var SETS={docv:function(){return DOCS},slide:function(){return SLIDES},doc:function(){return DOCS},news:function(){return NEWS},sys:function(){return SYS},emp:function(){return EMPS},app:function(){return APPS},link:function(){return LINKS}};
+/* a new version of a document: the new file, what changed, and whether everyone acknowledges again */
+FORMS.docv=function(d){return {title:"رفع إصدار جديد",size:"sm",saveLabel:"رفع الإصدار "+(d.v+1),html:
+  '<div class="fs"><h3>'+esc(d.n)+'</h3><p class="m" style="font-size:var(--t-sm)">الإصدار الحالي <span class="n">'+d.v+'</span> · '+dmy(d.up)+' · <bdi dir="ltr">'+esc(d.file)+'</bdi>. يبقى محفوظًا في الإصدارات السابقة.</p>'+
+    '<div class="f"><span>ملف الإصدار <span class="n">'+(d.v+1)+'</span></span><label class="drop"><b>ملف PDF</b><small>يراه الموظفون بدل الإصدار الحالي فور الرفع.</small><input type="file" name="file" accept="application/pdf" data-req="اختر ملف PDF للإصدار الجديد"></label></div>'+
+    fld("ما الجديد في هذا الإصدار؟",txt("note","",'rows="2" '+req("اكتب ما تغيّر في هذا الإصدار")),"يظهر للموظف مع الإصدار الجديد.")+
+    (d.ack?sw("reack","طلب الإقرار من جديد",true,"يُطلب من كل من وُجِّه إليه المستند أن يقرأ الإصدار الجديد ويُقرّ به."):'')+'</div>',
+  save:function(f){d.hist=(d.hist||[]).concat([{v:d.v,up:d.up,note:d.note||"",file:d.file,size:d.size,pages:d.pages}]);d.v++;d.note=f.note.value.trim();d.up=TODAY;
+    var um=pdfMeta(DOCS.indexOf(d),d.v);d.file=um.file;d.size=um.size;d.pages=um.pages;var re=d.ack&&f.reack.checked;if(re)d.read=0;
+    return "تم رفع الإصدار "+d.v+" من «"+d.n+"»"+(re?"، وطُلب الإقرار به من جديد.":".")}}};
 var DEL={doc:["المستند","يُزال من مكتبة البوابة بكل إصداراته وإقرارات قراءته."],slide:["التذكير","سيُزال من رئيسية البوابة."],news:["الخبر","سيُزال من رئيسية البوابة."],sys:["النظام","سيُزال من صفحة «الأنظمة» بالبوابة."],app:["التطبيق","سيُزال من صفحة «الأنظمة» بالبوابة."],link:["الرابط","سيُزال من أسفل صفحة «الأنظمة» بالبوابة."]};
 /* buttons: data-form / data-del / data-hide / data-move = set name, data-i = index in that set; data-readers = index in DOCS, data-seen = index in NEWS */
 document.addEventListener("click",function(e){
