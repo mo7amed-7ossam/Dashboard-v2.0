@@ -285,9 +285,9 @@ dialog.drawer[data-step="2"] .audlist{max-height:min(46vh,420px)}
 .docv3 .f.grow > .drop > *{grid-column:1;grid-row:auto}
 .docv3 .f.grow > .drop .dz-btn{margin-top:6px}
 /* mockup only: the bar that switches between layouts on offer */
-.looks{display:flex;gap:4px;align-items:center;margin-inline-end:auto;font-size:var(--t-sm);color:var(--m)}
-.looks button{border:1px solid var(--line);background:var(--card);border-radius:99px;min-width:30px;height:30px;font:inherit;cursor:pointer}
-.looks button[aria-pressed="true"]{background:var(--pri);color:var(--on-pri);border-color:var(--pri)}
+.looks{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 24px;background:var(--limebg);color:var(--on-lime)}
+.looks button{border:1px solid transparent;background:var(--card);color:var(--ink);border-radius:99px;padding:6px 16px;font:inherit;font-weight:500;cursor:pointer}
+.looks button[aria-pressed="true"]{background:var(--pri);color:var(--on-pri)}
 /* spacing scale inside windows (Mohamed 2026-11-25: «توزيع المسافات غلط»): 6 label to its field, 16 between fields both ways,
    20 from a section title to its first field, 32 between columns; the same inline edge for header, body and footer */
 dialog.drawer .dr-b{padding:22px 24px 24px;gap:28px 32px}
