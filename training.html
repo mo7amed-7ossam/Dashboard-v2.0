@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التدريب — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125122828">
-<link rel="stylesheet" href="forms.css?v=1125122828">
+<link rel="stylesheet" href="ui.css?v=1125123754">
+<link rel="stylesheet" href="forms.css?v=1125123754">
 <style>
 /* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
    multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
@@ -50,6 +50,7 @@
 .tree li{display:flex;gap:8px;align-items:center;font-size:var(--t-sm);counter-increment:m;min-width:0}
 .tree li::before{content:counter(m);color:var(--m);width:14px;text-align:center;flex:none}
 .tree li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree h4 .lt{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--card);color:var(--teal);font-size:var(--t-sm);font-weight:500;flex:none}
 .tree li svg{flex:none;color:var(--teal)}
 .pgr > b{font-family:"Alexandria",sans-serif;font-weight:500;color:var(--m);text-align:center}
 .vup{position:relative;display:flex;align-items:center;cursor:pointer;overflow:hidden;white-space:nowrap;color:var(--m)}
@@ -105,8 +106,8 @@
   <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار المدير المباشر</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1125122828"></script>
-<script src="forms.js?v=1125122828"></script>
+<script src="ui.js?v=1125123754"></script>
+<script src="forms.js?v=1125123754"></script>
 <script>
 var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
     MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
@@ -127,9 +128,12 @@ function ytPreview(m){var id=ytId(m.src),d=dlg("drawer md ytw");
   d.addEventListener("close",function(){var f=d.querySelector("iframe");if(f)f.remove()},{once:true});
   d.showModal()}
 var openT={};
+/* categories are lettered A, B, C… (Mohamed 2026-11-25); their materials stay numbered 1, 2, 3 */
+function letter(c){var o="";for(c++;c>0;c=Math.floor((c-1)/26))o=String.fromCharCode(65+(c-1)%26)+o;return o}
+console.assert(letter(0)==="A"&&letter(25)==="Z"&&letter(26)==="AA");
 /* the folders of a training as the employee meets them: categories in order, each with its materials in order */
 function tree(p){var C=p.cats||[];return '<div class="tree">'+(C.length?C.map(function(cn,c){var L=p.mats.filter(function(m){return m.g===c});
-  return '<div><h4>'+ic("folder",16)+esc(cn)+'</h4>'+(L.length?'<ol>'+L.map(function(m){return '<li>'+ic(kindOf(m)===MK[0]?"doc":"image",14)+'<span>'+esc(m.t)+'</span></li>'}).join("")+'</ol>':'<span class="m" style="font-size:var(--t-sm)">لا مواد في هذه الفئة بعد.</span>')+'</div>'}).join(""):'<span class="m">لا توجد فئات بعد.</span>')+'</div>'}
+  return '<div><h4><b class="lt">'+letter(c)+'</b>'+esc(cn)+'</h4>'+(L.length?'<ol>'+L.map(function(m){return '<li>'+ic(kindOf(m)===MK[0]?"doc":"image",14)+'<span>'+esc(m.t)+'</span></li>'}).join("")+'</ol>':'<span class="m" style="font-size:var(--t-sm)">لا مواد في هذه الفئة بعد.</span>')+'</div>'}).join(""):'<span class="m">لا توجد فئات بعد.</span>')+'</div>'}
 function nfile(p){return p.mats.filter(function(m){return kindOf(m)===MK[0]}).length}
 function nvid(p){return p.mats.length-nfile(p)}
 function left(due){return Math.round((new Date(due)-new Date(TODAY))/864e5)}
@@ -161,7 +165,7 @@ FORMS.prog=function(src){
       function drawM(){var C=P.cats;
         bm.innerHTML=head("الفئات والمواد",C.length?(C.length===1?"فئة واحدة":C.length===2?"فئتان":C.length+" فئات")+" · "+nfile(P)+" ملف · "+nvid(P)+" فيديو":"","cat","إضافة فئة")+
           (C.map(function(cn,c){var I=inCat(c);
-            return '<div class="cat"><div class="cath"><span class="qn">'+(c+1)+'</span><input class="in" data-cn="'+c+'" value="'+esc(cn)+'" '+at("اسم الفئة، مثل: التصميم")+'><span class="rb">'+
+            return '<div class="cat"><div class="cath"><span class="qn">'+letter(c)+'</span><input class="in" data-cn="'+c+'" value="'+esc(cn)+'" '+at("اسم الفئة، مثل: التصميم")+'><span class="rb">'+
                 mv('data-cm="'+c+':-1"',"تقديم الفئة",UP,c===0)+mv('data-cm="'+c+':1"',"تأخير الفئة",DOWN,c===C.length-1)+x('data-cx="'+c+'"',"حذف الفئة")+'</span></div>'+
               (I.length?'<div class="pgr hd"><span></span><span>النوع</span><span>العنوان الظاهر للموظف</span><span>الملف أو الرابط</span><span></span></div>':'')+
               I.map(function(i,n){var m=P.mats[i];return '<div class="pgr" data-r="'+i+'"><b>'+(n+1)+'</b><select class="in" data-k="k" aria-label="النوع">'+MK.map(function(k){return '<option'+(k===kindOf(m)?' selected':'')+'>'+k+'</option>'}).join("")+'</select>'+
@@ -204,7 +208,7 @@ FORMS.prog=function(src){
       drawM();drawQ()},
     check:function(f){read();P.mats=P.mats.filter(function(m){return m.t||m.vf||m.f||m.src});
       this.checkStep=2;
-      for(var c=0;c<P.cats.length;c++)if(!P.cats[c])return "اكتب اسم الفئة رقم "+(c+1)+".";
+      for(var c=0;c<P.cats.length;c++)if(!P.cats[c])return "اكتب اسم الفئة "+letter(c)+".";
       for(var i=0;i<P.mats.length;i++){var m=P.mats[i],k=kindOf(m),has=k===MK[0]?m.f:k===MK[1]?m.src:m.vf;
         if(!m.t)return "اكتب عنوان المادة رقم "+(i+1)+".";
         if(k===MK[1]&&m.src&&!ytId(m.src))return "رابط المادة رقم "+(i+1)+" ليس رابط يوتيوب صحيحًا.";
