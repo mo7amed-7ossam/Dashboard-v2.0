@@ -4,21 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>الأقسام والفروع — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125161111">
-<link rel="stylesheet" href="forms.css?v=1125161111">
+<link rel="stylesheet" href="ui.css?v=1125161253">
+<link rel="stylesheet" href="forms.css?v=1125161253">
 <style>
 /* Departments, branches and jobs (Mohamed 2026-11-25: the next gap between the portal and the dashboard). These are the
    lists the employee window and the portal sign-up choose from. One page, three tabs, the same table and the same row
    actions in each. What is in use cannot be deleted, and the row says why. */
 #rows td.end{white-space:nowrap}
-.inuse{color:var(--m);font-size:var(--t-sm)}
+.adds{display:flex;gap:8px;flex-wrap:wrap}
 @media (max-width:760px){#rows td.end{white-space:normal;display:grid;grid-template-columns:1fr 1fr;gap:6px}#rows td.end .btn{width:100%}}
 </style>
 </head>
 <body>
 <div class="app">
   <header id="top"></header>
-  <div class="hello"><div><h1 class="d">الأقسام والفروع</h1><p>أقسام الشركة وفروعها ووظائفها. منها يختار الموظف عند التسجيل، ومنها يتحدد فرعه ومديره المباشر.</p></div><button class="btn k" id="add"></button></div>
+  <div class="hello"><div><h1 class="d">الأقسام والفروع</h1><p>أقسام الشركة وفروعها ووظائفها. منها يختار الموظف عند التسجيل، ومنها يتحدد فرعه ومديره المباشر.</p></div><div class="adds" id="adds"></div></div>
   <div class="card stats" id="stats" style="margin-bottom:12px"></div>
   <section class="card">
     <div class="bar">
@@ -30,8 +30,8 @@
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125161111"></script>
-<script src="forms.js?v=1125161111"></script>
+<script src="ui.js?v=1125161253"></script>
+<script src="forms.js?v=1125161253"></script>
 <script>
 var TABS=[["odept","الأقسام","قسم جديد"],["obr","الفروع","فرع جديد"],["ojob","الوظائف","وظيفة جديدة"]],tab="odept";
 function pl(n,one,two,many,sing){return n===0?"لا "+many:n===1?one:n===2?two:n+" "+(n<=10?many:sing)}
@@ -44,13 +44,14 @@ function acts(i,why){return '<button class="btn sm" data-form="'+tab+'" data-i="
   (why?'<button class="btn sm" disabled title="'+why+'">حذف</button>':'<button class="btn sm" data-odel="'+i+'">حذف</button>')}
 document.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
   if(b.dataset.tab){tab=b.dataset.tab;$("q").value="";render()}
-  if(b.id==="add")openForm(tab);
+  /* the three add buttons are always there (Mohamed 2026-11-25: «هضيف الفروع منين و الوظايف منين»); adding also shows that list */
+  if(b.dataset.add){tab=b.dataset.add;$("q").value="";render();openForm(tab)}
   if(b.dataset.odel){var L=SETS[tab](),x=L[b.dataset.odel],kind=tab==="odept"?"القسم":tab==="obr"?"الفرع":"الوظيفة";
     confirmDel(kind,x.name||x.n,"يُزال من قوائم الاختيار في البوابة ولوحة التحكم.",function(){L.splice(L.indexOf(x),1);syncOrg()})}});
 document.addEventListener("input",function(e){if(e.target.id==="q")render()});
 function render(){
   var noLead=D.depts.filter(function(d){return !d.lead}).length,q=$("q").value.trim().toLowerCase(),T=TABS.filter(function(t){return t[0]===tab})[0];
-  $("add").textContent=T[2];
+  $("adds").innerHTML=TABS.map(function(t){return '<button class="btn'+(t[0]===tab?' k':'')+'" data-add="'+t[0]+'">'+t[2]+'</button>'}).join("");
   $("stats").innerHTML=[["acc","build","الأقسام",D.depts.length,"في "+pl(BRS.length,"فرع واحد","فرعين","فروع","فرعًا")],["","pin","الفروع",BRS.length,"تظهر في صفحة الشركة بالبوابة"],
     ["","users","الوظائف",JOBL.length,"موزّعة على "+DTYPES.length+" أنواع أقسام"],[noLead?"bad":"","clock","أقسام بلا مدير مباشر",noLead,noLead?"طلبات موظفيها لا تصل إلى أحد":"لكل قسم مدير مباشر"]].map(function(k){
     return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
