@@ -299,10 +299,18 @@ dialog.ask .f > span{font-size:var(--t-sm);color:var(--ink)}
 .fs > .row2.grow2{flex:1;align-items:stretch}
 .sheet{position:relative;overflow:hidden;align-content:end}
 .sheet .shc{position:absolute;inset:0 0 auto 0;width:100%;height:58%;object-fit:cover}
-/* the current file shown, not editable, in the document window */
-.vnow{flex:1;background:var(--sub);border-radius:16px;padding:12px 14px;display:grid;gap:3px;align-content:center}
-.vnow b{font-weight:500}
-.vnow bdi{color:var(--m);font-size:var(--t-sm);overflow-wrap:anywhere}
+/* the current file in the document window: same build as the upload box beside it */
+.vnow{flex:1;background:var(--sub);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.vst{flex:1;min-height:84px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);display:grid;place-items:center;align-content:center;gap:4px;padding:10px;color:var(--sea);text-align:center;min-width:0}
+.vst bdi{color:var(--ink);font-weight:500;font-size:var(--t-sm);overflow-wrap:anywhere}
+.vst small{color:var(--m)}
+.vln{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.vln b{font-weight:500}
+.vln span{color:var(--m);font-size:var(--t-sm)}
+.vac{display:flex;gap:8px}
+.vac .btn{flex:1}
+dialog.drawer .fs .vnow .vac .btn:not(.k):not(.r){background:var(--card)!important}
+[data-theme="dark"] .vst{background:rgba(255,255,255,.05);border-color:#5A5A58}
 /* a tall upload box (Mohamed 2026-11-25: «حسن تصميم دى»): the same build for a file and for a picture: a dashed drop stage
    that takes the height, then the name and hint with the button beside them */
 .f.grow > .drop{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:minmax(84px,1fr) auto auto;align-content:stretch;row-gap:2px}

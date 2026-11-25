@@ -128,7 +128,10 @@ function docForm(d){
         '<label class="f"><span id="dueL"></span><input class="in" type="date" name="due" value="'+esc(d.due||"")+'"></label>')+
       '<div class="row2 grow2"><div class="f grow"><span>صورة الغلاف</span><label class="drop"'+(d.cv?' data-cur="'+esc(d.cv)+'"':'')+'><b>صورة الغلاف</b><small>JPG أو PNG أو WEBP، أقل من 5 ميغابايت.</small><input type="file" name="cover" accept="image/jpeg,image/png,image/webp"'+(d.cv?'':' data-req="ارفع صورة الغلاف للمستند"')+'></label></div>'+
       (isNew?'<div class="f grow"><span>الملف</span><label class="drop"><b>ملف PDF</b><small>سيكون هذا الملف الإصدار 1.</small><input type="file" name="file" accept="application/pdf" data-req="اختر ملف PDF للمستند"></label></div>':
-        '<div class="f grow"><span>الملف</span><div class="vnow"><b>الإصدار الحالي <span class="n">'+d.v+'</span></b><bdi dir="ltr">'+esc(d.file)+'</bdi><small>لتغيير الملف استخدم «رفع إصدار جديد» من قائمة الإصدارات.</small></div></div>')+'</div></div>';
+        /* the file as it stands, built like the upload box beside it: what it is on the stage, what you can do with it under */
+        '<div class="f grow"><span>الملف</span><div class="vnow"><div class="vst">'+ic("doc",22)+'<bdi dir="ltr">'+esc(d.file)+'</bdi><small>'+String(d.size).replace(" MB"," ميغابايت")+' · '+d.pages+' صفحة</small></div>'+
+          '<p class="vln"><b>الإصدار الحالي <span class="n">'+d.v+'</span></b><span>آخر تحديث '+dmy(d.up)+'</span></p>'+
+          '<div class="vac"><button type="button" class="btn sm k" data-newver>رفع إصدار جديد</button><button type="button" class="btn sm" data-mock="تنزيل «'+esc(d.file)+'»">تنزيل</button></div></div></div>')+'</div></div>';
   return {title:isNew?"مستند جديد":"تعديل مستند",saveLabel:isNew?"إضافة كمستند جديد":"حفظ",html:
     lay+
     '<div class="fs wide" data-step="2">'+A.html+'</div>',
@@ -137,7 +140,8 @@ function docForm(d){
       f.querySelector("#catRow").style.gridTemplateColumns=bk?"":"minmax(0,1fr)";f.querySelector("#bxL").textContent=bk?"وصف الكتاب":"الوصف";
       [["author","اكتب اسم مؤلف الكتاب"],["bx","اكتب وصفًا مختصرًا للكتاب"]].forEach(function(k){if(bk)f[k[0]].dataset.req=k[1];else delete f[k[0]].dataset.req})},
     bind:function(f){A.bind(f);function due(){var on=f.ack.value==="مطلوب";f.due.disabled=!on;f.querySelector("#dueL").textContent=on?"آخر موعد للإقرار":"آخر موعد (الإقرار غير مطلوب)";if(on)f.due.dataset.req="حدّد آخر موعد للإقرار";else delete f.due.dataset.req}
-      due();f.ack.addEventListener("change",due)},check:function(f){return A.check(f)},
+      due();f.ack.addEventListener("change",due);
+      var nv=f.querySelector("[data-newver]");if(nv)nv.onclick=function(){if(!f.querySelector("#dirty").hidden){toast("احفظ التغييرات أولًا، ثم ارفع الإصدار الجديد.");return}openForm("docv",d)}},check:function(f){return A.check(f)},
     save:function(f){
       var r=A.calc(),ack=f.ack.value==="مطلوب",bk=f.c.value===BOOK,au=bk?f.author.value.trim():"",bx=f.bx.value.trim();
       if(!isNew){d.n=f.n.value;d.c=f.c.value;d.ack=ack;d.due=ack?f.due.value:"";d.aud=A.value();d.author=au;d.bx=bx;if(bk&&!d.by)d.by=ME;if(f.cover.files[0])d.cv=URL.createObjectURL(f.cover.files[0]);}
