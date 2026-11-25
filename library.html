@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>المكتبة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125145511">
-<link rel="stylesheet" href="forms.css?v=1125145511">
+<link rel="stylesheet" href="ui.css?v=1125151038">
+<link rel="stylesheet" href="forms.css?v=1125151038">
 <style>.showm{display:none}@media (max-width:760px){.showm{display:inline-flex}}.vbtn{gap:6px}
 .vr{display:grid;grid-template-columns:auto 96px 1fr auto auto;gap:6px 18px;align-items:center;padding:10px 0;font-size:var(--t-ui)}
 .va{display:flex;gap:6px}
@@ -47,15 +47,15 @@ tr.wait td{background:var(--sub)}
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125145511"></script>
-<script src="forms.js?v=1125145511"></script>
+<script src="ui.js?v=1125151038"></script>
+<script src="forms.js?v=1125151038"></script>
 <script>
 var tab="الكل",openV={},PEND="بانتظار المراجعة";
 function waiting(){return DOCS.filter(function(d){return d.st===PEND})}
 document.addEventListener("click",function(e){var b=e.target.closest("button[data-tab]");if(b){tab=b.dataset.tab;render()}
   var v=e.target.closest("button[data-vrow]");if(v){openV[v.dataset.vrow]=!openV[v.dataset.vrow];render()}
   /* open a document (or one of its versions) in the viewer; delete a past version */
-  var o=e.target.closest("button[data-doc]");if(o){openDoc(DOCS[o.dataset.doc],o.dataset.ver);return}
+  var o=e.target.closest("button[data-doc]");if(o){openDoc(DOCS[o.dataset.doc]);return}
   var vd=e.target.closest("button[data-vdel]");if(vd){var pr=vd.dataset.vdel.split(":"),dd=DOCS[pr[0]];
     confirmDel("الإصدار",dd.n+" · الإصدار "+pr[1],"الإصدار الحالي يبقى كما هو.",function(){dd.hist=dd.hist.filter(function(h){return String(h.v)!==pr[1]})});return}
   var x=e.target.closest("button[data-pub],button[data-rej],button[data-showpend]");if(!x)return;
@@ -69,7 +69,7 @@ document.addEventListener("click",function(e){var b=e.target.closest("button[dat
       DOCS.splice(DOCS.indexOf(d),1);g.close();shell();render();toast("تم رفض «"+d.n+"»، وسيصل السبب إلى "+d.by+".")};
     g.showModal();g.querySelector("textarea").focus()}});
 function vline(v,up,note,m,cur,k){return '<div class="vr"><b>الإصدار <span class="n">'+v+'</span>'+(cur?'<span class="chip s">الحالي</span>':'')+'</b><span class="m">'+dmy(up)+'</span><span class="vn">'+esc(note||"بدون ملاحظات.")+'</span>'+
-  '<span class="m vf">'+ltr(m.file)+' · '+m.size.replace(" MB"," ميغابايت")+'</span><span class="va"><button class="btn sm" data-doc="'+k+'" data-ver="'+v+'">فتح PDF</button>'+(cur?'':'<button class="btn sm" data-vdel="'+k+':'+v+'">حذف</button>')+'</span></div>'}
+  '<span class="m vf">'+ltr(m.file)+' · '+m.size.replace(" MB"," ميغابايت")+'</span><span class="va"><button class="btn sm" data-mock="تنزيل «'+esc(m.file)+'»">تنزيل</button>'+(cur?'':'<button class="btn sm" data-vdel="'+k+':'+v+'">حذف</button>')+'</span></div>'}
 function vrows(d,i){var h=(d.hist||[]).slice().reverse();
   return '<tr class="det"><td colspan="6" class="full"><div class="vhead"><b>إصدارات «'+esc(d.n)+'»</b><button class="btn sm k" data-form="docv" data-i="'+i+'">رفع إصدار جديد</button></div>'+
     vline(d.v,d.up,d.note,d,true,i)+h.map(function(x){return vline(x.v,x.up,x.note,x,false,i)}).join("")+(h.length?'':'<p class="m" style="padding-top:6px">هذا أول إصدار، ولا توجد إصدارات قبله.</p>')+'</td></tr>'}
@@ -79,13 +79,13 @@ function render(){
   $("tabs").innerHTML=cats.map(function(c){return '<button data-tab="'+c+'" aria-pressed="'+(c===tab)+'">'+c+'<b>'+DOCS.filter(function(d){return c==="الكل"||d.c===c}).length+'</b></button>'}).join("");
   var w=waiting();
   $("pend").innerHTML=w.map(function(d){var k=DOCS.indexOf(d);return '<div class="pend"><span class="st"></span><span class="m">كتاب بانتظار مراجعتك</span><b>'+esc(d.n)+'</b><span class="m">رفعه '+esc(d.by)+'</span><span class="sp"></span>'+
-    '<button class="btn sm" data-doc="'+k+'">فتح PDF</button><button class="btn sm k" data-pub="'+k+'">نشر الكتاب</button><button class="btn sm" data-rej="'+k+'">رفض</button></div>'}).join("");
+    '<button class="btn sm" data-doc="'+k+'">بيانات الكتاب</button><button class="btn sm k" data-pub="'+k+'">نشر الكتاب</button><button class="btn sm" data-rej="'+k+'">رفض</button></div>'}).join("");
   var q=$("q").value.trim(),ao=$("ackOnly").checked,lo=$("lateOnly").checked;
   function vtxt(n){return n===1?"إصدار واحد":n===2?"إصداران":n+" إصدارات"}
   function over(d){var R=docRead(d);return d.ack&&d.due&&d.due<TODAY&&R.done<R.all}
   var list=DOCS.filter(function(d){return (tab==="الكل"||d.c===tab)&&(!ao||d.ack)&&(!lo||over(d))&&(!q||d.n.indexOf(q)>-1)});
   $("rows").innerHTML=list.length?list.map(function(d){var k=DOCS.indexOf(d),R=docRead(d),op=!!openV[k],open='data-doc="'+k+'"';
-    return '<tr'+(d.st===PEND?' class="wait"':'')+'><td class="full"><div class="who">'+cover(d.cv)+'<div><button class="lnk" '+open+' title="فتح PDF">'+esc(d.n)+'</button>'+(d.author?'<small>تأليف '+esc(d.author)+' · رفعه '+esc(d.by||"—")+'</small>':'')+(d.bx?'<small class="bx">'+esc(d.bx)+'</small>':'')+'<small>'+ltr(d.file)+' · '+d.size.replace(" MB"," ميغابايت")+' · '+d.pages+' صفحة</small></div></div></td>'+
+    return '<tr'+(d.st===PEND?' class="wait"':'')+'><td class="full"><div class="who">'+cover(d.cv)+'<div><button class="lnk" '+open+' title="بيانات المستند">'+esc(d.n)+'</button>'+(d.author?'<small>تأليف '+esc(d.author)+' · رفعه '+esc(d.by||"—")+'</small>':'')+(d.bx?'<small class="bx">'+esc(d.bx)+'</small>':'')+'<small>'+ltr(d.file)+' · '+d.size.replace(" MB"," ميغابايت")+' · '+d.pages+' صفحة</small></div></div></td>'+
       '<td><span class="chip s">'+esc(d.c)+'</span>'+(d.st===PEND?' <span class="st">'+PEND+'</span>':'')+'</td>'+
       '<td class="hide"><button class="btn sm vbtn" data-vrow="'+k+'" aria-expanded="'+op+'">'+(op?'إخفاء الإصدارات':vtxt(d.v))+'</button><small class="up">آخر تحديث '+dmy(d.up)+'</small></td>'+
       '<td class="full">'+(d.ack?prog(R.done,R.all,"قرأوا وأقرّوا"):'<span class="m">غير مطلوب</span>')+'</td>'+

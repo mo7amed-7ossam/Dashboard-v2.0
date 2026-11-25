@@ -183,20 +183,25 @@ function openFiles(e,start){var d=dlg("drawer md fv"),cur=start,have=EMP_FILES.m
   draw();d.showModal()}
 /* a library document opened in place, with every version it ever had (Mohamed 2026-11-25: «الاصدارات السابقه و استعراض الملفات مش متاحه»).
    Same window as the employee files: the list on one side, the sheet on the other. */
-function openDoc(doc,ver){var d=dlg("drawer md dv"),V=[{v:doc.v,up:doc.up,note:doc.note,file:doc.file,size:doc.size,pages:doc.pages}].concat((doc.hist||[]).slice().reverse()),
-    cur=Math.max(0,V.map(function(x){return String(x.v)}).indexOf(String(ver==null?doc.v:ver))),pg=1;
-  /* «السهل الممتنع» (Mohamed 2026-11-25): the page is the window. One line says what it is, the version is a small choice
-     beside the download, and nothing else competes with the document. */
-  function draw(){var m=V[cur];
-    d.innerHTML='<div class="dr-h"><div class="dvt"><h2>'+esc(doc.n)+'</h2><span class="m">'+(cur?'<span class="chip d">إصدار سابق</span> ':'')+'الإصدار <span class="n">'+m.v+'</span> · '+dmy(m.up)+' · '+m.pages+' صفحة · '+String(m.size).replace(" MB"," ميغابايت")+'</span></div>'+
-      '<div class="dva">'+(V.length>1?'<select class="field" aria-label="الإصدار">'+V.map(function(x,i){return '<option value="'+i+'"'+(i===cur?' selected':'')+'>الإصدار '+x.v+(i?'':' · الحالي')+'</option>'}).join("")+'</select>':'')+
-        '<button type="button" class="btn sm" data-mock="تنزيل «'+esc(m.file)+'»">تنزيل</button><button type="button" class="xbtn" data-close aria-label="إغلاق" title="إغلاق">×</button></div></div>'+
-      '<div class="dr-b"><div class="page">'+(pg===1?(doc.cv?'<img src="'+esc(doc.cv)+'" alt="">':'')+'<b>'+esc(doc.n)+'</b>'+(m.note?'<p>'+esc(m.note)+'</p>':''):'')+
-        '<i></i><i></i><i style="width:86%"></i><i></i><i style="width:93%"></i><i style="width:58%"></i>'+(pg>1?'<i></i><i style="width:90%"></i><i></i><i style="width:72%"></i><i></i><i style="width:95%"></i><i style="width:40%"></i>':'')+'</div>'+
-        '<div class="pgn"><button type="button" class="ib" data-pg="-1"'+(pg<=1?' disabled':'')+' aria-label="الصفحة السابقة">›</button><span>صفحة <span class="n">'+pg+'</span> من <span class="n">'+m.pages+'</span></span><button type="button" class="ib" data-pg="1"'+(pg>=m.pages?' disabled':'')+' aria-label="الصفحة التالية">‹</button></div></div>';
-    var sl=d.querySelector("select");if(sl)sl.onchange=function(){cur=+sl.value;pg=1;draw()};
-    d.querySelectorAll("[data-pg]").forEach(function(b){b.onclick=function(){pg+=+b.dataset.pg;draw()}})}
-  draw();d.showModal()}
+function openDoc(doc){var d=dlg("drawer md di"),R=docRead(doc),A=audCalc(audState(doc.aud)),H=(doc.hist||[]).slice().reverse(),by=doc.by||ME,
+    first=H.length?H[H.length-1].up:doc.up;
+  function row(k,v){return v?'<dt>'+k+'</dt><dd>'+v+'</dd>':''}
+  function ver(x,cur){return '<div class="dvr"><b>الإصدار <span class="n">'+x.v+'</span>'+(cur?' <span class="chip s">الحالي</span>':'')+'</b><span class="m">'+dmy(x.up)+' · '+esc(by)+'</span><span class="vn">'+esc(x.note||"بدون ملاحظات.")+'</span>'+
+    '<span class="m"><bdi dir="ltr">'+esc(x.file)+'</bdi> · '+String(x.size).replace(" MB"," ميغابايت")+'</span><button type="button" class="btn sm" data-mock="تنزيل «'+esc(x.file)+'»">تنزيل</button></div>'}
+  d.innerHTML='<div class="dr-h"><h2>بيانات المستند</h2><button type="button" class="xbtn" data-close aria-label="إغلاق" title="إغلاق">×</button></div><div class="dr-b">'+
+    '<div class="dih wide">'+cover(doc.cv)+'<div><b>'+esc(doc.n)+'</b>'+(doc.en?'<span class="m" dir="ltr">'+esc(doc.en)+'</span>':'')+(doc.bx?'<p>'+esc(doc.bx)+'</p>':'')+'</div><span class="chip s">'+esc(doc.c)+'</span></div>'+
+    '<div class="fs"><h3>الرفع</h3><dl class="dd">'+row("رفعه",esc(by))+row("تاريخ الرفع",dmy(first))+row("المؤلف",esc(doc.author))+row("آخر تحديث",dmy(doc.up))+
+      row("الحالة",doc.st?esc(doc.st):"منشور في مكتبة البوابة")+'</dl></div>'+
+    '<div class="fs"><h3>الملف</h3><dl class="dd">'+row("اسم الملف",'<bdi dir="ltr">'+esc(doc.file)+'</bdi>')+row("الحجم",String(doc.size).replace(" MB"," ميغابايت"))+row("الصفحات",doc.pages+" صفحة")+
+      row("الإصدار الحالي",'<span class="n">'+doc.v+'</span>'+(H.length?' · قبله '+(H.length===1?"إصدار واحد":H.length===2?"إصداران":H.length+" إصدارات"):''))+row("صورة الغلاف",doc.cv?"مرفوعة":"غير مرفوعة")+'</dl></div>'+
+    '<div class="fs"><h3>إقرار القراءة</h3><dl class="dd">'+row("الإقرار",doc.ack?"مطلوب":"غير مطلوب")+(doc.ack?row("آخر موعد",doc.due?dmy(doc.due)+' '+dueTxt(doc.due):"بدون موعد")+row("قرأوا وأقرّوا",'<span class="n">'+R.done+'</span> من <span class="n">'+R.all+'</span>'):'')+'</dl></div>'+
+    '<div class="fs"><h3>لمن يظهر</h3><dl class="dd">'+row("الموجَّه إليهم",'<span class="n">'+A.see.length+'</span> من <span class="n">'+EMPS.length+'</span> موظفين')+row("الفئات",A.cats.map(function(c){return esc(c.label)}).join("، ")||"بالاختيار")+
+      row("أُضيفوا بالاسم",A.add.length?A.add.length+" موظفين":"")+row("مستثنون",A.exc.length?A.exc.length+" موظفين":"")+'</dl></div>'+
+    '<div class="fs wide"><h3>الإصدارات</h3>'+ver(doc,true)+H.map(function(x){return ver(x,false)}).join("")+'</div></div>'+
+    '<div class="dr-f"><button type="button" class="btn" data-close>إغلاق</button><button type="button" class="btn" data-mock="تنزيل «'+esc(doc.file)+'»">تنزيل الملف</button>'+
+    (doc.st?'':'<button type="button" class="btn k" data-edit>تعديل</button>')+'</div>';
+  var e=d.querySelector("[data-edit]");if(e)e.onclick=function(){d.close();openForm("doc",doc)};
+  d.showModal()}
 function mgrOf(e,dept){var d=D.depts.filter(function(x){return x.name===dept})[0],l=d&&d.lead;return !l?"لا يوجد مدير مباشر لهذا القسم بعد":l===e.name?"هو المدير المباشر للقسم":l}
 function linkForm(arr,kindNew,kindEdit,place){return function(s){s=s||{};return {title:s.n?kindEdit:kindNew,size:"sm",html:
   '<div class="fs"><h3>البيانات</h3>'+two(fld("الاسم بالعربي",inp("n",s.n,req("اكتب الاسم"))),fld("الاسم بالإنجليزي",inp("en",s.en,'dir="ltr"')))+
