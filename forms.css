@@ -316,3 +316,5 @@ dialog.ask .f > span{font-size:var(--t-sm);color:var(--ink)}
 .f.grow > .drop.img.has .dz-pv{border:0}
 [data-theme="dark"] .f.grow > .drop .dz-pv{background-color:rgba(255,255,255,.05);border-color:#5A5A58}
 [data-theme="dark"] .f.grow > .drop.doc.has .dz-pv{background-color:rgba(207,221,40,.13);border-color:#7C8440;color:#DCE86A}
+/* a chosen picture fills the stage: the drop hint must not show over it */
+.f.grow > .drop.img.has .dz-pv > *{display:none}
