@@ -291,3 +291,4 @@ dialog.drawer .row2{gap:16px}
 /* working hours: day switch, from, to */
 .hrs{display:grid;grid-template-columns:minmax(0,1fr) 120px 120px;gap:10px 12px;align-items:center}
 @media (max-width:600px){.hrs{grid-template-columns:minmax(0,1fr) 1fr}.hrs .sw{grid-column:1/-1}}
+@media (max-width:760px){.steps button:not([aria-pressed="true"]){flex:0 0 auto;font-size:0;gap:0;padding:5px}.steps button[aria-pressed="true"]{flex:1}}
