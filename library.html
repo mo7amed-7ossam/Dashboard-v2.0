@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>المكتبة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125114542">
-<link rel="stylesheet" href="forms.css?v=1125114542">
+<link rel="stylesheet" href="ui.css?v=1125114700">
+<link rel="stylesheet" href="forms.css?v=1125114700">
 <style>.showm{display:none}@media (max-width:760px){.showm{display:inline-flex}}.vbtn{gap:6px}
 .vr{display:grid;grid-template-columns:auto 96px 1fr auto auto;gap:6px 18px;align-items:center;padding:10px 0;font-size:var(--t-ui)}
 .vr + .vr{border-top:1px solid var(--line)}
@@ -40,16 +40,10 @@ tr.wait td{background:var(--sub)}
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125114542"></script>
-<script src="forms.js?v=1125114542"></script>
+<script src="ui.js?v=1125114700"></script>
+<script src="forms.js?v=1125114700"></script>
 <script>
 var tab="الكل",openV={},PEND="بانتظار المراجعة";
-/* mockup only: switch the document window between the layouts on offer */
-var lastDoc;
-document.addEventListener("click",function(e){var b=e.target.closest("[data-form=doc]"),k=e.target.closest("[data-look]");
-  if(b)lastDoc=b.dataset.i;
-  if(k){window.DOCV=+k.dataset.look;document.querySelector("dialog[open]").close();openForm("doc",lastDoc==null?undefined:DOCS[lastDoc])}
-  if(b||k)setTimeout(function(){var f=document.querySelector("dialog[open] .dr-h");if(f&&!document.querySelector("dialog[open] .looks"))f.insertAdjacentHTML("afterend",'<div class="looks"><b>اختر توزيع النافذة:</b>'+["عمودان","صفوف بعرض النافذة","الملف في عمود جانبي"].map(function(t,n){n++;return '<button type="button" data-look="'+n+'" aria-pressed="'+((window.DOCV||1)===n)+'">'+n+' · '+t+'</button>'}).join("")+'</div>')},0)});
 function waiting(){return DOCS.filter(function(d){return d.st===PEND})}
 document.addEventListener("click",function(e){var b=e.target.closest("button[data-tab]");if(b){tab=b.dataset.tab;render()}
   var v=e.target.closest("button[data-vrow]");if(v){openV[v.dataset.vrow]=!openV[v.dataset.vrow];render()}
@@ -77,7 +71,7 @@ function render(){
   var q=$("q").value.trim(),ao=$("ackOnly").checked;
   var list=DOCS.filter(function(d){return (tab==="الكل"||d.c===tab)&&(!ao||d.ack)&&(!q||d.n.indexOf(q)>-1)});
   $("rows").innerHTML=list.length?list.map(function(d){
-    return '<tr'+(d.st===PEND?' class="wait"':'')+'><td class="full"><div class="who"><span class="pdf" aria-hidden="true">PDF</span><div><b>'+esc(d.n)+'</b>'+(d.author?'<small>تأليف '+esc(d.author)+' · رفعه '+esc(d.by||"—")+'</small><small class="bx">'+esc(d.bx||"")+'</small>':'')+'<small>'+ltr(d.file)+' · '+d.size.replace(" MB"," ميغابايت")+' · '+d.pages+' صفحة</small></div></div></td>'+
+    return '<tr'+(d.st===PEND?' class="wait"':'')+'><td class="full"><div class="who"><span class="pdf" aria-hidden="true">PDF</span><div><b>'+esc(d.n)+'</b>'+(d.author?'<small>تأليف '+esc(d.author)+' · رفعه '+esc(d.by||"—")+'</small>':'')+(d.bx?'<small class="bx">'+esc(d.bx)+'</small>':'')+'<small>'+ltr(d.file)+' · '+d.size.replace(" MB"," ميغابايت")+' · '+d.pages+' صفحة</small></div></div></td>'+
       '<td><span class="chip s">'+esc(d.c)+'</span>'+(d.st===PEND?' <span class="st">'+PEND+'</span>':'')+'</td><td class="hide"><button class="btn sm vbtn" data-vrow="'+DOCS.indexOf(d)+'" aria-expanded="'+!!openV[DOCS.indexOf(d)]+'">'+(openV[DOCS.indexOf(d)]?'إخفاء الإصدارات':'<span class="n">'+d.v+'</span> '+(d.v>2?'إصدارات':d.v===2?'إصدارين':'إصدار'))+'</button></td>'+
       '<td class="full">'+(d.ack?prog(d.read,d.all,"قرأوا وأقرّوا")+(d.due?'<div class="dl">آخر موعد '+ltr(d.due)+' '+dueTxt(d.due)+'</div>':''):'<span class="m">غير مطلوب</span>')+'</td>'+
       '<td class="hide m">'+ltr(d.up)+'</td>'+
