@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>المكتبة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125103722">
-<link rel="stylesheet" href="forms.css?v=1125103722">
+<link rel="stylesheet" href="ui.css?v=1125103754">
+<link rel="stylesheet" href="forms.css?v=1125103754">
 <style>.showm{display:none}@media (max-width:760px){.showm{display:inline-flex}}.vbtn{gap:6px}
 .vr{display:grid;grid-template-columns:auto 96px 1fr auto auto;gap:6px 18px;align-items:center;padding:10px 0;font-size:var(--t-ui)}
 .vr + .vr{border-top:1px solid var(--line)}
@@ -16,11 +16,9 @@ tr.det .btn{background:var(--card)!important}
 #rows td.end,#rows td.m{white-space:nowrap}
 @media (max-width:760px){#rows td.end,#rows td.m{white-space:normal}#rows td.end{display:grid;grid-template-columns:1fr 1fr;gap:6px}#rows td.end .btn{width:100%}.who .bx{white-space:normal;max-width:100%}#rows .who > div{min-width:0}#rows .who small{white-space:normal;overflow-wrap:anywhere}}
 #rows .pgx{min-width:130px}
-#rows .lnk{font-size:15px;font-weight:500}
-#rows .who .chip{vertical-align:middle;margin-inline-start:6px}
 .who .bx{max-width:60ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* books sent by employees from the portal wait here until someone publishes or rejects them (Mohamed 2026-11-24) */
-.pend{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 16px;margin-bottom:12px;background:var(--card);border-radius:16px;border:1.5px solid var(--sea)}
+.pend{display:flex;gap:12px;align-items:center;padding:10px 16px;margin-bottom:12px;background:var(--card);border-radius:16px;border:1.5px solid var(--sea)}
 .pend b{font-weight:500}.pend .sp{margin-inline-start:auto}
 tr.wait td{background:var(--sub)}
 .prog{display:flex;align-items:center;gap:10px;min-width:140px}.prog .track{flex:1}</style>
@@ -37,12 +35,12 @@ tr.wait td{background:var(--sub)}
       <label class="pick"><input type="checkbox" id="ackOnly"> يتطلب إقرارًا فقط</label>
       <input class="field" id="q" type="search" placeholder="ابحث باسم المستند" aria-label="بحث">
     </div>
-    <div class="tb"><table><thead><tr><th>المستند</th><th>الإصدار وآخر تحديث</th><th>الإقرار</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="tb"><table><thead><tr><th>المستند</th><th>التصنيف</th><th>الإصدار</th><th>الإقرار</th><th>آخر تحديث</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125103722"></script>
-<script src="forms.js?v=1125103722"></script>
+<script src="ui.js?v=1125103754"></script>
+<script src="forms.js?v=1125103754"></script>
 <script>
 var tab="الكل",openV={},PEND="بانتظار المراجعة";
 function waiting(){return DOCS.filter(function(d){return d.st===PEND})}
@@ -61,24 +59,23 @@ document.addEventListener("click",function(e){var b=e.target.closest("button[dat
 function vline(v,up,note,m,cur){return '<div class="vr"><b>الإصدار <span class="n">'+v+'</span>'+(cur?'<span class="chip s">الحالي</span>':'')+'</b><span class="m">'+ltr(up)+'</span><span class="vn">'+esc(note||"بدون ملاحظات.")+'</span>'+
   '<span class="m vf">'+ltr(m.file)+' · '+m.size.replace(" MB"," ميغابايت")+'</span><button class="btn sm" data-mock="فتح «'+esc(m.file)+'» في تبويب جديد">فتح PDF</button></div>'}
 function vrows(d,i){var h=(d.hist||[]).slice().reverse();
-  return '<tr class="det"><td colspan="4" class="full"><div class="vhead"><b>إصدارات «'+esc(d.n)+'»</b><button class="btn sm" data-form="doc" data-i="'+i+'">رفع إصدار جديد</button></div>'+
+  return '<tr class="det"><td colspan="6" class="full"><div class="vhead"><b>إصدارات «'+esc(d.n)+'»</b><button class="btn sm" data-form="doc" data-i="'+i+'">رفع إصدار جديد</button></div>'+
     vline(d.v,d.up,d.note,d,true)+h.map(function(x){return vline(x.v,x.up,x.note,x,false)}).join("")+(h.length?'':'<p class="m" style="padding-top:6px">هذا أول إصدار، ولا توجد إصدارات قبله.</p>')+'</td></tr>'}
 document.addEventListener("input",function(e){if(e.target.id==="q"||e.target.id==="ackOnly")render()});
 function render(){
   var cats=["الكل"].concat(DOCS.map(function(d){return d.c}).filter(function(c,i,a){return a.indexOf(c)===i}));
   $("tabs").innerHTML=cats.map(function(c){return '<button data-tab="'+c+'" aria-pressed="'+(c===tab)+'">'+c+'<b>'+DOCS.filter(function(d){return c==="الكل"||d.c===c}).length+'</b></button>'}).join("");
   var w=waiting();
-  /* one review row per waiting book: its name, who uploaded it, and the button beside them */
-  $("pend").innerHTML=w.map(function(d){return '<div class="pend"><span class="st"></span><span class="m">كتاب بانتظار مراجعتك</span><b>'+esc(d.n)+'</b><span class="m">رفعه '+esc(d.by)+'</span><span class="sp"></span>'+
-    '<button class="btn sm" data-mock="فتح «'+esc(d.file)+'» في تبويب جديد">فتح PDF</button><button class="btn sm k" data-pub="'+DOCS.indexOf(d)+'">نشر الكتاب</button><button class="btn sm" data-rej="'+DOCS.indexOf(d)+'">رفض</button></div>'}).join("");
+  $("pend").innerHTML=w.length?'<div class="pend"><span class="st"></span><b>'+(w.length===1?'كتاب واحد':w.length===2?'كتابان':w.length+' كتب')+' من الموظفين بانتظار مراجعتك</b><span class="m">'+esc(w.map(function(d){return d.by}).join("، "))+'</span><span class="sp"></span>'+(tab===BOOK?'':'<button class="btn sm" data-showpend>عرض</button>')+'</div>':'';
   var q=$("q").value.trim(),ao=$("ackOnly").checked;
   var list=DOCS.filter(function(d){return (tab==="الكل"||d.c===tab)&&(!ao||d.ack)&&(!q||d.n.indexOf(q)>-1)});
   $("rows").innerHTML=list.length?list.map(function(d){
-    return '<tr'+(d.st===PEND?' class="wait"':'')+'><td class="full"><div class="who"><span class="pdf" aria-hidden="true">PDF</span><div><button class="lnk" data-mock="فتح «'+esc(d.file)+'» في تبويب جديد" title="فتح PDF">'+esc(d.n)+'</button><span class="chip s">'+esc(d.c)+'</span>'+(d.st===PEND?' <span class="st">'+PEND+'</span>':'')+(d.author?'<small>تأليف '+esc(d.author)+' · رفعه '+esc(d.by||"—")+'</small><small class="bx">'+esc(d.bx||"")+'</small>':'')+'<small>'+ltr(d.file)+' · '+d.size.replace(" MB"," ميغابايت")+' · '+d.pages+' صفحة</small></div></div></td>'+
-      '<td class="hide"><button class="btn sm vbtn" data-vrow="'+DOCS.indexOf(d)+'" aria-expanded="'+!!openV[DOCS.indexOf(d)]+'">'+(openV[DOCS.indexOf(d)]?'إخفاء الإصدارات':'<span class="n">'+d.v+'</span> '+(d.v>2?'إصدارات':d.v===2?'إصدارين':'إصدار'))+'</button><small>'+ltr(d.up)+'</small></td>'+
+    return '<tr'+(d.st===PEND?' class="wait"':'')+'><td class="full"><div class="who"><span class="pdf" aria-hidden="true">PDF</span><div><b>'+esc(d.n)+'</b>'+(d.author?'<small>تأليف '+esc(d.author)+' · رفعه '+esc(d.by||"—")+'</small><small class="bx">'+esc(d.bx||"")+'</small>':'')+'<small>'+ltr(d.file)+' · '+d.size.replace(" MB"," ميغابايت")+' · '+d.pages+' صفحة</small></div></div></td>'+
+      '<td><span class="chip s">'+esc(d.c)+'</span>'+(d.st===PEND?' <span class="st">'+PEND+'</span>':'')+'</td><td class="hide"><button class="btn sm vbtn" data-vrow="'+DOCS.indexOf(d)+'" aria-expanded="'+!!openV[DOCS.indexOf(d)]+'">'+(openV[DOCS.indexOf(d)]?'إخفاء الإصدارات':'<span class="n">'+d.v+'</span> '+(d.v>2?'إصدارات':d.v===2?'إصدارين':'إصدار'))+'</button></td>'+
       '<td class="full">'+(d.ack?prog(d.read,d.all,"قرأوا وأقرّوا"):'<span class="m">غير مطلوب</span>')+'</td>'+
-      '<td class="end full">'+(d.st===PEND?'<button class="btn sm" data-mock="فتح «'+esc(d.file)+'» في تبويب جديد">فتح PDF</button> <button class="btn sm k" data-pub="'+DOCS.indexOf(d)+'">نشر</button> <button class="btn sm" data-rej="'+DOCS.indexOf(d)+'">رفض</button></td></tr>':'<button class="btn sm showm" data-vrow="'+DOCS.indexOf(d)+'" aria-expanded="'+!!openV[DOCS.indexOf(d)]+'">'+(openV[DOCS.indexOf(d)]?'إخفاء الإصدارات':'الإصدارات ('+d.v+')')+'</button> '+(d.ack?'<button class="btn sm" data-readers="'+DOCS.indexOf(d)+'">من قرأ</button> ':'')+'<button class="btn sm" data-form="doc" data-i="'+DOCS.indexOf(d)+'">تعديل</button>'+'</td></tr>')+(openV[DOCS.indexOf(d)]?vrows(d,DOCS.indexOf(d)):'')}).join(""):
-    '<tr><td colspan="4" class="empty">لا توجد مستندات بهذه الشروط. جرّب تغيير البحث أو التصنيف.</td></tr>';
+      '<td class="hide m">'+ltr(d.up)+'</td>'+
+      '<td class="end full">'+(d.st===PEND?'<button class="btn sm" data-mock="فتح «'+esc(d.file)+'» في تبويب جديد">فتح PDF</button> <button class="btn sm k" data-pub="'+DOCS.indexOf(d)+'">نشر</button> <button class="btn sm" data-rej="'+DOCS.indexOf(d)+'">رفض</button></td></tr>':'<button class="btn sm showm" data-vrow="'+DOCS.indexOf(d)+'" aria-expanded="'+!!openV[DOCS.indexOf(d)]+'">'+(openV[DOCS.indexOf(d)]?'إخفاء الإصدارات':'الإصدارات ('+d.v+')')+'</button> <button class="btn sm" data-mock="فتح «'+esc(d.file)+'» في تبويب جديد">فتح PDF</button> <button class="btn sm" data-form="doc" data-i="'+DOCS.indexOf(d)+'">تعديل</button> '+(d.ack?'<button class="btn sm" data-readers="'+DOCS.indexOf(d)+'">من قرأ</button>':'')+'</td></tr>')+(openV[DOCS.indexOf(d)]?vrows(d,DOCS.indexOf(d)):'')}).join(""):
+    '<tr><td colspan="6" class="empty">لا توجد مستندات بهذه الشروط. جرّب تغيير البحث أو التصنيف.</td></tr>';
   $("count").textContent=list.length+" من "+DOCS.length+" مستند في النموذج (على Live 82) · بيانات تجريبية";
 }
 </script>
