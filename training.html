@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>التدريب — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125135508">
-<link rel="stylesheet" href="forms.css?v=1125135508">
+<link rel="stylesheet" href="ui.css?v=1125140541">
+<link rel="stylesheet" href="forms.css?v=1125140541">
 <style>
 /* Training, as Mohamed defined it 2026-11-24: a name, a description, files and videos, a deadline, a set of
    multiple-choice questions with no limit on their number, and who it is directed to. Nothing else: the days, the
@@ -143,8 +143,8 @@
   <section class="card" id="resBox" style="margin-top:12px"><div class="tb"><table><thead><tr><th>الموظف</th><th>التدريب</th><th>الدرجة</th><th>المحاولات</th><th>قرار المدير المباشر</th></tr></thead><tbody id="rrows"></tbody></table></div></section>
   <p class="note" id="count"></p>
 </div>
-<script src="ui.js?v=1125135508"></script>
-<script src="forms.js?v=1125135508"></script>
+<script src="ui.js?v=1125140541"></script>
+<script src="forms.js?v=1125140541"></script>
 <script>
 var KINDS=["تدريبات السندباد","تدريب OPPEIN","تدريبات خارجية"],KCLS={"تدريب OPPEIN":" op","تدريبات خارجية":" ex"},TABS=["الكل"].concat(KINDS),tab="الكل",
     MK=["ملف من المكتبة","فيديو يوتيوب","فيديو مرفوع"],MAXO=6,
@@ -178,9 +178,6 @@ function left(due){return Math.round((new Date(due)-new Date(TODAY))/864e5)}
 /* Arabic counts: 1 and 2 have their own words, 3–10 take the plural, 11 and up the singular */
 function pl(n,one,two,many,sing){return n===0?"لا "+many:n===1?one:n===2?two:n+" "+(n<=10?many:sing)}
 console.assert(pl(1,"فئة واحدة","فئتان","فئات","فئة")==="فئة واحدة"&&pl(3,"","","فئات","فئة")==="3 فئات"&&pl(12,"","","فئات","فئة")==="12 فئة");
-var MON=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
-function dmy(s){var p=s.split("-");return (+p[2])+" "+MON[p[1]-1]+" "+p[0]}
-console.assert(dmy("2026-11-06")==="6 نوفمبر 2026");
 document.addEventListener("click",function(e){document.querySelectorAll("details.mn[open]").forEach(function(m){if(!m.contains(e.target)||e.target.closest(".mn > div button"))m.open=false})});
 /* shortcut: 200 MB is a placeholder limit until the video storage is decided */
 var VMAX=200;

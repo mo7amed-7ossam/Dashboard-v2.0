@@ -126,13 +126,13 @@ function docForm(d){
       '<p class="m" id="byL" style="font-size:var(--t-sm)">'+(isNew?'سيُسجَّل الكتاب باسم من رفعه: '+ME+'.':'رفعه: '+esc(d.by||ME)+' · '+ltr(d.up))+'</p></div>'+
     '<div class="fs"><h3>الإقرار والملف</h3>'+two(fld("إقرار القراءة",sel("ack",["مطلوب","غير مطلوب"],d.ack===false?"غير مطلوب":"مطلوب")),
         '<label class="f"><span id="dueL"></span><input class="in" type="date" name="due" value="'+esc(d.due||"")+'"></label>')+
-      '<div class="f grow"><span>الملف</span><label class="drop"><b>ملف PDF</b><small>'+(isNew?"سيكون هذا الملف الإصدار 1.":"الإصدار الحالي "+d.v+". إن لم تختر ملفًا فلن يُنشأ إصدار جديد.")+'</small><input type="file" name="file" accept="application/pdf"></label></div></div>';
+      '<div class="f grow"><span>الملف</span><label class="drop"><b>ملف PDF</b><small>'+(isNew?"سيكون هذا الملف الإصدار 1.":"الإصدار الحالي "+d.v+". إن لم تختر ملفًا فلن يُنشأ إصدار جديد.")+'</small><input type="file" name="file" accept="application/pdf"'+(isNew?' data-req="اختر ملف PDF للمستند"':'')+'></label></div></div>';
   return {title:isNew?"مستند جديد":"تعديل مستند",saveLabel:isNew?"إضافة كمستند جديد":"حفظ",html:
     lay+
     '<div class="fs wide" data-step="2">'+A.html+'</div>',
     steps:["بيانات المستند","لمن يظهر"],isNew:isNew,
     init:function(f){A.draw(f);var bk=f.c.value===BOOK;f.querySelector("#bookRow").style.display=f.querySelector("#byL").style.display=bk?"":"none";
-      if(!bk)f.querySelector("#catRow").style.gridTemplateColumns="minmax(0,1fr)";f.querySelector("#bxL").textContent=bk?"وصف الكتاب":"الوصف";
+      f.querySelector("#catRow").style.gridTemplateColumns=bk?"":"minmax(0,1fr)";f.querySelector("#bxL").textContent=bk?"وصف الكتاب":"الوصف";
       [["author","اكتب اسم مؤلف الكتاب"],["bx","اكتب وصفًا مختصرًا للكتاب"]].forEach(function(k){if(bk)f[k[0]].dataset.req=k[1];else delete f[k[0]].dataset.req})},
     bind:function(f){A.bind(f);function due(){var on=f.ack.value==="مطلوب";f.due.disabled=!on;f.querySelector("#dueL").textContent=on?"آخر موعد للإقرار":"آخر موعد (الإقرار غير مطلوب)";if(on)f.due.dataset.req="حدّد آخر موعد للإقرار";else delete f.due.dataset.req}
       due();f.ack.addEventListener("change",due)},check:function(f){return A.check(f)},
@@ -379,9 +379,12 @@ function peoplePanel(o){
   draw();d.showModal();
 }
 /* shortcut: both lists are cut from the sample EMPS by the stored counts, replace with DOCUMENT_READ_CONFIRMATIONS (and its news equivalent) when built in APEX */
+/* who a document is directed to and how many of them acknowledged it: one source for the library row and the «من قرأ» window
+   shortcut: the sample read/all ratio is applied to the audience; in APEX both come from the confirmations table */
+function docRead(doc){var P=audCalc(audState(doc.aud)).see.map(function(r){return r.e});return {people:P,all:P.length,done:Math.min(P.length,Math.round(P.length*doc.read/(doc.all||1)))}}
 function openReaders(doc){
-  var n=Math.round(EMPS.length*doc.read/(doc.all||1));
-  peoplePanel({title:"من قرأ المستند",name:doc.n+" · الإصدار "+doc.v,item:doc,done:EMPS.slice(0,n),rest:EMPS.slice(n),
+  var R=docRead(doc),n=R.done;
+  peoplePanel({title:"من قرأ المستند",name:doc.n+" · الإصدار "+doc.v,item:doc,done:R.people.slice(0,n),rest:R.people.slice(n),
     restLabel:"لم يقرأوا بعد",doneLabel:"قرأوا وأقرّوا",noRest:"الجميع قرأ هذا المستند.",noDone:"لم يقرأ أحد بعد."});
 }
 /* who saw a news item, for every published item (Mohamed 2026-11-24: «مين اطلع على الخبر»). With «تأكيد الاطلاع» on,
