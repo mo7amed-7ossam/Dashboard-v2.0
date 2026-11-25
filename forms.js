@@ -306,7 +306,7 @@ function openForm(kind,data){
     f.querySelectorAll(".steps button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.go===String(n))});
     var bk=f.querySelector("[data-back]"),nx=f.querySelector("[data-next]"),sv=f.querySelector("[data-save]");
     bk.hidden=n===1;bk.dataset.go=n-1;
-    nx.hidden=n===last;nx.dataset.go=n+1;nx.textContent=F.steps[n]||"";nx.className="btn"+(F.isNew?" k":"");sv.hidden=n<last&&F.isNew;
+    nx.hidden=n===last;nx.dataset.go=n+1;nx.textContent=F.steps[n]?"التالي: "+F.steps[n]:"";nx.className="btn"+(F.isNew?" k":"");sv.hidden=n<last&&F.isNew;
     f.querySelector(".dr-b").scrollTop=0;d.dataset.step=n}
   f.querySelectorAll(".drop").forEach(dressDrop);
   if(F.init)F.init(f);
@@ -320,7 +320,7 @@ function openForm(kind,data){
   });
   f.addEventListener("click",function(ev){
     var b=ev.target.closest("button");if(!b)return;
-    if(b.hasAttribute("data-close")){d.close();return}
+    if(b.hasAttribute("data-close")){leave();return}
     if(b.dataset.go){go(+b.dataset.go);return}
     var a=b.dataset.acc;if(!a)return;
     var box=f.querySelector("#accActs");
@@ -333,6 +333,11 @@ function openForm(kind,data){
     if(a==="purge"){EMPS.splice(EMPS.indexOf(data),1);d.close();if(window.render)render();toast("تم حذف "+data.name+" نهائيًا.")}
     if(a==="stop"||a==="start"){data.st=a==="stop"?"موقوف":"نشط";d.close();if(window.render)render();toast(a==="stop"?"تم إيقاف حساب "+data.name+".":"تم تفعيل حساب "+data.name+".")}
   });
+  /* closing with unsaved changes asks first (UX review 2026-11-25: ×, «إلغاء» and Esc used to drop the work silently) */
+  function leave(){if(f.querySelector("#dirty").hidden){d.close();return}
+    var a=dlg("ask");a.innerHTML='<h2>تجاهل التغييرات؟</h2><p>لم تُحفظ التغييرات في هذه النافذة، وسيضيع ما كتبته إن أغلقتها.</p><div class="acts"><button class="btn r" data-yes>تجاهل التغييرات</button><button class="btn" data-close>متابعة التعديل</button></div>';
+    a.querySelector("[data-yes]").onclick=function(){a.close();d.close()};a.showModal();a.querySelector("[data-close]").focus()}
+  d.oncancel=function(ev){ev.preventDefault();leave()};
   f.addEventListener("submit",function(ev){
     ev.preventDefault();var bad=missing(f.querySelectorAll("[data-req]"));
     if(bad){if(F.steps)go(1);if(F.reveal)F.reveal(bad,f);bad.focus();return}
