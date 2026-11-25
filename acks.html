@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>إقرارات القراءة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125111907">
+<link rel="stylesheet" href="ui.css?v=1125112223">
 <style>
 .prog{display:flex;align-items:center;gap:10px;min-width:150px}.prog .track{flex:1}
 </style>
@@ -22,11 +22,11 @@
       <label class="pick"><input type="checkbox" id="all"> تحديد الكل</label>
       <button class="btn k" id="send" disabled></button>
     </div>
-    <div class="tb"><table><thead><tr><th></th><th>الموظف</th><th>قرأ</th><th>متأخر أكثر من 14 يومًا</th><th>آخر تذكير</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="tb"><table><thead><tr><th></th><th>الموظف</th><th>قرأ</th><th>تجاوز آخر موعد</th><th>آخر تذكير</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
     <p class="note">«تحديد الكل» يحدّد الظاهرين المؤهلين للتذكير فقط. يستلم الموظف رسالة واحدة تضم جميع مستنداته · بيانات تجريبية</p>
   </section>
 </div>
-<script src="ui.js?v=1125111907"></script>
+<script src="ui.js?v=1125112223"></script>
 <script>
 var TABS=["الكل","لديهم إقرارات معلّقة","مكتمل"],tab="لديهم إقرارات معلّقة",sel={},open={};
 var AD=DOCS.filter(function(d){return d.ack});
@@ -49,7 +49,7 @@ document.addEventListener("input",function(e){
 });
 function render(){
   var d=0,a=0,l=0;ACKS.forEach(function(x){d+=x.done;a+=x.all;l+=x.late});
-  $("stats").innerHTML=[["acc","check","نسبة الإقرار",pc(d,a)+"%",'<span class="chip">'+d+' من '+a+'</span>'],["","clock","لم تُقرأ بعد",a-d,"إقرار مطلوب"],["bad","clock","متأخر",l,"أكثر من 14 يومًا"],["","doc","مستندات تتطلب إقرارًا",AD.length,"من 82 مستند"]].map(function(k){
+  $("stats").innerHTML=[["acc","check","نسبة الإقرار",pc(d,a)+"%",'<span class="chip">'+d+' من '+a+'</span>'],["","clock","لم تُقرأ بعد",a-d,"إقرار مطلوب"],["bad","clock","متأخر",l,"تجاوز آخر موعد للإقرار"],["","doc","مستندات تتطلب إقرارًا",AD.length,"من 82 مستند"]].map(function(k){
     return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");
   $("tabs").innerHTML=TABS.map(function(s){return '<button data-tab="'+s+'" aria-pressed="'+(s===tab)+'">'+s+'</button>'}).join("");
   var list=vis(),n=Object.keys(sel).length,can=list.filter(ok).length;

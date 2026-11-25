@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>تذكير الموظفين — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125111907">
-<link rel="stylesheet" href="forms.css?v=1125111907">
+<link rel="stylesheet" href="ui.css?v=1125112223">
+<link rel="stylesheet" href="forms.css?v=1125112223">
 <style>
 /* Everything an employee should be reminded of, in one place (Mohamed 2026-11-24: «شاشة تذكرات عليها كل الحاجات اللى
    المفروض اذكر بيها الموظفين»). One row per employee, because one reminder goes to each employee with all of it:
@@ -39,8 +39,8 @@
     <p class="note" id="count"></p>
   </section>
 </div>
-<script src="ui.js?v=1125111907"></script>
-<script src="forms.js?v=1125111907"></script>
+<script src="ui.js?v=1125112223"></script>
+<script src="forms.js?v=1125112223"></script>
 <script>
 var KIND=[["docs","المستندات"],["news","الأخبار"],["tr","التدريب"],["prof","الملف الشخصي"]],tab="all",sel={},open={},SENT={};
 function plural(n,one,two,many){return n===1?one:n===2?two:n+" "+many}
@@ -80,7 +80,7 @@ function kinds(x){var o=[];
   if(x.prof.length)o.push('<span class="chip s">ملف شخصي ينقصه '+plural(x.prof.length,"بند","بندان","بنود")+'</span>');
   return '<div class="kinds">'+o.join("")+'</div>'}
 function detail(x){var r=[];
-  if(x.docs)r.push(['مستندات لم يقرأها',x.docs+' من المطلوب'+(x.late?' · <span class="bad">'+x.late+' تجاوزت 14 يومًا</span>':'')+' · <a href="acks.html">التفاصيل في إقرارات القراءة</a>']);
+  if(x.docs)r.push(['مستندات لم يقرأها',x.docs+' من المطلوب'+(x.late?' · <span class="bad">'+x.late+' تجاوزت آخر موعد</span>':'')+' · <a href="acks.html">التفاصيل في إقرارات القراءة</a>']);
   if(x.news.length)r.push(['أخبار لم يؤكِّد الاطلاع عليها',x.news.map(esc).join("، ")]);
   if(x.tr.length)r.push(['تدريبات لم يُجب عن أسئلتها',x.tr.map(function(t){return esc(t.n)+(t.due?' <span class="'+(t.over?'bad':'m')+'">('+(t.over?'انتهى موعده ':'آخر موعد ')+ltr(t.due)+')</span>':'')}).join("، ")]);
   if(x.redo.length)r.push(['طُلبت منه إعادة الاختبار',x.redo.map(esc).join("، ")]);
@@ -89,7 +89,7 @@ function detail(x){var r=[];
 function render(){
   var L=build(),n=function(k){return L.filter(function(x){return has(x,k)}).length},over=L.filter(function(x){return x.over}).length;
   $("stats").innerHTML=[["acc","users","موظفون ينتظرهم شيء",L.length,"لكل واحد منهم تذكير واحد يضم كل ما ينتظره"],
-    [over?"bad":"","clock","لديهم متأخرات",over,"مستند تجاوز 14 يومًا أو تدريب انتهى موعده"],
+    [over?"bad":"","clock","لديهم متأخرات",over,"مستند تجاوز آخر موعد للإقرار أو تدريب انتهى موعده"],
     ["","cap","تدريبات لم تُنجز",L.reduce(function(a,x){return a+x.tr.length+x.redo.length},0),"لدى "+n("tr")+" موظفين"],
     ["","doc","ملفات شخصية ناقصة",n("prof"),"موظفون ينقص ملفهم بنود"]].map(function(k){
     return '<div class="tile '+k[0]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></div>'}).join("");

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>نظرة عامة — لوحة تحكم السندباد</title>
-<link rel="stylesheet" href="ui.css?v=1125111907">
-<link rel="stylesheet" href="forms.css?v=1125111907">
+<link rel="stylesheet" href="ui.css?v=1125112223">
+<link rel="stylesheet" href="forms.css?v=1125112223">
 <style>
 /* UI review 2026-11-23: every figure appears once. Row 1 = what waits and how big things are, row 2 = reading health
    (one headline, one bar) beside the per-department picture, row 3 = the work lists. */
@@ -92,8 +92,8 @@ a.tile.acc:hover{outline-color:transparent;filter:brightness(1.04)}
   </div>
   <p class="note">نموذج تصميم: الأرقام والأسماء للعرض فقط.</p>
 </div>
-<script src="ui.js?v=1125111907"></script>
-<script src="forms.js?v=1125111907"></script>
+<script src="ui.js?v=1125112223"></script>
+<script src="forms.js?v=1125112223"></script>
 <script>
 document.addEventListener("click",function(e){
   var b=e.target.closest("button");if(!b)return;
@@ -124,7 +124,7 @@ function render(){
   $("tiles").innerHTML=[
     [n?"acc":"","users","بانتظار اعتمادك",n,n?"تسجيلات جديدة":"لا توجد تسجيلات","employees.html"],
     ["","doc","سلف بانتظار قرارك",hr,hr?"وافق عليها المدير المباشر":"لا توجد سلف","requests.html"],
-    ["bad","clock","إقرارات متأخرة",t.late,"تجاوزت 14 يومًا","acks.html"],
+    ["bad","clock","إقرارات متأخرة",t.late,"تجاوزت آخر موعد للإقرار","acks.html"],
     ["","users","اكتمال الملفات الشخصية",pc(act.reduce(function(a,e){return a+prof(e).done},0),act.reduce(function(a,e){return a+prof(e).all},0))+"%",act.filter(function(e){return !prof(e).miss.length}).length+" من "+act.length+" موظفين نشطين ملفهم مكتمل","employees.html"]
   ].map(function(k){return '<a class="tile '+k[0]+'" href="'+k[5]+'"><header><span>'+k[2]+'</span><span class="ico">'+ic(k[1],18)+'</span></header><div class="big">'+k[3]+'</div><footer>'+k[4]+'</footer></a>'}).join("");
   $("pct").textContent=t.pct+"%";$("readN").textContent=t.read;$("allN").textContent=t.all;

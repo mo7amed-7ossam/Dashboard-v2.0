@@ -120,6 +120,7 @@ function docForm(d){
   return {title:isNew?"مستند جديد":"تعديل مستند",saveLabel:isNew?"إضافة كمستند جديد":"حفظ",html:
     '<div class="fs wide"><h3>بيانات المستند</h3><div class="row4">'+fld("اسم المستند بالعربي",inp("n",d.n,req("اكتب اسم المستند")))+fld("اسم المستند بالإنجليزي",inp("en",d.en,'dir="ltr"'))+fld("التصنيف",sel("c",CATS,d.c))+
       fld("إقرار القراءة",sel("ack",["مطلوب","غير مطلوب"],d.ack===false?"غير مطلوب":"مطلوب"))+'</div>'+
+      '<div class="row4" id="dueRow" style="margin-top:12px"><label class="f"><span>آخر موعد للإقرار</span><input class="in" type="date" name="due" value="'+esc(d.due||"")+'"><small>بعده يُحسب من لم يُقرّ متأخرًا.</small></label></div>'+
       /* books and references only (Mohamed 2026-11-24): who wrote it, a short description, and who uploaded it */
       '<div id="bookRow" style="margin-top:12px"><div class="row2">'+fld("مؤلف الكتاب",inp("author",d.author))+fld("وصف مختصر للكتاب",txt("bx",d.bx,'rows="2" maxlength="220"'),"سطران على الأكثر، يظهران للموظف تحت اسم الكتاب.")+'</div>'+
         '<p class="m" style="font-size:var(--t-sm);margin-top:6px">'+(isNew?'سيُسجَّل الكتاب باسم من رفعه: '+ME+'.':'رفعه: '+esc(d.by||ME)+' · '+ltr(d.up))+'</p></div></div>'+
@@ -129,12 +130,13 @@ function docForm(d){
     steps:["بيانات المستند","لمن يظهر"],isNew:isNew,
     init:function(f){A.draw(f);var bk=f.c.value===BOOK;f.querySelector("#bookRow").style.display=bk?"":"none";
       [["author","اكتب اسم مؤلف الكتاب"],["bx","اكتب وصفًا مختصرًا للكتاب"]].forEach(function(k){if(bk)f[k[0]].dataset.req=k[1];else delete f[k[0]].dataset.req})},
-    bind:function(f){A.bind(f)},check:function(f){return A.check(f)},
+    bind:function(f){A.bind(f);function due(){var on=f.ack.value==="مطلوب";f.querySelector("#dueRow").style.display=on?"":"none";if(on)f.due.dataset.req="حدّد آخر موعد للإقرار";else delete f.due.dataset.req}
+      due();f.ack.addEventListener("change",due)},check:function(f){return A.check(f)},
     save:function(f){
       var r=A.calc(),ack=f.ack.value==="مطلوب",bk=f.c.value===BOOK,au=bk?f.author.value.trim():"",bx=bk?f.bx.value.trim():"";
-      if(!isNew){d.n=f.n.value;d.c=f.c.value;d.ack=ack;d.aud=A.value();d.author=au;d.bx=bx;if(bk&&!d.by)d.by=ME;
+      if(!isNew){d.n=f.n.value;d.c=f.c.value;d.ack=ack;d.due=ack?f.due.value:"";d.aud=A.value();d.author=au;d.bx=bx;if(bk&&!d.by)d.by=ME;
         if(f.file.value){d.hist=(d.hist||[]).concat([{v:d.v,up:d.up,note:d.note||"",file:d.file,size:d.size,pages:d.pages}]);d.v++;d.note=f.note.value;d.up="2026-11-22";var um=pdfMeta(DOCS.indexOf(d),d.v);d.file=um.file;d.size=um.size;d.pages=um.pages}}
-      else{var nm=pdfMeta(DOCS.length,1);DOCS.unshift({n:f.n.value,c:f.c.value,v:1,ack:ack,read:0,all:r.see.length,up:"2026-11-22",note:f.note.value,file:nm.file,size:nm.size,pages:nm.pages,hist:[],aud:A.value(),author:au,bx:bx,by:bk?ME:""})}
+      else{var nm=pdfMeta(DOCS.length,1);DOCS.unshift({due:ack?f.due.value:"",n:f.n.value,c:f.c.value,v:1,ack:ack,read:0,all:r.see.length,up:"2026-11-22",note:f.note.value,file:nm.file,size:nm.size,pages:nm.pages,hist:[],aud:A.value(),author:au,bx:bx,by:bk?ME:""})}
       return "تم الحفظ — المستند ظاهر الآن لـ "+r.see.length+" موظفين"+(r.exc.length?" (مستثنى "+r.exc.length+")":"")+".";
     }};
 }
