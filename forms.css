@@ -318,3 +318,21 @@ dialog.ask .f > span{font-size:var(--t-sm);color:var(--ink)}
 [data-theme="dark"] .f.grow > .drop.doc.has .dz-pv{background-color:rgba(207,221,40,.13);border-color:#7C8440;color:#DCE86A}
 /* a chosen picture fills the stage: the drop hint must not show over it */
 .f.grow > .drop.img.has .dz-pv > *{display:none}
+/* document viewer: the page is the window */
+dialog.drawer.dv .dr-h{align-items:center;gap:16px}
+.dvt{display:grid;gap:2px;min-width:0}
+.dvt h2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dvt .m{font-size:var(--t-sm)}
+.dva{display:flex;gap:8px;align-items:center;flex:none}
+.dva .field{padding:6px 14px;font-size:var(--t-sm)}
+.dva .btn{background:var(--sub)}
+dialog.drawer.dv .dr-b{grid-template-columns:minmax(0,1fr);justify-items:center;gap:14px;background:var(--sub);padding:28px 24px 20px}
+.page{width:min(100%,400px);aspect-ratio:1/1.414;background:var(--card);border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 10px 30px rgba(0,0,0,.08);padding:30px;display:flex;flex-direction:column;gap:11px;overflow:hidden}
+.page img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:4px;margin-bottom:6px}
+.page b{font-family:"Alexandria",sans-serif;font-size:var(--t-h3);font-weight:500;line-height:1.5}
+.page p{color:var(--m);font-size:var(--t-sm);margin-bottom:4px}
+.page i{display:block;height:7px;border-radius:99px;background:var(--line);flex:none}
+.pgn{display:flex;gap:12px;align-items:center;font-size:var(--t-sm);color:var(--m)}
+.pgn .ib{width:30px;height:30px;border-radius:50%;border:0;background:var(--card);color:var(--ink);font-size:16px;line-height:1;cursor:pointer}
+.pgn .ib:disabled{opacity:.35;cursor:default}
+@media (max-width:760px){dialog.drawer.dv .dr-h{flex-wrap:wrap}.dva{width:100%;justify-content:space-between}.page{padding:20px}}

@@ -183,16 +183,19 @@ function openFiles(e,start){var d=dlg("drawer md fv"),cur=start,have=EMP_FILES.m
   draw();d.showModal()}
 /* a library document opened in place, with every version it ever had (Mohamed 2026-11-25: «الاصدارات السابقه و استعراض الملفات مش متاحه»).
    Same window as the employee files: the list on one side, the sheet on the other. */
-function openDoc(doc,ver){var d=dlg("drawer md fv"),V=[{v:doc.v,up:doc.up,note:doc.note,file:doc.file,size:doc.size,pages:doc.pages}].concat((doc.hist||[]).slice().reverse()),
-    cur=Math.max(0,V.map(function(x){return String(x.v)}).indexOf(String(ver==null?doc.v:ver)));
+function openDoc(doc,ver){var d=dlg("drawer md dv"),V=[{v:doc.v,up:doc.up,note:doc.note,file:doc.file,size:doc.size,pages:doc.pages}].concat((doc.hist||[]).slice().reverse()),
+    cur=Math.max(0,V.map(function(x){return String(x.v)}).indexOf(String(ver==null?doc.v:ver))),pg=1;
+  /* «السهل الممتنع» (Mohamed 2026-11-25): the page is the window. One line says what it is, the version is a small choice
+     beside the download, and nothing else competes with the document. */
   function draw(){var m=V[cur];
-    d.innerHTML='<div class="dr-h"><h2>'+esc(doc.n)+'</h2><button type="button" class="xbtn" data-close aria-label="إغلاق" title="إغلاق">×</button></div><div class="dr-b">'+
-      '<div class="fvl" role="group" aria-label="إصدارات المستند">'+V.map(function(x,i){return '<button type="button" data-fi="'+i+'"'+(i===cur?' aria-current="true"':'')+'><span>الإصدار <span class="n">'+x.v+'</span><small style="display:block;color:var(--m)">'+dmy(x.up)+'</small></span>'+(i?'':'<span class="chip s">الحالي</span>')+'</button>'}).join("")+'</div>'+
-      '<div class="fvp"><div class="sheet">'+(doc.cv?'<img class="shc" src="'+esc(doc.cv)+'" alt="">':'')+'<div><b>'+esc(doc.n)+'</b><br>الإصدار <span class="n">'+m.v+'</span><br>معاينة الصفحة 1 من <span class="n">'+m.pages+'</span></div></div>'+
-        '<p class="m"><bdi dir="ltr">'+esc(m.file)+'</bdi> · '+String(m.size).replace(" MB"," ميغابايت")+' · '+m.pages+' صفحة · '+dmy(m.up)+'</p>'+(m.note?'<p>'+esc(m.note)+'</p>':'')+'</div></div>'+
-      '<div class="dr-f"><span class="m" style="margin-inline-end:auto">'+(cur?'إصدار سابق — يراه الموظفون الإصدار '+doc.v+' فقط':'الإصدار الذي يراه الموظفون الآن')+'</span>'+
-      '<button type="button" class="btn" data-mock="تنزيل «'+esc(m.file)+'»">تنزيل</button><button type="button" class="btn k" data-close>إغلاق</button></div>';
-    d.querySelectorAll("[data-fi]").forEach(function(b){b.onclick=function(){cur=+b.dataset.fi;draw()}})}
+    d.innerHTML='<div class="dr-h"><div class="dvt"><h2>'+esc(doc.n)+'</h2><span class="m">'+(cur?'<span class="chip d">إصدار سابق</span> ':'')+'الإصدار <span class="n">'+m.v+'</span> · '+dmy(m.up)+' · '+m.pages+' صفحة · '+String(m.size).replace(" MB"," ميغابايت")+'</span></div>'+
+      '<div class="dva">'+(V.length>1?'<select class="field" aria-label="الإصدار">'+V.map(function(x,i){return '<option value="'+i+'"'+(i===cur?' selected':'')+'>الإصدار '+x.v+(i?'':' · الحالي')+'</option>'}).join("")+'</select>':'')+
+        '<button type="button" class="btn sm" data-mock="تنزيل «'+esc(m.file)+'»">تنزيل</button><button type="button" class="xbtn" data-close aria-label="إغلاق" title="إغلاق">×</button></div></div>'+
+      '<div class="dr-b"><div class="page">'+(pg===1?(doc.cv?'<img src="'+esc(doc.cv)+'" alt="">':'')+'<b>'+esc(doc.n)+'</b>'+(m.note?'<p>'+esc(m.note)+'</p>':''):'')+
+        '<i></i><i></i><i style="width:86%"></i><i></i><i style="width:93%"></i><i style="width:58%"></i>'+(pg>1?'<i></i><i style="width:90%"></i><i></i><i style="width:72%"></i><i></i><i style="width:95%"></i><i style="width:40%"></i>':'')+'</div>'+
+        '<div class="pgn"><button type="button" class="ib" data-pg="-1"'+(pg<=1?' disabled':'')+' aria-label="الصفحة السابقة">›</button><span>صفحة <span class="n">'+pg+'</span> من <span class="n">'+m.pages+'</span></span><button type="button" class="ib" data-pg="1"'+(pg>=m.pages?' disabled':'')+' aria-label="الصفحة التالية">‹</button></div></div>';
+    var sl=d.querySelector("select");if(sl)sl.onchange=function(){cur=+sl.value;pg=1;draw()};
+    d.querySelectorAll("[data-pg]").forEach(function(b){b.onclick=function(){pg+=+b.dataset.pg;draw()}})}
   draw();d.showModal()}
 function mgrOf(e,dept){var d=D.depts.filter(function(x){return x.name===dept})[0],l=d&&d.lead;return !l?"لا يوجد مدير مباشر لهذا القسم بعد":l===e.name?"هو المدير المباشر للقسم":l}
 function linkForm(arr,kindNew,kindEdit,place){return function(s){s=s||{};return {title:s.n?kindEdit:kindNew,size:"sm",html:
