@@ -202,7 +202,7 @@ function shell(){
   var rd=noteRead(),unread=NOTES.filter(function(n){return !rd[n.id]}).length;
   $("top").className="top";
   $("top").innerHTML='<a class="pill brand" href="index.html" aria-label="السندباد — نظرة عامة"><span class="logo"></span></a>'+
-    '<button class="pill navbtn" type="button" data-navsheet aria-haspopup="dialog">'+ic("list",18)+'<span>'+title+'</span>'+(total?'<b>'+total+'</b>':'')+CHEV+'</button>'+
+    '<button class="pill navbtn" type="button" data-navsheet>'+ic("list",18)+'<span>'+title+'</span>'+(total?'<b>'+total+'</b>':'')+CHEV+'</button>'+
     '<div class="crumb">'+(grp?'<span>'+grp.t+'</span><i>/</i>':'')+'<b>'+title+'</b></div>'+
     '<div class="pop-w gsw"><label class="gs"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="gq" type="search" autocomplete="off" placeholder="ابحث عن موظف أو مستند أو طلب أو خبر" aria-label="بحث في لوحة التحكم"></label><div class="pop gres" id="gres" hidden></div></div>'+
     '<button class="pill tool" id="themeBtn" type="button"></button>'+
@@ -224,25 +224,11 @@ function shell(){
   var cur=sd.querySelector("[aria-current]");if(cur)cur.scrollIntoView({block:"nearest"});
   var old=$("navPick");if(old)old.remove();
   var oldT=$("tilePick");if(oldT)oldT.remove();delete document.body.dataset.tiles;
-  var sh=$("navSheet");if(!sh){sh=document.createElement("dialog");sh.id="navSheet";sh.className="navsheet";document.body.appendChild(sh);
-    sh.addEventListener("click",function(e){if(e.target===sh||e.target.closest("[data-close]"))sh.close()})}
-  sh.innerHTML='<header><b>القائمة</b><button type="button" class="pill tool" data-close aria-label="إغلاق">×</button></header>'+
-    NAV.map(function(g){return g.items?'<h3>'+g.t+'</h3>'+g.items.map(link).join(""):link(g)}).join("");
-  /* small screens: the side list itself is the menu. MOCKUP: three looks, body[data-nav]; remove the losers once Mohamed picks. */
-  var B=document.body,look="1";try{look=localStorage.getItem("sb-nav")||"1"}catch(e){}
-  B.dataset.nav=look;B.classList.remove("navopen");
+  /* small screens: the teal side list itself is the menu, sliding in from the side (look 1 of 3, chosen by Mohamed 2026-11-26) */
+  var B=document.body;B.classList.remove("navopen");
   if(!$("navShade")){var shd=document.createElement("div");shd.id="navShade";shd.className="navshade";shd.onclick=function(){B.classList.remove("navopen")};B.appendChild(shd);
     document.addEventListener("keydown",function(e){if(e.key==="Escape")B.classList.remove("navopen")})}
   var nb=$("top").querySelector("[data-navsheet]");nb.setAttribute("aria-label","القائمة");nb.onclick=function(){B.classList.toggle("navopen")};
-  var bn=$("botNav");if(!bn){bn=document.createElement("nav");bn.id="botNav";bn.className="botnav";bn.setAttribute("aria-label","التنقل السريع");B.appendChild(bn)}
-  bn.innerHTML=[["index.html","الرئيسية","grid"],["employees.html","الموظفون","users"],["requests.html","الطلبات","doc"],["library.html","المكتبة","folder"]].map(function(p){
-    return '<a href="'+p[0]+'"'+(p[0]===here?' aria-current="page"':'')+'>'+ic(p[2],20)+'<span>'+p[1]+'</span>'+(count(p[0])?'<i>'+count(p[0])+'</i>':'')+'</a>'}).join("")+
-    '<button type="button" id="botMore">'+ic("list",20)+'<span>المزيد</span></button>';
-  $("botMore").onclick=function(){B.classList.toggle("navopen")};
-  var lk=$("navLooks");if(!lk){lk=document.createElement("div");lk.id="navLooks";lk.className="navlooks";B.appendChild(lk)}
-  lk.innerHTML='<b>شكل القائمة</b>'+["درج جانبي","شريط أيقونات","شريط سفلي"].map(function(t,i){i++;return '<button type="button" data-navlook="'+i+'" aria-pressed="'+(String(i)===look)+'">'+i+' · '+t+'</button>'}).join("");
-  lk.hidden=window.top!==window;/* inside nav-preview.html the looks are switched from its own bar */
-  lk.onclick=function(e){var k=e.target.closest("[data-navlook]");if(!k)return;try{localStorage.setItem("sb-nav",k.dataset.navlook)}catch(x){}shell()};
   /* search across what the dashboard holds; a result opens the page that lists it */
   $("gq").oninput=function(){
     var q=this.value.trim().toLowerCase(),box=$("gres");if(q.length<2){box.hidden=true;return}

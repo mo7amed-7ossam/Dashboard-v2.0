@@ -188,11 +188,6 @@ tr.det td{background:var(--sub);padding:12px 16px}
 .navl:hover,.navl[aria-current]{background:var(--sub)}
 .navbtn{display:none;border:0;gap:10px;padding:12px 18px;font-weight:500;color:var(--ink)}
 .navbtn span{flex:1;text-align:start}
-dialog.navsheet{margin:auto 0 0;width:100vw;max-width:none;max-height:85dvh;border:0;border-radius:26px 26px 0 0;padding:14px 14px 22px;background:var(--card);color:var(--ink)}
-dialog.navsheet::backdrop{background:rgba(25,25,24,.5)}
-.navsheet header{display:flex;justify-content:space-between;align-items:center;padding:0 6px 6px;font-family:"Alexandria",sans-serif;font-size:var(--t-h3)}
-.navsheet header .tool{background:var(--sub);font-size:var(--t-h2)}
-.navsheet h3{font-size:var(--t-cap);font-weight:500;color:var(--m);padding:12px 14px 2px}
 /* the page tools share the title row, so no empty band sits above the page */
 /* wide screens: one top bar card aligned with the page cards: where you are, search, theme, alerts */
 @media (min-width:1001px){
@@ -385,8 +380,8 @@ p.empty::before{content:"";width:44px;height:44px;border-radius:50%;background:v
 .cvr{flex:none;width:38px;height:46px;border-radius:9px;object-fit:cover;background:var(--sub);display:block}
 .cvr.none{border:1.5px dashed var(--line)}
 
-/* ---- small screens: the teal side list is the menu (three looks on offer, body[data-nav]) ---- */
-.navshade,.botnav,.navlooks{display:none}
+/* ---- small screens: the teal side list is the menu, sliding in from the side (look 1 of 3, chosen by Mohamed 2026-11-26) ---- */
+.navshade{display:none}
 @media (max-width:1000px){
   .side{display:flex;inset-block:0;inset-inline-start:0;width:min(84vw,300px);border-radius:0;transform:translateX(105%);transition:transform .22s ease;z-index:60}
   [dir="ltr"] .side{transform:translateX(-105%)}
@@ -398,34 +393,7 @@ p.empty::before{content:"";width:44px;height:44px;border-radius:50%;background:v
   .navbtn{display:grid;place-items:center;order:-1;width:46px;height:46px;padding:0;flex:none;position:relative}
   .navbtn span,.navbtn svg:nth-of-type(2){display:none}
   .navbtn b{position:absolute;top:6px;inset-inline-end:6px;min-width:17px;line-height:17px;padding:0 4px;font-size:10.5px}
-  .navlooks{display:flex;gap:6px;align-items:center;flex-wrap:wrap;position:fixed;inset-inline:10px;bottom:10px;z-index:50;background:var(--limebg);color:var(--on-lime);border-radius:16px;padding:8px 10px;font-size:var(--t-sm);box-shadow:0 10px 30px rgba(0,0,0,.18)}
-  .navlooks button{border:0;border-radius:99px;padding:5px 12px;font:inherit;font-weight:500;background:var(--card);color:var(--ink);cursor:pointer}
-  .navlooks button[aria-pressed="true"]{background:var(--pri);color:var(--on-pri)}
-  .app{padding-bottom:90px}
 }
 /* phone: the account sits at the foot of the side list, so the top bar keeps to one row */
 @media (max-width:760px){.navbtn{width:42px;height:42px}.top .user{display:none}}
-/* look 2: tablets keep the list on screen as an icon rail; the menu button widens it */
-@media (min-width:761px) and (max-width:1000px){
-  body[data-nav="2"] .side{transform:none;inset-block:14px;inset-inline-start:14px;border-radius:22px;width:66px;transition:width .2s ease}
-  body[data-nav="2"] .side ~ .app{padding-inline-start:96px}
-  body[data-nav="2"]:not(.navopen) .side nav a span,body[data-nav="2"]:not(.navopen) .side h3,body[data-nav="2"]:not(.navopen) .sbrand,body[data-nav="2"]:not(.navopen) .sportal span,body[data-nav="2"]:not(.navopen) .sme div,body[data-nav="2"]:not(.navopen) .sme button{display:none}
-  body[data-nav="2"]:not(.navopen) .side nav{padding:12px 8px;align-items:center;gap:4px}
-  body[data-nav="2"]:not(.navopen) .side nav a{justify-content:center;padding:10px;position:relative;width:44px}
-  body[data-nav="2"]:not(.navopen) .side nav a i{position:absolute;top:2px;inset-inline-end:2px}
-  body[data-nav="2"]:not(.navopen) .sportal,body[data-nav="2"]:not(.navopen) .sme{justify-content:center;padding-inline:0}
-  body[data-nav="2"].navopen .side{width:248px}
-}
-/* look 3: phones get a bottom bar with the four main pages; «المزيد» opens the full list */
-@media (max-width:760px){
-  body[data-nav="3"] .navbtn{display:none}
-  body[data-nav="3"] .botnav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;inset-inline:0;bottom:0;z-index:50;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
-  .botnav a,.botnav button{position:relative;display:grid;justify-items:center;gap:2px;border:0;background:none;color:var(--m);font:inherit;font-size:var(--t-cap);text-decoration:none;padding:6px 2px;border-radius:12px;cursor:pointer}
-  .botnav a[aria-current]{color:var(--teal);font-weight:600;background:var(--soft)}
-  .botnav i{position:absolute;top:2px;inset-inline-end:22%;font-style:normal;background:var(--lime);color:#383837;border-radius:99px;min-width:16px;line-height:16px;font-size:10.5px;font-weight:600;padding:0 4px}
-  body[data-nav="3"] .navlooks{bottom:74px}
-  body[data-nav="3"] .app{padding-bottom:150px}
-  body[data-nav="3"] .toast{bottom:84px}
-}
 @media (prefers-reduced-motion:reduce){.side,.navshade{transition:none}}
-.navlooks[hidden]{display:none!important}
