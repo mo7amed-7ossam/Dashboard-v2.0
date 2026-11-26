@@ -428,3 +428,4 @@ p.empty::before{content:"";width:44px;height:44px;border-radius:50%;background:v
   body[data-nav="3"] .toast{bottom:84px}
 }
 @media (prefers-reduced-motion:reduce){.side,.navshade{transition:none}}
+.navlooks[hidden]{display:none!important}

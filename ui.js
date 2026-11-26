@@ -241,6 +241,7 @@ function shell(){
   $("botMore").onclick=function(){B.classList.toggle("navopen")};
   var lk=$("navLooks");if(!lk){lk=document.createElement("div");lk.id="navLooks";lk.className="navlooks";B.appendChild(lk)}
   lk.innerHTML='<b>شكل القائمة</b>'+["درج جانبي","شريط أيقونات","شريط سفلي"].map(function(t,i){i++;return '<button type="button" data-navlook="'+i+'" aria-pressed="'+(String(i)===look)+'">'+i+' · '+t+'</button>'}).join("");
+  lk.hidden=window.top!==window;/* inside nav-preview.html the looks are switched from its own bar */
   lk.onclick=function(e){var k=e.target.closest("[data-navlook]");if(!k)return;try{localStorage.setItem("sb-nav",k.dataset.navlook)}catch(x){}shell()};
   /* search across what the dashboard holds; a result opens the page that lists it */
   $("gq").oninput=function(){

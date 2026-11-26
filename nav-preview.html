@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ar-om" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>معاينة القائمة على الشاشات الصغيرة</title>
+<style>
+/* MOCKUP TOOL (2026-11-26): lets Mohamed switch the three small-screen navigation looks on a wide monitor, where the
+   in-page picker never shows. Delete this file once he picks a look. */
+body{margin:0;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;background:#EDF4B8;color:#383837;height:100vh;display:flex;flex-direction:column}
+header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 18px}
+header b{font-size:16px}
+button{border:0;border-radius:99px;padding:9px 20px;font:inherit;font-size:15px;font-weight:600;background:#fff;color:#383837;cursor:pointer}
+button[aria-pressed="true"]{background:#383837;color:#fff}
+header span{margin-inline-start:auto;font-size:13px}
+main{flex:1;min-height:0;display:flex;gap:18px;justify-content:center;padding:0 18px 18px;background:#6F7676}
+figure{margin:0;display:flex;flex-direction:column;gap:6px;padding-top:10px;min-height:0}
+figcaption{color:#fff;font-size:14px;text-align:center}
+iframe{flex:1;border:0;border-radius:14px;background:#fff}
+</style>
+</head>
+<body>
+<header><b>شكل القائمة على الشاشات الصغيرة:</b>
+  <button data-look="1">1 · درج جانبي</button><button data-look="2">2 · شريط أيقونات</button><button data-look="3">3 · شريط سفلي</button>
+  <span>اضغط زر القائمة داخل كل شاشة لتجربتها</span></header>
+<main>
+  <figure><figcaption>موبايل (375)</figcaption><iframe id="ph" style="width:375px" title="موبايل"></iframe></figure>
+  <figure><figcaption>تابلت (820)</figcaption><iframe id="tb" style="width:820px" title="تابلت"></iframe></figure>
+</main>
+<script>
+function set(n){try{localStorage.setItem("sb-nav",n)}catch(e){}
+  document.querySelectorAll("[data-look]").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.look===String(n))});
+  ["ph","tb"].forEach(function(id){document.getElementById(id).src="employees.html?p="+Date.now()})}
+document.addEventListener("click",function(e){var b=e.target.closest("[data-look]");if(b)set(b.dataset.look)});
+var cur="1";try{cur=localStorage.getItem("sb-nav")||"1"}catch(e){}set(cur);
+</script>
+</body>
+</html>
