@@ -228,7 +228,20 @@ function shell(){
     sh.addEventListener("click",function(e){if(e.target===sh||e.target.closest("[data-close]"))sh.close()})}
   sh.innerHTML='<header><b>القائمة</b><button type="button" class="pill tool" data-close aria-label="إغلاق">×</button></header>'+
     NAV.map(function(g){return g.items?'<h3>'+g.t+'</h3>'+g.items.map(link).join(""):link(g)}).join("");
-  $("top").querySelector("[data-navsheet]").onclick=function(){sh.showModal()};
+  /* small screens: the side list itself is the menu. MOCKUP: three looks, body[data-nav]; remove the losers once Mohamed picks. */
+  var B=document.body,look="1";try{look=localStorage.getItem("sb-nav")||"1"}catch(e){}
+  B.dataset.nav=look;B.classList.remove("navopen");
+  if(!$("navShade")){var shd=document.createElement("div");shd.id="navShade";shd.className="navshade";shd.onclick=function(){B.classList.remove("navopen")};B.appendChild(shd);
+    document.addEventListener("keydown",function(e){if(e.key==="Escape")B.classList.remove("navopen")})}
+  var nb=$("top").querySelector("[data-navsheet]");nb.setAttribute("aria-label","القائمة");nb.onclick=function(){B.classList.toggle("navopen")};
+  var bn=$("botNav");if(!bn){bn=document.createElement("nav");bn.id="botNav";bn.className="botnav";bn.setAttribute("aria-label","التنقل السريع");B.appendChild(bn)}
+  bn.innerHTML=[["index.html","الرئيسية","grid"],["employees.html","الموظفون","users"],["requests.html","الطلبات","doc"],["library.html","المكتبة","folder"]].map(function(p){
+    return '<a href="'+p[0]+'"'+(p[0]===here?' aria-current="page"':'')+'>'+ic(p[2],20)+'<span>'+p[1]+'</span>'+(count(p[0])?'<i>'+count(p[0])+'</i>':'')+'</a>'}).join("")+
+    '<button type="button" id="botMore">'+ic("list",20)+'<span>المزيد</span></button>';
+  $("botMore").onclick=function(){B.classList.toggle("navopen")};
+  var lk=$("navLooks");if(!lk){lk=document.createElement("div");lk.id="navLooks";lk.className="navlooks";B.appendChild(lk)}
+  lk.innerHTML='<b>شكل القائمة</b>'+["درج جانبي","شريط أيقونات","شريط سفلي"].map(function(t,i){i++;return '<button type="button" data-navlook="'+i+'" aria-pressed="'+(String(i)===look)+'">'+i+' · '+t+'</button>'}).join("");
+  lk.onclick=function(e){var k=e.target.closest("[data-navlook]");if(!k)return;try{localStorage.setItem("sb-nav",k.dataset.navlook)}catch(x){}shell()};
   /* search across what the dashboard holds; a result opens the page that lists it */
   $("gq").oninput=function(){
     var q=this.value.trim().toLowerCase(),box=$("gres");if(q.length<2){box.hidden=true;return}
